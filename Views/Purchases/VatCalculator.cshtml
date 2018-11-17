@@ -1,0 +1,270 @@
+﻿@model Core.ViewModel.VatCalculatorViewModel;
+@{
+    ViewData["Title"] = "VAT Calculator";
+}
+
+<style>
+    #purchasesVatTbl input{
+        width: 80px;
+        text-align: right;
+        margin: 0;
+        height: 1.3rem;
+    }
+</style>
+
+
+<div class="row" style="margin-bottom:0px; margin-top: 20px">
+    <div class="col-md-3">
+        &nbsp;
+    </div>
+
+    <div class="col-md-9">
+        <div class="card zero-margin">
+            <div class="card-content cyan white-text table-card" style="border-radius:0">
+                <h5 class="card-stats-number"><i class="material-icons left">local_gas_station</i>Selling Prices</h5>
+            </div>
+
+            <table id="purchasesVatTbl" class="custom">
+                <thead class="cyan">
+                    <tr>
+                        <th>&nbsp;</th>
+                        <th>COST ITEM</th>
+                        <th>DESCRIPTION</th>
+                        <th>SUPER</th>
+                        <th>DIESEL</th>
+                        <th>V-POWER</th>
+                        <th>KEROSENE</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @using (Html.BeginForm("Login", "Account", FormMethod.Post))
+                    {
+                        <tr>
+                            <td><b>A.</b></td>
+                            <td><b>LANDING COST</b></td>
+                            <td>&mdash;</td>
+                            <td>@Html.TextBoxFor(model => model.Super.LandingCost, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Diesel.LandingCost, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Vpower.LandingCost, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Kerosene.LandingCost, new { type = "number", min = "0", step = "0.01" })</td>
+                        </tr>
+
+                        <tr>
+                            <td></td>
+                            <td>Pipeline Transport</td>
+                            <td>Pipeline (80% PMS,AGO) 100% DPK</td>
+                            <td>@Html.TextBoxFor(model => model.Super.Pipeline, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Diesel.Pipeline, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Vpower.Pipeline, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Kerosene.Pipeline, new { type = "number", min = "0", step = "0.01" })</td>
+                        </tr>
+
+                        <tr>
+                            <td></td>
+                            <td>Road Transport</td>
+                            <td>Road (20% PMS,AGO)</td>
+                            <td>@Html.TextBoxFor(model => model.Super.Roads, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Diesel.Roads, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Vpower.Roads, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Kerosene.Roads, new { type = "number", min = "0", step = "0.01" })</td>
+                        </tr>
+
+                        <tr>
+                            <td></td>
+                            <td>Pipeline Losses</td>
+                            <td>Pipeline</td>
+                            <td>@Html.TextBoxFor(model => model.Super.PipesLoss, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Diesel.PipesLoss, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Vpower.PipesLoss, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Kerosene.PipesLoss, new { type = "number", min = "0", step = "0.01" })</td>
+                        </tr>
+
+                        <tr>
+                            <td></td>
+                            <td>Depot Losses</td>
+                            <td>0.5% PMS, 0.3% AGO/DPK</td>
+                            <td>@Html.TextBoxFor(model => model.Super.DepotLoss, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Diesel.DepotLoss, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Vpower.DepotLoss, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Kerosene.DepotLoss, new { type = "number", min = "0", step = "0.01" })</td>
+                        </tr>
+
+                        <tr>
+                            <td></td>
+                            <td>Delivery(40kms NBO)</td>
+                            <td>Delivery to Petrol Stations</td>
+                            <td>@Html.TextBoxFor(model => model.Super.Delivery, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Diesel.Delivery, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Vpower.Delivery, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Kerosene.Delivery, new { type = "number", min = "0", step = "0.01" })</td>
+                        </tr>
+
+                        <tr>
+                            <td><b>B.</b></td>
+                            <td><b>STORAGE &amp; DISTRIB</b></td>
+                            <td>&mdash;</td>
+                            <td>@Html.TextBoxFor(model => model.Super.StorageDist, new {@disabled="", type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Diesel.StorageDist, new {@disabled="", type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Vpower.StorageDist, new {@disabled="", type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Kerosene.StorageDist, new {@disabled="", type = "number", min = "0", step = "0.01" })</td>
+                        </tr>
+
+                        <tr>
+                            <td></td>
+                            <td>Importers Margins</td>
+                            <td>Wholesalers</td>
+                            <td>@Html.TextBoxFor(model => model.Super.MarginImport, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Diesel.MarginImport, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Vpower.MarginImport, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Kerosene.MarginImport, new { type = "number", min = "0", step = "0.01" })</td>
+                        </tr>
+
+                        <tr>
+                            <td></td>
+                            <td>Dealers Margins</td>
+                            <td>Retailers</td>
+                            <td>@Html.TextBoxFor(model => model.Super.MarginDealer, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Diesel.MarginDealer, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Vpower.MarginDealer, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Kerosene.MarginDealer, new { type = "number", min = "0", step = "0.01" })</td>
+                        </tr>
+
+                        <tr>
+                            <td><b>C.</b></td>
+                            <td><b>OIL MKT MARGINS</b></td>
+                            <td>&mdash;</td>
+                            <td>@Html.TextBoxFor(model => model.Super.MarginSummary, new {@disabled="", type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Diesel.MarginSummary, new {@disabled="", type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Vpower.MarginSummary, new {@disabled="", type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Kerosene.MarginSummary, new {@disabled="", type = "number", min = "0", step = "0.01" })</td>
+                        </tr>
+
+                        <tr>
+                            <td></td>
+                            <td>Excise Duty</td>
+                            <td>Tax</td>
+                            <td>@Html.TextBoxFor(model => model.Super.ExciseDuty, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Diesel.ExciseDuty, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Vpower.ExciseDuty, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Kerosene.ExciseDuty, new { type = "number", min = "0", step = "0.01" })</td>
+                        </tr>
+
+                        <tr>
+                            <td></td>
+                            <td>Merchant Levy</td>
+                            <td>Levy</td>
+                            <td>@Html.TextBoxFor(model => model.Super.MerchantLevy, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Diesel.MerchantLevy, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Vpower.MerchantLevy, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Kerosene.MerchantLevy, new { type = "number", min = "0", step = "0.01" })</td>
+                        </tr>
+
+                        <tr>
+                            <td></td>
+                            <td>Declaration Fee</td>
+                            <td>Tax</td>
+                            <td>@Html.TextBoxFor(model => model.Super.DeclarationFee, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Diesel.DeclarationFee, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Vpower.DeclarationFee, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Kerosene.DeclarationFee, new { type = "number", min = "0", step = "0.01" })</td>
+                        </tr>
+
+                        <tr>
+                            <td></td>
+                            <td>Road Maintenance</td>
+                            <td>Levy</td>
+                            <td>@Html.TextBoxFor(model => model.Super.RoadsMaintance, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Diesel.RoadsMaintance, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Vpower.RoadsMaintance, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Kerosene.RoadsMaintance, new { type = "number", min = "0", step = "0.01" })</td>
+                        </tr>
+
+                       <!--Here-->
+
+                        <tr>
+                            <td></td>
+                            <td>Petroleum Devt. Levy</td>
+                            <td>Levy</td>
+                            <td>@Html.TextBoxFor(model => model.Super.DevtPetroleum, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Diesel.DevtPetroleum, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Vpower.DevtPetroleum, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Kerosene.DevtPetroleum, new { type = "number", min = "0", step = "0.01" })</td>
+                        </tr>
+
+                        <tr>
+                            <td></td>
+                            <td>Petroleum Reg. Levy</td>
+                            <td>Levy</td>
+                            <td>@Html.TextBoxFor(model => model.Super.ReguPetroleum, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Diesel.ReguPetroleum, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Vpower.ReguPetroleum, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Kerosene.ReguPetroleum, new { type = "number", min = "0", step = "0.01" })</td>
+                        </tr>
+
+                        <tr>
+                            <td></td>
+                            <td>Railway Devt. Levy</td>
+                            <td>Levy</td>
+                            <td>@Html.TextBoxFor(model => model.Super.DevtRailway, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Diesel.DevtRailway, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Vpower.DevtRailway, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Kerosene.DevtRailway, new { type = "number", min = "0", step = "0.01" })</td>
+                        </tr>
+
+                        <tr>
+                            <td></td>
+                            <td>Value Added Tax</td>
+                            <td>Tax</td>
+                            <td>@Html.TextBoxFor(model => model.Super.ValueAddedTax, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Diesel.ValueAddedTax, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Vpower.ValueAddedTax, new { type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Kerosene.ValueAddedTax, new { type = "number", min = "0", step = "0.01" })</td>
+                        </tr>
+
+                        <tr>
+                            <td><b>D.</b></td>
+                            <td><b>TAXES AND LEVIES</b></td>
+                            <td>&mdash;</td>
+                            <td>@Html.TextBoxFor(model => model.Super.TaxesAndLevies, new {@disabled="", type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Diesel.TaxesAndLevies, new {@disabled="", type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Vpower.TaxesAndLevies, new {@disabled="", type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Kerosene.TaxesAndLevies, new {@disabled="", type = "number", min = "0", step = "0.01" })</td>
+                        </tr>
+
+                        <tr>
+                            <td><b>E.</b></td>
+                            <td><b>RETAIL PRICES</b></td>
+                            <td>Retail Prices NBO region</td>
+                            <td>@Html.TextBoxFor(model => model.Super.RetailPrice, new {@disabled="", type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Diesel.RetailPrice, new {@disabled="", type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Vpower.RetailPrice, new {@disabled="", type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Kerosene.RetailPrice, new {@disabled="", type = "number", min = "0", step = "0.01" })</td>
+                        </tr>
+
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td>Taxable Amount</td>
+                            <td>&mdash;</td>
+                            <td>@Html.TextBoxFor(model => model.Super.TaxableAmts, new { @disabled = "", type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Diesel.TaxableAmts, new { @disabled = "", type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Vpower.TaxableAmts, new { @disabled = "", type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Kerosene.TaxableAmts, new { @disabled = "", type = "number", min = "0", step = "0.01" })</td>
+                        </tr>
+
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td>Exempted Amount</td>
+                            <td>&mdash;</td>
+                            <td>@Html.TextBoxFor(model => model.Super.TaxExempts, new { @disabled = "", type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Diesel.TaxExempts, new { @disabled = "", type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Vpower.TaxExempts, new { @disabled = "", type = "number", min = "0", step = "0.01" })</td>
+                            <td>@Html.TextBoxFor(model => model.Kerosene.TaxExempts, new { @disabled = "", type = "number", min = "0", step = "0.01" })</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>

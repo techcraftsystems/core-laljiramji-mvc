@@ -1,0 +1,1069 @@
+﻿@model Core.ViewModel.StationsListViewModel;
+
+@{
+    ViewData["Title"] = Model.Selected.Name;
+
+    var date = Model.Selected.Push.Date;
+
+    double ltrs = 0.0;
+    double rtns = 0.0;
+    double amts = 0.0;
+
+    double fuel = 0.0;
+    double lube = 0.0;
+    double disc = 0.0;
+
+    foreach (var ldg in Model.Ledgers)
+    {
+        fuel += ldg.FuelSales;
+        lube += ldg.LubeSales;
+        disc += ldg.Discounts;
+
+    }
+}
+
+<link rel="stylesheet" href="~/lib/data-tables/css/jquery.dataTables.min.css" />
+<link rel="stylesheet" href="~/css/vendor.fullcalendar.css" />
+<link rel="stylesheet" href="~/css/vendor.fullcalendar.css" />
+
+<style>
+    #summaryTbl th:first-child {
+        padding-left: 10px;
+    }
+    #summaryTbl td:nth-child(2),
+    #summaryTbl td:nth-child(3) {
+        text-align: right;
+        padding-right: 20px; 
+    }
+    .fc-button-group button {
+        height: 25px;
+    }
+    .dataTables_filter, 
+    .dataTables_length {
+        display: none;
+    }
+    table td a{
+        color: #333;
+    }
+    table td a:hover {
+        color: #448AFF;
+    }
+    table.dataTable td:last-child{
+        text-align: right;
+    }
+    #reconcile-table td,
+    #reconcile-table th {
+        text-align: right;
+    }
+    #ledger-table td:first-child,
+    #ledger-table th:first-child,
+    #reconcile-table td:first-child,
+    #reconcile-table th:first-child {
+        text-align: left;
+        padding-left: 10px;
+    }
+    #purchase-table td,
+    #reconcile-table td,
+    #ledger-table td {
+        padding: 5px;
+    }
+    #ledger-table td:nth-child(8), 
+    #ledger-table th:nth-child(8) {
+        text-align: right;
+    }
+    nav .input-field label {
+        top: -20px;
+        left: auto;
+    }
+    .select-wrapper input.select-dropdown {
+        margin: 0px;
+        padding-left: 10px;
+    }
+    nav .input-field input:focus, nav .input-field input[type=text]:valid, nav .input-field input[type=password]:valid, nav .input-field input[type=email]:valid, nav .input-field input[type=url]:valid, nav .input-field input[type=date]:valid {
+        border-bottom: 1px solid #9e9e9e;
+    }
+    td i.material-icons{
+        height: 0px;
+        line-height: 0px;
+    }
+    #purchase-summary th, 
+    #purchase-summary td {
+        text-align: center;
+    }
+    #purchase-summary th:first-child,
+    #purchase-summary td:first-child {
+        text-align: left;
+    }
+</style>
+
+<script src="~/lib/data-tables/js/jquery.dataTables.min.js"></script>
+<script src="~/js/vendor.sparkline.min.js"></script>
+
+<script>
+    var xDate = new Date('@Model.Selected.Push.Date');
+
+    jq(function() {
+        jq('.tabs').tabs();
+        jq('#customer-table').DataTable({
+            "displayLength": 25,
+        });
+
+        jq(".collection").on("click", ".email-unread", function() {
+            var action = jq(this).data('station');
+            if (action != '@Model.Selected.Code.ToLower()'){
+                window.location.href = action;
+            }
+        });
+
+        jq('ul .recon').click(function(){
+            if(jq("#reconcile-table").data('loaded') == 0){
+                GetStationsReconciles();
+                jq("#reconcile-table").data('loaded', 1);
+            }
+        });
+
+        jq('.get-reconcile a').click(function(){
+            GetStationsReconciles();
+        });
+
+        jq('ul .ledgr').click(function(){
+            if(jq("#ledger-table").data('loaded') == 0){
+                GetLedgerEntries();
+                jq("#ledger-table").data('loaded', 1);
+            }
+        });
+
+        jq('.get-ledger a').click(function(){
+            GetLedgerEntries();
+        });
+
+        jq('ul .expns').click(function(){
+            if(jq("#expense-table").data('loaded') == 0){
+                GetExpenditure();
+                jq("#expense-table").data('loaded', 1);
+            }
+        });
+
+        jq('.get-expense a').click(function(){
+            GetExpenditure();
+        });
+
+        jq('ul .purch').click(function(){
+            if(jq("#purchase-table").data('loaded') == 0){
+                GetPurchasesLedger();
+                jq("#purchase-table").data('loaded', 1);
+            }
+        });
+
+        jq('.get-purchases a').click(function(){
+            GetPurchasesLedger();
+        });
+
+        jq("#clients-bar").sparkline([70, 80, 65, 78, 58, 80, 78, 80, 70, 50, 75, 65, 80, 70, 65, 90, 65, 80, 70, 65, 90, 70, 80, 65, 78, 58, 80, 78, 80, 70, 50, 75, 65, 80, 70, 65, 90, 65, 80, 70, 65, 90, 70, 80, 65, 78, 58, 80, 78, 80, 70, 50, 75, 65, 80, 70, 65, 90, 65, 80, 70, 65, 90, 70, 80, 65, 78, 58, 80, 78, 80, 70, 50, 75, 65], {
+            type: 'bar',
+            height: '25',
+            barWidth: 7,
+            barSpacing: 4,
+            barColor: '#b2ebf2',
+            negBarColor: '#81d4fa',
+            zeroColor: '#81d4fa',
+        });
+
+        String.prototype.toAccounting = function() {
+            var str =  parseFloat(this).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+
+            if (str.charAt(0) == '-'){
+                return '(' + str.substring(1,40) + ')';
+            }
+            else {
+                return str;
+            }
+
+        };
+
+        function GetStationsReconciles(){
+            jq.ajax({
+                dataType: "json",
+                url: '/Stations/GetStationsReconciles',
+                data: {
+                    "stid": @Model.Selected.Id,
+                    "year": jq('#reconcile-year :selected').val(),
+                    "mnth": jq('#reconcile-mnth :selected').val()
+                },
+                beforeSend: function() {
+                    jq('body').removeClass('loaded');
+                },
+                success: function(results) {
+                    var cumm = 0.0;
+                    var amts = 0.0;
+                    var paid = 0.0;
+                    var uprn = 0.0;
+                    var debt = 0.0;
+                    var disc = 0.0;
+
+                    jq('#reconcile-table tbody').empty();
+                    jq('#reconcile-table tfoot').empty();
+
+                    jq.each(results, function(i, recon) {
+                        cumm += recon.balance;
+                        amts += recon.amount;
+                        paid += recon.payment;
+                        uprn += recon.uprna;
+                        debt += recon.debt;
+                        disc += recon.discount;
+
+                        var row = "<tr>";
+                        row += "<td>" + recon.date + "</td>";
+                        row += "<td>" + recon.amount.toString().toAccounting() + "</td>";
+                        row += "<td>" + recon.payment.toString().toAccounting() + "</td>";
+                        row += "<td>" + recon.uprna.toString().toAccounting() + "</td>";
+                        row += "<td>" + recon.debt.toString().toAccounting() + "</td>";
+                        row += "<td>" + recon.discount.toString().toAccounting() + "</td>";
+                        row += "<td class='red-text bold-text'>" + recon.balance.toString().toAccounting() + "</td>";
+                        row += "<td class='blue-text bold-text'>" + cumm.toString().toAccounting() + "</td>";
+                        row += "</tr>";
+
+                        jq('#reconcile-table tbody').append(row);
+                    })
+
+                    var footr = "<tr>";
+                    footr += "<td></td>";
+                    footr += "<td class='bold-text'>" + amts.toString().toAccounting() + "</td>";
+                    footr += "<td class='bold-text'>" + paid.toString().toAccounting() + "</td>";
+                    footr += "<td class='bold-text'>" + uprn.toString().toAccounting() + "</td>";
+                    footr += "<td class='bold-text'>" + debt.toString().toAccounting() + "</td>";
+                    footr += "<td class='bold-text'>" + disc.toString().toAccounting() + "</td>";
+                    footr += "<td class='red-text bold-text'>" + cumm.toString().toAccounting() + "</td>";
+                    footr += "<td class='blue-text bold-text'>" + cumm.toString().toAccounting() + "</td>";
+                    footr += "</tr>";
+
+                    jq('#reconcile-table tfoot').append(footr);
+
+                },
+                error: function(xhr, ajaxOptions, thrownError) {
+                    console.log(xhr.status);
+                    console.log(thrownError);
+                },
+                complete: function() {
+                    $('body').addClass('loaded');
+                }
+            });
+        }
+
+        function GetLedgerEntries(){
+            jq.ajax({
+                dataType: "json",
+                url: '/Stations/GetLedgerEntries',
+                data: {
+                    "stid":     @Model.Selected.Id,
+                    "start":    jq('#ledgerStartDate').val(),
+                    "stop":     jq('#ledgerStopsDate').val(),
+                    "filter":   jq('#ledgerFilter').val()
+                },
+                beforeSend: function() {
+                    jq('body').removeClass('loaded');
+                },
+                success: function(results) {
+                    jq('#ledger-table tbody').empty();
+                    jq('#ledger-table tfoot').empty();
+
+                    var cumm = 0.0;
+
+                    jq.each(results, function(i, entry) {
+                        cumm += entry.amount;
+
+                        var name = entry.name;
+                        if (entry.action == 0) {
+                            name = "<a href='/customers/@Model.Selected.Code.ToLower()/" + entry.account + "'>" + entry.name + "</a>";
+                        }
+
+                        var row = "<tr data-idnt='" + entry.id + "' data-action='" + entry.action + "' data-account='" + entry.account + "'>";
+                        row += "<td>" + entry.date + "</td>";
+                        row += "<td>" + entry.quantity.toString().toAccounting() + "</td>";
+                        row += "<td>" + entry.description + "</td>";
+                        row += "<td>" + entry.lpo + "</td>";
+                        row += "<td>" + entry.invoice + "</td>";
+                        row += "<td>" + name + "</td>";
+                        row += "<td class='right'>" + entry.price.toString().toAccounting() + "</td>";
+                        row += "<td class='bold-text'>" + entry.amount.toString().toAccounting() + "</td>";
+                        row += "<td><i class='material-icons blue-text left'>code</i><i class='material-icons red-text right'>delete_forever</i></td>";
+                        row += "</tr>";
+
+                        jq('#ledger-table tbody').append(row);
+                    })
+
+                    var footr = "<tr>";
+                    footr += "<td class='bold-text' colspan='7'>&nbsp;SUMMARY</td>";
+                    footr += "<td class='bold-text right'>" + cumm.toString().toAccounting() + "</td>";
+                    footr += "<td>&nbsp;</td>";
+                    footr += "</tr>";
+
+                    jq('#ledger-table tfoot').append(footr);
+                },
+                error: function(xhr, ajaxOptions, thrownError) {
+                    console.log(xhr.status);
+                    console.log(thrownError);
+                },
+                complete: function() {
+                    $('body').addClass('loaded');
+                }
+            });
+        }
+
+        function GetExpenditure(){
+            jq.ajax({
+                dataType: "json",
+                url: '/Stations/GetExpenditure',
+                data: {
+                    "stid":     @Model.Selected.Id,
+                    "start":    jq('#expenseStartDate').val(),
+                    "stop":     jq('#expenseStopsDate').val(),
+                    "filter":   jq('#expenseFilter').val()
+                },
+                beforeSend: function() {
+                    jq('body').removeClass('loaded');
+                },
+                success: function(results) {
+                    jq('#expense-table tbody').empty();
+                    jq('#expense-table tfoot').empty();
+
+                    var cumm = 0.0;
+
+                    jq.each(results, function(i, expense) {
+                        cumm += expense.amount;
+
+                        var row = "<tr data-idnt='" + expense.id + "' data-account='" + expense.account.id + "'>";
+                        row += "<td>" + expense.date + "</td>";
+                        row += "<td>" + expense.location + "</td>";
+                        row += "<td>" + expense.account.name + "</td>";
+                        row += "<td>" + expense.description + "</td>";
+                        row += "<td class='bold-text'>" + expense.amount.toString().toAccounting() + "</td>";
+                        row += "<td><i class='material-icons blue-text left'>code</i><i class='material-icons red-text right'>delete_forever</i></td>";
+                        row += "</tr>";
+
+                        jq('#expense-table tbody').append(row);
+                    })
+
+                    var footr = "<tr>";
+                    footr += "<td class='bold-text' colspan='4'>&nbsp;EXPENDITURE SUMMARY</td>";
+                    footr += "<td class='bold-text right'>" + cumm.toString().toAccounting() + "</td>";
+                    footr += "<td>&nbsp;</td>";
+                    footr += "</tr>";
+
+                    jq('#expense-table tfoot').append(footr);
+                },
+                error: function(xhr, ajaxOptions, thrownError) {
+                    console.log(xhr.status);
+                    console.log(thrownError);
+                },
+                complete: function() {
+                    $('body').addClass('loaded');
+                }
+            });
+        }
+
+        function GetPurchasesLedger(){
+            jq.ajax({
+                dataType: "json",
+                url: '/Stations/GetPurchasesLedger',
+                data: {
+                    "stid":     @Model.Selected.Id,
+                    "start":    jq('#purchaseStartDate').val(),
+                    "stop":     jq('#purchaseStopsDate').val(),
+                    "filter":   jq('#purchaseFilter').val()
+                },
+                beforeSend: function() {
+                    jq('body').removeClass('loaded');
+                },
+                success: function(results) {
+                    jq('#purchase-table tbody').empty();
+                    jq('#purchase-table tfoot').empty();
+
+                    var ltrs = 0.0;
+                    var delv = 0.0;
+                    var purc = 0.0;
+                    var cumm = 0.0;
+    
+                    var array_delv = [0.0, 0.0, 0.0, 0.0, 0.0];
+                    var array_purc = [0.0, 0.0, 0.0, 0.0, 0.0];
+
+                    jq.each(results, function(i, ledger) {
+                        ltrs += ledger.quantity;
+                        delv += ledger.delivery;
+                        purc += ledger.purchase;
+                        cumm += ledger.total;
+    
+                        if (ledger.type == 'DELV') {
+                            array_delv[ledger.fuel.id] += ledger.delivery;
+                        }
+                        else {
+                            array_purc[ledger.fuel.id] += ledger.purchase;
+                        }
+
+                        var supp = '';
+
+                        if (ledger.supplier.id != 0) {
+                            supp = "<a href='/core/suppliers/" + ledger.supplier.id + "'>" + ledger.supplier.name + "</a>";
+                        }
+                        else {
+                            supp = ledger.supplier.name;
+                        }
+
+                        var row = "<tr data-idnt='" + ledger.id + "'>";
+                        row += "<td>" + ledger.date + "</td>";
+                        row += "<td>" + ledger.type + "</td>";
+                        row += "<td><a href='/core/fuel/" + ledger.fuel.id + "'>" + ledger.fuel.name + "</td>";
+                        row += "<td>" + supp + "</td>";
+                        row += "<td>" + ledger.invoice + "</td>";
+                        row += "<td>" + ledger.delivery.toString().toAccounting() + "</td>";
+                        row += "<td>" + ledger.purchase.toString().toAccounting() + "</td>";
+                        row += "<td>" + ledger.price.toString().toAccounting() + "</td>";
+                        row += "<td class='bold-text right'>" + ledger.total.toString().toAccounting() + "</td>";
+                        row += "</tr>";
+
+                        jq('#purchase-table tbody').append(row);
+                    })
+
+                    var footr = "<tr>";
+                    footr += "<td class='bold-text' colspan='5'>&nbsp;PURCHASES SUMMARY</td>";
+                    footr += "<td class='bold-text'>" + delv.toString().toAccounting() + "</td>";
+                    footr += "<td class='bold-text'>" + purc.toString().toAccounting() + "</td>";
+                    footr += "<td>&nbsp;</td>";
+                    footr += "<td class='bold-text right'>" + cumm.toString().toAccounting() + "</td>";
+                    footr += "</tr>";
+
+                    jq('#purchase-table tfoot').append(footr);
+
+                    jq('#d1').text(array_purc[1].toString().toAccounting());
+                    jq('#s1').text(array_purc[2].toString().toAccounting());
+                    jq('#v1').text(array_purc[3].toString().toAccounting());
+                    jq('#k1').text(array_purc[4].toString().toAccounting());
+                    jq('#t1').text(purc.toString().toAccounting());
+    
+                    jq('#d2').text(array_delv[1].toString().toAccounting());
+                    jq('#s2').text(array_delv[2].toString().toAccounting());
+                    jq('#v2').text(array_delv[3].toString().toAccounting());
+                    jq('#k2').text(array_delv[4].toString().toAccounting());
+                    jq('#t2').text(delv.toString().toAccounting());
+
+                    jq('#d3').text((array_delv[1]-array_purc[1]).toString().toAccounting());
+                    jq('#s3').text((array_delv[2]-array_purc[2]).toString().toAccounting());
+                    jq('#v3').text((array_delv[3]-array_purc[3]).toString().toAccounting());
+                    jq('#k3').text((array_delv[4]-array_purc[4]).toString().toAccounting());
+                    jq('#t3').text((delv-purc).toString().toAccounting());
+
+                    console.log(array_delv);
+                },
+                error: function(xhr, ajaxOptions, thrownError) {
+                    console.log(xhr.status);
+                    console.log(thrownError);
+                },
+                complete: function() {
+                    $('body').addClass('loaded');
+                }
+            });
+        }
+    });
+</script>
+
+<div class="row" style="margin-bottom:0px;">
+    <div id="email-list" class="col s10 m3 l3 card-panel z-depth-1" style="margin-bottom:0px;">
+        <ul class="collection">
+            @foreach (var st in Model.Stations)
+            {
+                var dateClass = st.Code == Model.Selected.Code ? "grey-text" : "blue-text";
+                var iconClass = st.Code == Model.Selected.Code ? "attach_file" : "";
+                var pushDates = st.Push.Date == DateTime.Now.AddDays(-1).Date ? "Today" : st.Push.ToString("ddd dd");
+
+                <li class="collection-item avatar email-unread @(st.Code == Model.Selected.Code ? "selected" : "")" data-station="@st.Code.ToLower()">
+                    <img src="~/images/logos/@(st.Brand.Name.ToLower()).png" alt="" class="circle">
+                    <span class="email-title">@st.Name</span>
+                    <p class="truncate grey-text ultra-small">Sold @string.Format("{0:N}", st.FuelLtrs) ltrs, Kes @string.Format("{0:N}", st.FuelSales) in Amount</p>
+                    <a href="#!" class="secondary-content email-time">
+                        <i class="material-icons attach-file">@iconClass</i>
+                        <span class="@dateClass ultra-small">@pushDates</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <div class="col-md-9" style="padding:0; margin-top:7px; margin-bottom:0px;">
+      <nav class="navbar nav-extended">
+        <div class="nav-content" style="border: 1px solid rgba(0,0,0,0.1)">
+            <ul class="tabs">
+                <li class="tab"><a href="#summary" class="active">Summary</a></li>
+                <li class="tab"><a href="#customer">Customers</a></li>
+                <li class="tab ledgr"><a href="#ledger">Invoices</a></li>
+                <li class="tab expns"><a href="#expenses">Expenses</a></li>
+                <li class="tab purch"><a href="#purchases">Purchases</a></li>
+                <li class="tab recon"><a href="#reconcile">Reconcile</a></li>
+            </ul>
+
+            <div id="summary" class="body">
+                <div class="col-md-12 zero-margin">
+                    <div class="card zero-margin">
+                        <div class="card-content deep-orange accent-2 white-text table-card" style="border-radius:0">
+                            <h5 class="card-stats-number"><i class="material-icons left">local_gas_station</i>Pump Sales</h5>
+                            <p class="card-stats-compare right">
+                                <i class="material-icons left">keyboard_arrow_down</i> 3%
+                                <span class="deep-orange-text text-lighten-5">from last month</span>
+                            </p>
+                        </div>
+
+                        <table id="reading" class="custom bordered">
+                            <thead class="deep-orange accent-2">
+                                <tr>
+                                    <th>PUMP</th>
+                                    <th>O/P MTR</th>
+                                    <th>C/P MTR</th>
+                                    <th>LTRS</th>
+                                    <th>RETURNS</th>
+                                    <th>PRICE</th>
+                                    <th class="right">AMOUNT</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @foreach (var reading in Model.Readings)
+                                {
+                                    <tr>
+                                        <td>@reading.Pump.Name</td>
+                                        <td>@reading.Opening</td>
+                                        <td>@reading.Closing</td>
+                                        <td>@(String.IsNullOrEmpty(reading.Opening.ToString()) ? "Y" : string.Format("{0:N}", (reading.Closing - reading.Opening - reading.Adjustment)))</td>
+                                        <td>@string.Format("{0:N}", reading.Tests)</td>
+                                        <td>@string.Format("{0:N}", reading.Price)</td>
+                                        <td class="right">@(String.IsNullOrEmpty(reading.Opening.ToString()) ? "Y" : string.Format("{0:N}", ((reading.Closing - reading.Opening - reading.Adjustment - reading.Tests) * reading.Price)))</td>
+                                    </tr>
+
+                                    ltrs += reading.Closing - reading.Opening - reading.Adjustment;
+                                    rtns += reading.Tests;
+                                    amts += reading.Price * (reading.Closing - reading.Opening - reading.Adjustment - reading.Tests);
+                                }
+                            </tbody>
+
+                            <thead class="deep-orange accent-2">
+                                <tr>
+                                    <th>&nbsp;</th>
+                                    <th colspan="2">DAY'S SUMMARY</th>
+                                    <th>@string.Format("{0:N}", ltrs)</th>
+                                    <th>@string.Format("{0:N}", rtns)</th>
+                                    <th>XX.XX</th>
+                                    <th class="right">@string.Format("{0:N}", amts)</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="col-md-12 zero-margin" style="margin-top: 10px;">
+                    <div class="card zero-margin">
+                        <div class="card-content cyan white-text table-card" style="border-radius:0">
+                            <h5 class="card-stats-number"><i class="material-icons left">local_gas_station</i>Tanks Summary</h5>
+                        </div>
+
+                        <table id="tanks" class="custom bordered">
+                            <thead class="cyan">
+                                <tr>
+                                    <th>TANK</th>
+                                    <th>O/P BAL</th>
+                                    <th>SALES</th>
+                                    <th>DELIVERY</th>
+                                    <th>RETURNS</th>
+                                    <th>C/P BAL</th>
+                                    <th>DIPS</th>
+                                    <th>VARIANCE</th>
+                                    <th>NOTES</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @foreach (var summary in Model.Summaries)
+                                {
+                                    <tr>
+                                        <td>@summary.Tank.Name</td>
+                                        <td>@string.Format("{0:N}", summary.Opening)</td>
+                                        <td>@string.Format("{0:N}", summary.Sales)</td>
+                                        <td>@string.Format("{0:N}", summary.Delivery)</td>
+                                        <td>@string.Format("{0:N}", summary.Returns)</td>
+                                        <td>@string.Format("{0:N}", summary.Closing)</td>
+                                        <td>@string.Format("{0:N}", summary.Dips)</td>
+                                        <td>@string.Format("{0:N}", summary.Variance)</td>
+                                        <td>N/A</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="col-md-12 zero-margin" style="margin-top: 10px;">
+                    <div class="card">
+                        <div class="card-action cyan darken-1" style="padding:5px">
+                            <div id="clients-bar" class="center-align"></div>
+                        </div>
+
+                        <table class="custom bordered">
+                            <thead class="cyan darken-2">
+                                <tr>
+                                    <th>SALES</th>
+                                    <th>CASH</th>
+                                    <th>INVOICE</th>
+                                    <th>VISA</th>
+                                    <th>MPESA</th>
+                                    <th>P.O.S</th>
+                                    <th>EXPENSES</th>
+                                    <th>DISC</th>
+                                    <th>TOTAL</th>
+                                    <th>DIFFS</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr>
+                                    <td><b class="red-text">@string.Format("{0:N}", amts)</b></td>
+                                    <td>@string.Format("{0:N}", Model.Totals.Cash)</td>
+                                    <td>@string.Format("{0:N}", fuel + lube - Model.Totals.Account)</td>
+                                    <td>@string.Format("{0:N}", Model.Totals.Visa)</td>
+                                    <td>@string.Format("{0:N}", Model.Totals.Mpesa)</td>
+                                    <td>@string.Format("{0:N}", Model.Totals.POS)</td>
+                                    <td>@string.Format("{0:N}", Model.Totals.Expense)</td>
+                                    <td>@string.Format("{0:N}", disc)</td>
+                                    <td><b class="red-text">@string.Format("{0:N}", fuel + lube + disc + Model.Totals.Cash + Model.Totals.Expense)</b></td>
+                                    <td><b class="blue-text">@string.Format("{0:N}", amts - fuel - lube - disc - Model.Totals.Cash - Model.Totals.Expense)</b></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="col-md-6 zero-margin station">
+                    <ul id="task-card" class="collection with-header station">
+                        <li class="collection-header red accent-2">
+                            <h4 class="task-card-title">Debtors Summary</h4>
+                            <p class="task-card-date">@DateTime.Now.AddDays(-1).ToString("MMM dd, yyyy")</p>
+                        </li>
+
+                        <li style="padding: 2px;">
+                            <table class="station striped">
+                                <thead>
+                                    <tr>
+                                        <th>NAMES</th>
+                                        <th>FUEL</th>
+                                        <th>LUBES</th>
+                                        <th>DISC</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    @foreach (var ledger in Model.Ledgers)
+                                    {
+                                        <tr>
+                                            <td>@ledger.Customer.Name</td>
+                                            <td>@string.Format("{0:N}", ledger.FuelSales)</td>
+                                            <td>@string.Format("{0:N}", ledger.LubeSales)</td>
+                                            <td>@string.Format("{0:N}", ledger.Discounts)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+
+                                <tfoot>
+                                    <tr>
+                                        <th>SUMMARY</th>
+                                        <th>@string.Format("{0:N}", fuel)</th>
+                                        <th>@string.Format("{0:N}", lube)</th>
+                                        <th>@string.Format("{0:N}", disc)</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="col-md-6 zero-margin station" style="padding-left: 5px;">
+                    <ul id="task-card" class="collection with-header station">
+                        <li class="collection-header red accent-2">
+                            <h4 class="task-card-title">Breakdown Summary</h4>
+                            <p class="task-card-date">@DateTime.Now.AddDays(-1).ToString("MMM dd, yyyy")</p>
+                        </li>
+
+                        <li style="padding: 2px;">
+                            <table id="summaryTbl" class="station striped">
+                                <tbody>
+                                    <tr>
+                                        <th>CASH</th>
+                                        <td width="120">@string.Format("{0:N}", Model.Totals.Cash)</td>
+                                        <td width="120">0.00</td>
+                                    </tr>
+
+                                    <tr>
+                                        <th>DEBTORS</th>
+                                        <td>@string.Format("{0:N}", fuel + lube)</td>
+                                        <td>0.00</td>
+                                    </tr>
+
+                                    <tr>
+                                        <th>GAS (NON-VAT)</th>
+                                        <td>0.00</td>
+                                        <td>0.00</td>
+                                    </tr>
+
+                                    <tr>
+                                        <th>GAS VAT</th>
+                                        <td>0.00</td>
+                                        <td>0.00</td>
+                                    </tr>
+
+                                    <tr>
+                                        <th>LUBES</th>
+                                        <td>0.00</td>
+                                        <td>0.00</td>
+                                    </tr>
+
+                                    <tr>
+                                        <th>SODAS</th>
+                                        <td>0.00</td>
+                                        <td>0.00</td>
+                                    </tr>
+
+                                    <tr>
+                                        <th>CARWASH</th>
+                                        <td>@string.Format("{0:N}", Model.Totals.CarWash)</td>
+                                        <td>0.00</td>
+                                    </tr>
+
+                                    <tr>
+                                        <th>SERVICE</th>
+                                        <td>@string.Format("{0:N}", Model.Totals.Service)</td>
+                                        <td>0.00</td>
+                                    </tr>
+
+                                    <tr>
+                                        <th>TYRE CENTER</th>
+                                        <td>@string.Format("{0:N}", Model.Totals.TyreCtr)</td>
+                                        <td>0.00</td>
+                                    </tr>
+
+                                    <tr>
+                                        <th>OTHER INCOME</th>
+                                        <td>0.00</td>
+                                        <td>0.00</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="fc-toolbar">
+                    <div class="fc-left">
+                        <div class="fc-button-group">
+                            <button type="button" class="fc-prev-button fc-button fc-state-default fc-corner-left">
+                                <span class="fc-icon fc-icon-left-single-arrow"></span>
+                            </button>
+                            <button type="button" class="fc-today-button fc-button fc-state-default fc-corner-left fc-corner-right">@Model.Selected.Push.ToString("dd.MM.yyyy")</button>
+                            <button type="button" class="fc-next-button fc-button fc-state-default fc-corner-right">
+                                <span class="fc-icon fc-icon-right-single-arrow"></span>
+                            </button>
+                        </div>
+
+                        <br/><br/>
+                        <a class="blue-text" href="/purchases/ledger?station=@Model.Selected.Code.ToLower()">View Purchases Ledger</a>
+                    </div>
+
+                    <div class="fc-clear"></div>
+                </div>
+            </div>
+
+            <!--CUSTOMER'S TAB-->
+            <div id="customer" class="body">
+                <div class="col s12">
+                    <table id="customer-table" class="responsive-table display" cellspacing="0">
+                      <thead>
+                        <tr>
+                          <th>Customers</th>
+                          <th>Contacts</th>
+                          <th>Telephone</th>
+                          <th>KRA PIN</th>
+                          <th>Last Invoice</th>
+                          <th>Outstanding</th>
+                        </tr>
+                      </thead>
+                      <tfoot>
+                        <tr>
+                          <th>Customers</th>
+                          <th>Contacts</th>
+                          <th>Telephone</th>
+                          <th>KRA PIN</th>
+                          <th>Last Invoice</th>
+                          <th>Outstanding</th>
+                        </tr>
+                      </tfoot>
+                      <tbody>
+                          @foreach (var cust in Model.Customers)
+                          {
+                            <tr>
+                                <td><a href="/customers/@cust.Station.Code.ToLower()/@cust.Id">@cust.Name</a></td>
+                                <td>@cust.Contacts</td>
+                                <td>@cust.Telephone</td>
+                                <td>@cust.KraPin</td>
+                                <td>@cust.LastInvoice.ToString("dd/MM/yyyy")</td>
+                                <td>@string.Format("{0:N}", cust.Balance)</td>
+                            </tr>
+                          }
+                      </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+            <!--LEDGER TAB-->
+            <div id="ledger" class="body">
+                <div class="row" style="margin-top: 10px;">
+                    <div class="input-field col-md-3">
+                        <i class="material-icons prefix">date_range</i>
+                        <input id="ledgerStartDate" type="text" class="datepicker" value="@Model.Selected.Push.ToString("d MMMM, yyyy")">
+                    </div>
+
+                    <div class="input-field col-md-3">
+                        <i class="material-icons prefix">date_range</i>
+                        <input id="ledgerStopsDate" type="text" class="datepicker" value="@Model.Selected.Push.ToString("d MMMM, yyyy")">
+                    </div>
+
+                    <div class="input-field col-md-5">
+                        <i class="material-icons prefix">filter_list</i>
+                        <input id="ledgerFilter" type="text" placeholder="Filter Ledger"  />
+                    </div>
+
+                    <div class="col-md-1 get-ledger">
+                        <a class="btn btn-floating pulse btn gradient-45deg-amber-amber right"><i class="material-icons" style="line-height: 42px">search</i></a>
+                    </div>
+                </div>
+
+                <table id="ledger-table" class="bordered" data-loaded="0" style="margin-top:-20px">
+                    <thead>
+                        <tr>
+                            <th>DATE</th>
+                            <th>LTS</th>
+                            <th>DESCRIPTION</th>
+                            <th>LPO</th>
+                            <th>INVOICE</th>
+                            <th>NAME</th>
+                            <th class="right">PRICE</th>
+                            <th class="">AMOUNT</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                    </tbody>
+
+                    <tfoot>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!--EXPENSES TAB-->
+            <div id="expenses" class="body">
+                <div class="row" style="margin-top: 10px;">
+                    <div class="input-field col-md-3">
+                        <i class="material-icons prefix">date_range</i>
+                        <input id="expenseStartDate" type="text" class="datepicker" value="@Model.Selected.Push.ToString("d MMMM, yyyy")">
+                    </div>
+
+                    <div class="input-field col-md-3">
+                        <i class="material-icons prefix">date_range</i>
+                        <input id="expenseStopsDate" type="text" class="datepicker" value="@Model.Selected.Push.ToString("d MMMM, yyyy")">
+                    </div>
+
+                    <div class="input-field col-md-5">
+                        <i class="material-icons prefix">filter_list</i>
+                        <input id="expenseFilter" type="text" placeholder="Filter Expenses"  />
+                    </div>
+
+                    <div class="col-md-1 get-expense">
+                        <a class="btn btn-floating pulse btn gradient-45deg-amber-amber right"><i class="material-icons" style="line-height: 42px">search</i></a>
+                    </div>
+                </div>
+
+                <table id="expense-table" class="bordered" data-loaded="0" style="margin-top: -20px">
+                    <thead>
+                        <tr>
+                            <th>DATE</th>
+                            <th>LX</th>
+                            <th>ACCOUNT</th>
+                            <th>DESCRIPTION</th>
+                            <th class="right">AMOUNT</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                    </tbody>
+
+                    <tfoot>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!--PURCHASES TAB-->
+            <div id="purchases" class="body">
+                <div class="row" style="margin-top: 10px;">
+                    <div class="input-field col-md-3">
+                        <i class="material-icons prefix">date_range</i>
+                        <input id="purchaseStartDate" type="text" class="datepicker" value="@DateTime.Now.AddDays(-1).ToString("d MMMM, yyyy")">
+                    </div>
+
+                    <div class="input-field col-md-3">
+                        <i class="material-icons prefix">date_range</i>
+                        <input id="purchaseStopsDate" type="text" class="datepicker" value="@DateTime.Now.AddDays(-1).ToString("d MMMM, yyyy")">
+                    </div>
+
+                    <div class="input-field col-md-5">
+                        <i class="material-icons prefix">filter_list</i>
+                        <input id="purchaseFilter" type="text" placeholder="Filter Expenses"  />
+                    </div>
+
+                    <div class="col-md-1 get-purchases">
+                        <a class="btn btn-floating pulse btn gradient-45deg-amber-amber right"><i class="material-icons" style="line-height: 42px">search</i></a>
+                    </div>
+                </div>
+
+                <table id="purchase-table" class="bordered" data-loaded="0" style="margin-top: -20px">
+                    <thead>
+                        <tr>
+                            <th>DATE</th>
+                            <th>LX</th>
+                            <th>PRODUCT</th>
+                            <th>SUPPLIER</th>
+                            <th>INVOICE</th>
+                            <th>DELIVERY</th>
+                            <th>PURCHASE</th>
+                            <th>PRICE</th>
+                            <th class="right-text">AMOUNT</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                    </tbody>
+
+                    <tfoot>
+                    </tfoot>
+                </table>
+
+                <div class="col-md-12 zero-margin" style="margin-top: 30px">
+                    <div class="card zero-margin">
+                        <div class="card-content cyan darken-1 white-text table-card" style="border-radius: 0">
+                            <h5 class="card-stats-number"><i class="material-icons left">add_shopping_cart</i>Purchases/Deliveries</h5>
+                            <p class="card-stats-compare right">
+                                <i class="material-icons left">keyboard_arrow_down</i> 0%
+                                <span class="deep-orange-text text-lighten-5">variance</span>
+                            </p>
+                        </div>
+
+                        <table id="purchase-summary" class="custom bordered">
+                            <thead class="cyan darken-2">
+                                <tr>
+                                    <th></th>
+                                    <th>DIESEL</th>
+                                    <th>SUPER</th>
+                                    <th>V-POWER</th>
+                                    <th>KEROSENE</th>
+                                    <th>TOTAL</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr>
+                                    <td class="bold-text">PURCHASES</td>
+                                    <td id="d1">0.00</td>
+                                    <td id="s1">0.00</td>
+                                    <td id="v1">0.00</td>
+                                    <td id="k1">0.00</td>
+                                    <td id="t1" class="bold-text">0.00</td>
+                                </tr>
+
+                                <tr>
+                                    <td class="bold-text">DELIVERY</td>
+                                    <td id="d2">0.00</td>
+                                    <td id="s2">0.00</td>
+                                    <td id="v2">0.00</td>
+                                    <td id="k2">0.00</td>
+                                    <td id="t2" class="bold-text">0.00</td>
+                                </tr>
+                            </tbody>
+
+                            <thead class="cyan darken-1">
+                                <tr class="bold-text">
+                                    <th>&nbsp;</th>
+                                    <td id="d3">0.00</td>
+                                    <td id="s3">0.00</td>
+                                    <td id="v3">0.00</td>
+                                    <td id="k3">0.00</td>
+                                    <td id="t3">0.00</td>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!--RECONCILE TAB-->
+            <div id="reconcile" class="body">
+                <div class="row" style="margin-top: 10px;">
+                    <div class="input-field col-md-2">
+                      <select id="reconcile-year">
+                          <option value="@DateTime.Now.Year" selected>@DateTime.Now.Year</option>
+                          <option value="@DateTime.Now.AddYears(-1).Year">@DateTime.Now.AddYears(-1).Year</option>
+                          <option value="@DateTime.Now.AddYears(-2).Year">@DateTime.Now.AddYears(-2).Year</option>
+                          <option value="@DateTime.Now.AddYears(-3).Year">@DateTime.Now.AddYears(-3).Year</option>
+                      </select>
+                      <label>Select Year</label>
+                    </div>
+
+                    <div class="input-field col-md-3">
+                      <select id="reconcile-mnth">
+                          @foreach (var mnth in Model.Months)
+                          {
+                              if (mnth.Select == true){
+                                  <option value="@mnth.Value" selected>@mnth.Name</option>
+                              }
+                              else {
+                                  <option value="@mnth.Value" >@mnth.Name</option>
+                              }
+                          }
+                      </select>
+                      <label>Select Month</label>
+                    </div>
+
+                    <div class="col-md-7 get-reconcile">
+                        <a class="btn btn-floating pulse btn gradient-45deg-amber-amber right"><i class="material-icons" style="line-height:42px">search</i></a>
+                    </div>
+                </div>
+                <table id="reconcile-table" class="bordered" data-loaded="0" style="margin-top:-15px">
+                    <thead>
+                        <tr>
+                            <th>DATE</th>
+                            <th>SALES</th>
+                            <th>CASH</th>
+                            <th>UPRNA</th>
+                            <th>DEBT</th>
+                            <th>DISCOUNT</th>
+                            <th>BALANCE</th>
+                            <th>CUMMULATIVE</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                    </tbody>
+
+                    <tfoot>
+                    </tfoot>
+                </table>
+
+            </div>
+        </div>
+        </nav>
+    </div>
+</div>

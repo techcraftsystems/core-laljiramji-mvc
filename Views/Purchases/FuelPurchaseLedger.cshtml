@@ -1,0 +1,200 @@
+﻿@model Core.ViewModel.FuelPurchaseLedgerViewModel;
+
+@{
+    ViewData["Title"] = "Purchases Ledger";
+
+    DateTime start = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+    DateTime stop = start.AddMonths(1).AddDays(-1);
+}
+
+<style>
+    .row .col-md-1.get-ledger {
+        width: 5%;
+        padding-top: 10px;
+    }
+    .row .input-field.col-md-2 {
+        width: 20%;
+    }
+    .row .input-field.col-md-5 {
+        width: 35%;
+    }
+    input:not([type]), input[type=text]:not(.browser-default), input[type=password]:not(.browser-default), input[type=email]:not(.browser-default), input[type=url]:not(.browser-default), input[type=time]:not(.browser-default), input[type=date]:not(.browser-default), input[type=datetime]:not(.browser-default), input[type=datetime-local]:not(.browser-default), input[type=tel]:not(.browser-default), input[type=number]:not(.browser-default), input[type=search]:not(.browser-default), textarea.materialize-textarea {
+        margin-bottom: 5px;
+        margin-top: -10px;
+    }
+</style>
+
+<script type="text/javascript">jq(function() {
+        String.prototype.toAccounting = function() {
+            var str = parseFloat(this).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+            if (str == '0.00') {
+                return '&mdash; &nbsp;';
+            }
+            else if (str.charAt(0) == '-') {
+                return '(' + str.substring(1, 40) + ')';
+            }
+            else {
+                return str;
+            }
+        };
+
+        jq('.get-ledger a').click(function() {
+            GetFuelPurchasesLedgers();
+        });
+
+        function GetFuelPurchasesLedgers() {
+            var opening = 0.0;
+
+            jq.ajax({
+                dataType: "json",
+                url: '/Purchases/GetFuelPurchasesLedgerOpenning',
+                data: {
+                    "stid": jq('#station :selected').val(),
+                    "date": jq('#start').val()
+                },
+                success: function(result) {
+                    opening = result;
+                },
+                complete: function() {
+                    jq('.opening-balance').html(opening.toString().toAccounting());
+
+                    jq.ajax({
+                        dataType: "json",
+                        url: '/Purchases/GetFuelPurchasesLedgers',
+                        data: {
+                            "stid": jq('#station :selected').val(),
+                            "start": jq('#start').val(),
+                            "stop": jq('#stops').val(),
+                            "filter": jq('#filter').val()
+                        },
+                        beforeSend: function() {
+                            jq('body').removeClass('loaded');
+                        },
+                        success: function(results) {
+                            jq('#ledger-table tbody').empty();
+                            jq('#ledger-table tfoot').empty();
+
+                            var cumm = opening;
+                            var purc = 0.0;
+                            var card = 0.0;
+                            var paid = 0.0;
+
+                            jq.each(results, function(i, item) {
+                                cumm += item.total - item.payCard - item.payAmts;
+                                purc += item.total;
+                                card += item.payCard;
+                                paid += item.payAmts;
+
+                                var row = "<tr data-idnt='" + item.id + "'>";
+                                row += "<td>" + item.date + "</td>";
+                                row += "<td>" + item.ltrs.toString().toAccounting() + "</td>";
+                                row += "<td>" + item.price.toString().toAccounting() + "</td>";
+                                row += "<td>" + item.description + "</td>";
+                                row += "<td>" + item.station.brand.name + "</td>";
+                                row += "<td>" + item.station.name + "</td>";
+                                row += "<td>" + item.invoice + "</td>";
+                                row += "<td class='right-text'>" + item.total.toString().toAccounting() + "</td>";
+                                row += "<td class='right-text'>" + item.payCard.toString().toAccounting() + "</td>";
+                                row += "<td class='right-text'>" + item.payAmts.toString().toAccounting() + "</td>";
+                                row += "<td class='center-text'>" + item.payDate + "</td>";
+                                row += "<td class='right-text'>" + cumm.toString().toAccounting() + "</td>";
+                                row += "</tr>";
+
+                                jq('#ledger-table tbody').append(row);
+                            })
+
+                            if (results.length == 0) {
+                                jq('#ledger-table tbody').append("<tr><td colspan=12>No Records Found</td></tr>");
+                            }
+                            else {
+                                var footr = "<tr><td>&nbsp;</td><td colspan=6 class='bold-text white-text'>LEDGER SUMMARY</td>";
+                                footr += "<td class='right-text white-text bold-text'>" + purc.toString().toAccounting() + "</td>";
+                                footr += "<td class='right-text white-text bold-text'>" + card.toString().toAccounting() + "</td>";
+                                footr += "<td class='right-text white-text bold-text'>" + paid.toString().toAccounting() + "</td>";
+                                footr += "<td class='center-text white-text bold-text'>&mdash;</td>";
+                                footr += "<td class='right-text white-text bold-text'>" + cumm.toString().toAccounting() + "</td>";
+                                footr += "</tr>";
+                                jq('#ledger-table tfoot').append(footr);
+                            }
+                        },
+                        error: function(xhr, ajaxOptions, thrownError) {
+                            console.log(xhr.status);
+                            console.log(thrownError);
+                        },
+                        complete: function() {
+                            $('body').addClass('loaded');
+                        }
+                    });
+                }
+            });
+        }
+
+        GetFuelPurchasesLedgers();
+});</script>
+
+<div class="row" style="margin-top: 10px; margin-bottom: 0px;">
+    <div class="input-field col-md-2">
+        <i class="material-icons prefix">date_range</i>
+        <select id="station">
+            @foreach (var st in Model.Stations)
+            {
+                if (st.Code.ToLower().Equals(Model.Code.ToLower()))
+                {
+                    <option value="@st.Id" selected>@st.Name</option>
+                }
+                else { 
+                    <option value="@st.Id">@st.Name</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="input-field col-md-2">
+        <i class="material-icons prefix">date_range</i>
+        <input id="start" type="text" class="datepicker" value="@start.ToString("d MMMM, yyyy")">
+    </div>
+
+    <div class="input-field col-md-2">
+        <i class="material-icons prefix">date_range</i>
+        <input id="stops" type="text" class="datepicker" value="@stop.ToString("d MMMM, yyyy")">
+    </div>
+
+    <div class="input-field col-md-5">
+        <i class="material-icons prefix">filter_list</i>
+        <input id="filter" type="text" placeholder="Filter Ledger" />
+    </div>
+
+    <div class="col-md-1 get-ledger">
+        <a class="btn btn-floating pulse btn gradient-45deg-amber-amber right"><i class="material-icons" style="line-height: 42px">search</i></a>
+    </div>
+</div>
+
+<div class="card zero-margin">
+    <div class="card-content deep-orange accent-2 white-text table-card" style="border-radius: 0">
+        <h5 class="card-stats-number"><i class="material-icons left">add_shopping_cart</i>Purchases Ledger</h5>
+        <p class="card-stats-compare right">
+            <i class="material-icons left">history</i>Opening
+            <span class="deep-orange-text text-lighten-5 opening-balance">(1,511,200.00)</span>
+        </p>
+    </div>
+
+    <table id="ledger-table" class="custom bordered" data-loaded="0" style="margin-top:-20px">
+        <thead class="deep-orange accent-2">
+            <tr>
+                <th>DATE</th>
+                <th>LTS</th>
+                <th>PRICE</th>
+                <th>DESC</th>
+                <th>NOTES</th>
+                <th>D/NO</th>
+                <th>INV/NO</th>
+                <th class="right-text">AMOUNTS</th>
+                <th class="right-text">PAYMENT</th>
+                <th class="right-text">PAYMENT</th>
+                <th class="center-text">DATE</th>
+                <th class="right-text">BALANCE</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot class="deep-orange accent-2"></tfoot>
+    </table>
+</div>
