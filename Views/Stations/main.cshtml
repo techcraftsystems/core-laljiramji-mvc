@@ -473,7 +473,7 @@
             {
                 var dateClass = st.Code == Model.Selected.Code ? "grey-text" : "blue-text";
                 var iconClass = st.Code == Model.Selected.Code ? "attach_file" : "";
-                var pushDates = st.Push.Date == DateTime.Now.AddDays(-1).Date ? "Today" : st.Push.ToString("ddd dd");
+                var pushDates = st.Push.Date == DateTime.Now.AddDays(-1).Date ? "Today" : st.Push.AddDays(1).ToString("ddd dd");
 
                 <li class="collection-item avatar email-unread @(st.Code == Model.Selected.Code ? "selected" : "")" data-station="@st.Code.ToLower()">
                     <img src="~/images/logos/@(st.Brand.Name.ToLower()).png" alt="" class="circle">
