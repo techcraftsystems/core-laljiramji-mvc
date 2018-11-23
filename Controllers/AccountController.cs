@@ -12,25 +12,23 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
-// For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace Core.Controllers
 {
     public class AccountController : Controller
     {
         [BindProperty]
         public LoginModel Input { get; set; }
-        public string ReturnLink { get; set; }
 
         [TempData]
         public string ErrorMessage { get; set; }
 
-        public async Task<IActionResult> Login()
+        public async Task<IActionResult> Login(LoginModel model, string ReturnUrl = "")
         {
             await HttpContext.SignOutAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme);
+            model.ReturnUrl = ReturnUrl;
 
-            return View(new LoginModel());
+            return View(model);
         }
 
         [HttpPost]
@@ -83,6 +81,8 @@ namespace Core.Controllers
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
 
+                if (!string.IsNullOrEmpty(Input.ReturnUrl.Trim()))
+                    return LocalRedirect(Input.ReturnUrl.Trim());
                 return LocalRedirect("/");
             }
 

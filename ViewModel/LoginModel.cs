@@ -7,11 +7,13 @@ namespace Core.ViewModel
     {
         public Users User { get; set; }
         public String Message { get; set; }
+        public String ReturnUrl { get; set; }
 
         public LoginModel()
         {
             User = new Users();
             Message = "";
+            ReturnUrl = "";
         }
     }
 }

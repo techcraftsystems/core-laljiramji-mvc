@@ -23,4 +23,14 @@ $(function() {
        window.location.href = "/reports/customers/balances/" + station + "/" + year; 
     });
 
+    jq('#modal32 .modal-footer .modal-post').click(function() {
+        var station =   jq('#modal32 .modal-station :selected').val();
+        var month =     jq('#modal32 .modal-months :selected').val();
+        var year =      jq('#modal32 .modal-year').val();
+
+        month = eval(month)+1;
+
+       window.location.href = "/reports/vat/" + station + "/" + month + "/" + year; 
+    });
+
 });

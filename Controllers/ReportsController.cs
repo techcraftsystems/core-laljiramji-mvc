@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Core.ViewModel;
 using Core.Services;
-
-// For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Core.Controllers
 {
@@ -40,6 +36,19 @@ namespace Core.Controllers
             model.year = year;
             model.type = type;
             model.report = svc.GetCustomerYearlyReport(year, model.station.Id, "all");
+
+            return View(model);
+        }
+
+        [Route("reports/vat/{code}/{month}/{year}")]
+        public IActionResult VATStationBreakdown(string code, int month, int year, ReportsVATStationBreakdownViewModel model, StationsService svc)
+        {
+            DateTime date = new DateTime(year, month, 1);
+
+            model.station = svc.GetStation(code);
+            model.year = year;
+            model.month = month;
+            model.report = svc.GetReportVatBreakdown(model.station, date, date.AddMonths(1).AddDays(-1));
 
             return View(model);
         }

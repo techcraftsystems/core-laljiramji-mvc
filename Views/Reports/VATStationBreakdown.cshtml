@@ -1,0 +1,246 @@
+﻿@model Core.ViewModel.ReportsVATStationBreakdownViewModel;
+
+@{
+    ViewData["Title"] = "V.A.T Breakdown " + Model.station.Name;
+}
+
+<style>
+    .col-xs-1, .col-sm-1, .col-md-1, .col-lg-1, .col-xs-2, .col-sm-2, .col-md-2, .col-lg-2, .col-xs-3, .col-sm-3, .col-md-3, .col-lg-3, .col-xs-4, .col-sm-4, .col-md-4, .col-lg-4, .col-xs-5, .col-sm-5, .col-md-5, .col-lg-5, .col-xs-6, .col-sm-6, .col-md-6, .col-lg-6, .col-xs-7, .col-sm-7, .col-md-7, .col-lg-7, .col-xs-8, .col-sm-8, .col-md-8, .col-lg-8, .col-xs-9, .col-sm-9, .col-md-9, .col-lg-9, .col-xs-10, .col-sm-10, .col-md-10, .col-lg-10, .col-xs-11, .col-sm-11, .col-md-11, .col-lg-11, .col-xs-12, .col-sm-12, .col-md-12, .col-lg-12 {
+        position: relative;
+        min-height: 1px;
+        padding-right: 0px;
+        padding-left: 0px;
+        margin-left: 1px;
+    }
+    td, th {
+        text-align: center;
+    }
+    table.custom thead {
+        font-size: 0.7em;
+    }
+    table.custom tbody {
+        font-size: 0.6em;
+    }
+    table.custom thead tr th:first-child,
+    table.custom tfoot tr th:first-child,
+    table.custom tbody tr td:first-child {
+        padding-left: 5px;
+    }
+    table.custom thead tr th:last-child, 
+    table.custom tfoot tr td:last-child, 
+    table.custom tbody tr td:last-child {
+        padding-right: 5px;
+    }
+    table.custom tbody tr td {
+        padding: 1px 3px;
+    }
+    div.col-md-1 {
+        width:3%;
+    }
+    div.col-md-2 {
+        width: 12%;
+    }
+    div.col-md-3 {
+        width: 13%;
+    }
+</style>
+
+<div class="row" style="width:122%; margin-left:-4%; margin-top:10px;">
+    <div class="col-md-1">
+        <table class="custom bordered">
+            <thead class="deep-orange accent-2">
+                <tr>
+                    <th>&nbsp;</th>
+                </tr>
+                <tr>
+                    <th>DATE</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var rpt in Model.report) {
+                <tr>
+                    <td>@rpt.date.ToString("dd")</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-md-3">
+        <table class="custom bordered">
+            <thead class="deep-orange accent-2">
+                <tr>
+                    <th colspan="4">TOTAL SALES</th>
+                </tr>
+                <tr>
+                    <th>DX</th>
+                    <th>UX</th>
+                    <th>VP</th>
+                    <th>IK</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var rpt in Model.report) {
+                <tr>
+                    <td>@string.Format("{0:N}", rpt.dx_sales)</td>
+                    <td>@string.Format("{0:N}", rpt.ux_sales)</td>
+                    <td>@string.Format("{0:N}", rpt.vp_sales)</td>
+                    <td>@string.Format("{0:N}", rpt.ik_sales)</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-md-2">
+        <table class="custom bordered">
+            <thead class="deep-orange accent-2">
+                <tr>
+                    <th colspan="4">DISCOUNTS</th>
+                </tr>
+                <tr>
+                    <th>DX</th>
+                    <th>UX</th>
+                    <th>VP</th>
+                    <th>IK</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var rpt in Model.report) {
+                <tr>
+                    <td>@string.Format("{0:N}", rpt.dx_discs)</td>
+                    <td>@string.Format("{0:N}", rpt.ux_discs)</td>
+                    <td>@string.Format("{0:N}", rpt.vp_discs)</td>
+                    <td>@string.Format("{0:N}", rpt.ik_discs)</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-md-2">
+        <table class="custom bordered">
+            <thead class="deep-orange accent-2">
+                <tr>
+                    <th colspan="4">PUMP PRICES</th>
+                </tr>
+                <tr>
+                    <th>DX</th>
+                    <th>UX</th>
+                    <th>VP</th>
+                    <th>IK</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var rpt in Model.report) {
+                    <tr>
+                        <td>@string.Format("{0:N}", rpt.dx_price)</td>
+                        <td>@string.Format("{0:N}", rpt.ux_price)</td>
+                        <td>@string.Format("{0:N}", rpt.vp_price)</td>
+                        <td>@string.Format("{0:N}", rpt.ik_price)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-md-2">
+        <table class="custom bordered">
+            <thead class="deep-orange accent-2">
+                <tr>
+                    <th colspan="4">ZERO RATED</th>
+                </tr>
+                <tr>
+                    <th>DX</th>
+                    <th>UX</th>
+                    <th>VP</th>
+                    <th>IK</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var rpt in Model.report) {
+                    <tr>
+                        <td class="red-text">@string.Format("{0:N}", rpt.dx_zero)</td>
+                        <td class="red-text">@string.Format("{0:N}", rpt.ux_zero)</td>
+                        <td class="red-text">@string.Format("{0:N}", rpt.vp_zero)</td>
+                        <td class="red-text">@string.Format("{0:N}", rpt.ik_zero)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-md-1" style="width:8%">
+        <table class="custom bordered">
+            <thead class="deep-orange accent-2">
+                <tr>
+                    <th colspan="2">LESSES</th>
+                </tr>
+                <tr>
+                    <th>LESSES</th>
+                    <th>TRANSP</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var rpt in Model.report) {
+                    <tr>
+                        <td class="blue-text">@string.Format("{0:N}", rpt.dx_lesses)</td>
+                        <td class="blue-text">@string.Format("{0:N}", rpt.dx_transp)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-md-2">
+        <table class="custom bordered">
+            <thead class="deep-orange accent-2">
+                <tr>
+                    <th colspan="4">TOTAL LTRS AFTER</th>
+                </tr>
+                <tr>
+                    <th>DX</th>
+                    <th>UX</th>
+                    <th>VP</th>
+                    <th>IK</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var rpt in Model.report) {
+                <tr>
+                    <td>@string.Format("{0:N}", rpt.dx_ltrs)</td>
+                    <td>@string.Format("{0:N}", rpt.ux_ltrs)</td>
+                    <td>@string.Format("{0:N}", rpt.vp_ltrs)</td>
+                    <td>@string.Format("{0:N}", rpt.ik_ltrs)</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-md-2">
+        <table class="custom bordered">
+            <thead class="deep-orange accent-2">
+                <tr>
+                    <th colspan="4">VAT &amp; ZERO RATED</th>
+                </tr>
+                <tr>
+                    <th>VATABLE</th>
+                    <th>VAT</th>
+                    <th>ZERO</th>
+                    <th>TOTAL</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var rpt in Model.report) {
+                    <tr>
+                        <td class="bold-text">@string.Format("{0:N}", rpt.vt_vatab)</td>
+                        <td class="bold-text">@string.Format("{0:N}", rpt.vt_vatsx)</td>
+                        <td class="bold-text">@string.Format("{0:N}", rpt.vt_zeros)</td>
+                        <td class="bold-text">@string.Format("{0:N}", rpt.vt_total)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -152,6 +152,7 @@ $(function() {
                 <button type="submit" class="waves-effect waves-light btn gradient-45deg-light-blue-cyan z-depth-4 mr-1">Login</button>
 
                 <div class="login-form-reset">Click <a href="#">here</a> if you have forgotten either your username or password, or not able to access the system.</div>
+                @Html.HiddenFor(model => model.ReturnUrl)
             }
         </div>
     </div>

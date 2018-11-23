@@ -1,7 +1,7 @@
 ﻿using System;
 namespace Core.Models
 {
-    public class CustomerYearly
+    public class ReportCustomerYearly
     {
         public Customers Customer { get; set; }
         public Double Opening { get; set; }
@@ -20,7 +20,7 @@ namespace Core.Models
         public Double Total { get; set; }
         public Double Closing { get; set; }
 
-        public CustomerYearly()
+        public ReportCustomerYearly()
         {
             Customer = new Customers();
             Opening = 0;
