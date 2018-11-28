@@ -200,6 +200,7 @@
                     var uprn = 0.0;
                     var debt = 0.0;
                     var disc = 0.0;
+                    var tnsp = 0.0;
 
                     jq('#reconcile-table tbody').empty();
                     jq('#reconcile-table tfoot').empty();
@@ -211,6 +212,7 @@
                         uprn += recon.uprna;
                         debt += recon.debt;
                         disc += recon.discount;
+                        tnsp += recon.transport;
 
                         var row = "<tr>";
                         row += "<td>" + recon.date + "</td>";
@@ -234,6 +236,7 @@
                     footr += "<td class='bold-text'>" + uprn.toString().toAccounting() + "</td>";
                     footr += "<td class='bold-text'>" + debt.toString().toAccounting() + "</td>";
                     footr += "<td class='bold-text'>" + disc.toString().toAccounting() + "</td>";
+                    footr += "<td class='bold-text'>" + tnsp.toString().toAccounting() + "</td>";
                     footr += "<td class='red-text bold-text'>" + cumm.toString().toAccounting() + "</td>";
                     footr += "<td class='blue-text bold-text'>" + cumm.toString().toAccounting() + "</td>";
                     footr += "</tr>";
