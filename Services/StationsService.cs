@@ -315,7 +315,7 @@ namespace Core.Services
             List<StationsReconcile> reconciles = new List<StationsReconcile>();
 
             SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("DECLARE @st INT=" + stid + ", @year INT=" + year + ", @mnth INT=" + mnth + "; SELECT Dates, SUM(Amts)Amts, SUM(Pd)Pd, SUM(Uprna)Uprna, SUM(Debt)Debt, SUM(Disc)Disc FROM (SELECT pcol_date Dates, pcol_amts Amts, 0 Pd, 0 Uprna, 0 Debt, 0 Disc FROM vDailySales WHERE pcol_station=@st AND YEAR(pcol_date)=@year AND MONTH(pcol_date)=@mnth UNION ALL SELECT ar_date, 0, ar_cash,0,0,0 FROM vLedgerCash WHERE ar_st=@st AND YEAR(ar_date)=@year AND MONTH(ar_date)=@mnth UNION ALL SELECT sr_date, 0,0,0,sr_amts, sr_disc FROM vLedgerInvoices WHERE sr_st=@st AND YEAR(sr_date)=@year AND MONTH(sr_date)=@mnth UNION ALL SELECT mm_date, 0,0,0,mm_mpesa+mm_visa+mm_pos,0 FROM vLedgerAccounts WHERE mm_st=@st AND YEAR(mm_date)=@year AND MONTH(mm_date)=@mnth UNION ALL SELECT ex_date, 0,ex_amts,0,0,0 FROM vLedgerExpenses WHERE ex_st=@st AND YEAR(ex_date)=@year AND MONTH(ex_date)=@mnth) As Foo GROUP BY Dates ORDER BY Dates");
+            SqlDataReader dr = conn.SqlServerConnect("DECLARE @st INT=" + stid + ", @year INT=" + year + ", @mnth INT=" + mnth + "; SELECT Dates, SUM(Amts)Amts, SUM(Pd)Pd, SUM(Uprna)Uprna, SUM(Debt)Debt, SUM(Disc)Disc FROM ( SELECT pcol_date Dates, pcol_amts Amts, 0 Pd, 0 Uprna, 0 Debt, 0 Disc FROM vDailySales WHERE pcol_station=@st AND YEAR(pcol_date)=@year AND MONTH(pcol_date)=@mnth UNION ALL SELECT ar_date, 0, ar_cash,0,0,0 FROM vLedgerCash WHERE ar_st=@st AND YEAR(ar_date)=@year AND MONTH(ar_date)=@mnth UNION ALL SELECT sr_date, CASE sr_overpump when 1 THEN sr_amts-(sr_discount) ELSE 0 END, 0,0,sr_amts, sr_discount FROM vInvoicesLedger WHERE sr_st=@st AND YEAR(sr_date)=@year AND MONTH(sr_date)=@mnth UNION ALL SELECT mm_date, 0,0,0,mm_mpesa+mm_visa+mm_pos,0 FROM vLedgerAccounts WHERE mm_st=@st AND YEAR(mm_date)=@year AND MONTH(mm_date)=@mnth UNION ALL SELECT ex_date, 0,ex_amts,0,0,0 FROM vLedgerExpenses WHERE ex_st=@st AND YEAR(ex_date)=@year AND MONTH(ex_date)=@mnth ) As Foo GROUP BY Dates ORDER BY Dates");
             if (dr.HasRows)
             {
                 while (dr.Read())
@@ -445,7 +445,7 @@ namespace Core.Services
             List<ReportVatBreakdown> reports = new List<ReportVatBreakdown>();
 
             SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("DECLARE @st INT=" + station.Id + ", @date1 DATE='" + start.Date + "', @date2 DATE='" + stop.Date + "'; SELECT ldg_date, SUM(dx_sale+dx_over)dx_total, SUM(ux_sale+ux_over)ux_total, SUM(vp_sale+vp_over)vp_total, SUM(ik_sale+ik_over)dx_total, SUM(ldg_sale+ldg_over)totals, SUM(dx_disc)dx_disc, SUM(ux_disc)ux_disc, SUM(vp_disc)vp_disc, SUM(ik_disc)ik_disc, SUM(ldg_disc)tt_disc, MAX(dx_price) dx_price, MAX(ux_price) ux_price, MAX(vp_price) vp_price, MAX(ik_price) ik_price, MAX(dx_zero) dx_zero, MAX(ux_zero) ux_zero, MAX(vp_zero) vp_zero, MAX(ik_zero) ik_zero, SUM(ldg_lesses) lesses, SUM(ldg_transport) transport, SUM(dx_ltrs) dxa_ltrs, SUM(ux_ltrs) uxa_ltrs, SUM(vp_ltrs) vpa_ltrs, SUM(ik_ltrs) ika_ltrs, SUM(dx_ltrs*dx_rate*(dx_price-dx_zero))+SUM(ux_rate*ux_ltrs*(ux_price-ux_zero))+SUM(vp_rate*vp_ltrs*(vp_price-vp_zero))+SUM(ik_rate*ik_ltrs*(ik_price-ik_zero)) vat_amt, SUM(dx_ltrs*dx_zero)+SUM(ux_ltrs*ux_zero)+SUM(vp_ltrs*vp_zero)+SUM(ik_ltrs*ik_zero) vat_zero, SUM(ldg_sale+ldg_over+ldg_disc-(ldg_lesses)-ldg_transport)final_totals FROM (SELECT ldg_date, ldg_station, ldg_item, CASE WHEN ldg_item=1 THEN ldg_sale ELSE 0 END dx_sale, CASE WHEN ldg_item=2 THEN ldg_sale ELSE 0 END ux_sale, CASE WHEN ldg_item=3 THEN ldg_sale ELSE 0 END vp_sale, CASE WHEN ldg_item=4 THEN ldg_sale ELSE 0 END ik_sale, ldg_sale, CASE WHEN ldg_item=1 THEN ldg_over ELSE 0 END dx_over, CASE WHEN ldg_item=2 THEN ldg_over ELSE 0 END ux_over, CASE WHEN ldg_item=3 THEN ldg_over ELSE 0 END vp_over, CASE WHEN ldg_item=4 THEN ldg_over ELSE 0 END ik_over, ldg_over, CASE WHEN ldg_item=1 THEN ldg_disc ELSE 0 END dx_disc, CASE WHEN ldg_item=2 THEN ldg_disc ELSE 0 END ux_disc, CASE WHEN ldg_item=3 THEN ldg_disc ELSE 0 END vp_disc, CASE WHEN ldg_item=4 THEN ldg_disc ELSE 0 END ik_disc, ldg_disc, CASE WHEN ldg_item=1 THEN pp_price ELSE 0 END dx_price,  CASE WHEN ldg_item=2 THEN pp_price ELSE 0 END ux_price, CASE WHEN ldg_item=3 THEN pp_price ELSE 0 END vp_price, CASE WHEN ldg_item=4 THEN pp_price ELSE 0 END ik_price, CASE WHEN ldg_item=1 THEN vat_zero ELSE 0 END dx_zero, CASE WHEN ldg_item=2 THEN vat_zero ELSE 0 END ux_zero, CASE WHEN ldg_item=3 THEN vat_zero ELSE 0 END vp_zero, CASE WHEN ldg_item=4 THEN vat_zero ELSE 0 END ik_zero, CASE WHEN ldg_item=1 THEN vat_rate/(vat_rate+100.0) ELSE 0 END dx_rate, CASE WHEN ldg_item=2 THEN vat_rate/(vat_rate+100.0) ELSE 0 END ux_rate, CASE WHEN ldg_item=3 THEN vat_rate/(vat_rate+100.0) ELSE 0 END vp_rate, CASE WHEN ldg_item=4 THEN vat_rate/(vat_rate+100.0) ELSE 0 END ik_rate, ldg_lesses, ldg_transport, CASE WHEN ldg_item=1 THEN (ldg_sale+ldg_over+ldg_disc-ldg_transport-(ldg_lesses))/pp_price ELSE 0 END dx_ltrs, CASE WHEN ldg_item=2 THEN (ldg_sale+ldg_over+ldg_disc)/pp_price ELSE 0 END ux_ltrs, CASE WHEN ldg_item=3 THEN (ldg_sale+ldg_over+ldg_disc)/pp_price ELSE 0 END vp_ltrs, CASE WHEN ldg_item=4 THEN (ldg_sale+ldg_over+ldg_disc)/pp_price ELSE 0 END ik_ltrs FROM vETRLedger INNER JOIN vPumpsPrices ON pp_date=ldg_date AND pp_fuel=ldg_item AND ldg_station=pp_st INNER JOIN VatReports ON vat_date=ldg_date AND ldg_item=vat_item WHERE ldg_date BETWEEN @date1 AND @date2) As Foo WHERE ldg_station=@st GROUP BY ldg_station, ldg_date ORDER BY ldg_station, ldg_date");
+            SqlDataReader dr = conn.SqlServerConnect("DECLARE @station INT=" + station.Id + ", @date1 DATE='" + start.Date + "', @date2 DATE='" + stop.Date + "'; SELECT ldg_date, SUM(dx_sale+dx_over)dx_total, SUM(ux_sale+ux_over)ux_total, SUM(vp_sale+vp_over)vp_total, SUM(ik_sale+ik_over)ik_total, SUM(dx_credit) dx_credit, SUM(ux_credit) ux_credit, SUM(vp_credit) vp_credit, SUM(ik_credit) ik_credit, SUM(dx_disc) dx_disc, SUM(ux_disc) ux_disc, SUM(vp_disc) vp_disc, SUM(ik_disc) ik_disc, SUM(ldg_lesses) ldg_lesses, SUM(ldg_transport) ldg_transport, SUM(ldg_cash) ldg_cash, MAX(dx_price) dx_price, MAX(ux_price) ux_price, MAX(vp_price) vp_price, MAX(ik_price) ik_price, MAX(dx_zero) dx_zero, MAX(ux_zero) ux_zero, MAX(vp_zero) vp_zero, MAX(ik_zero) ik_zero, SUM(dx_ltrs) dx_ltrs, SUM(ux_ltrs) ux_ltrs, SUM(vp_ltrs) vp_ltrs, SUM(ik_ltrs) ik_ltrs, SUM(dx_ltrs*dx_rate*(dx_price-dx_zero))+SUM(ux_rate*ux_ltrs*(ux_price-ux_zero))+SUM(vp_rate*vp_ltrs*(vp_price-vp_zero))+SUM(ik_rate*ik_ltrs*(ik_price-ik_zero)) vat_amt, SUM(dx_ltrs*dx_zero)+SUM(ux_ltrs*ux_zero)+SUM(vp_ltrs*vp_zero)+SUM(ik_ltrs*ik_zero) vat_zero, SUM(cr_zero) cr_zero, SUM(dx_credit+Ux_credit+vp_credit+ik_credit) cr_total FROM ( SELECT ldg_date, ldg_station, ldg_item, CASE WHEN ldg_item=1 THEN ldg_sale ELSE 0 END dx_sale, CASE WHEN ldg_item=2 THEN ldg_sale ELSE 0 END ux_sale, CASE WHEN ldg_item=3 THEN ldg_sale ELSE 0 END vp_sale, CASE WHEN ldg_item=4 THEN ldg_sale ELSE 0 END ik_sale, ldg_sale, CASE WHEN ldg_item=1 THEN ldg_over ELSE 0 END dx_over, CASE WHEN ldg_item=2 THEN ldg_over ELSE 0 END ux_over, CASE WHEN ldg_item=3 THEN ldg_over ELSE 0 END vp_over, CASE WHEN ldg_item=4 THEN ldg_over ELSE 0 END ik_over, ldg_over, CASE WHEN ldg_item=1 THEN ldg_credit ELSE 0 END dx_credit, CASE WHEN ldg_item=2 THEN ldg_credit ELSE 0 END ux_credit, CASE WHEN ldg_item=3 THEN ldg_credit ELSE 0 END vp_credit, CASE WHEN ldg_item=4 THEN ldg_credit ELSE 0 END ik_credit, ldg_credit, ldg_price, CASE WHEN ldg_item=1 THEN ldg_disc ELSE 0 END dx_disc, CASE WHEN ldg_item=2 THEN ldg_disc ELSE 0 END ux_disc, CASE WHEN ldg_item=3 THEN ldg_disc ELSE 0 END vp_disc, CASE WHEN ldg_item=4 THEN ldg_disc ELSE 0 END ik_disc, ldg_disc, CASE WHEN ldg_item=1 THEN pp_price ELSE 0 END dx_price, CASE WHEN ldg_item=2 THEN pp_price ELSE 0 END ux_price, CASE WHEN ldg_item=3 THEN pp_price ELSE 0 END vp_price, CASE WHEN ldg_item=4 THEN pp_price ELSE 0 END ik_price, CASE WHEN ldg_item=1 THEN vat_zero ELSE 0 END dx_zero, CASE WHEN ldg_item=2 THEN vat_zero ELSE 0 END ux_zero, CASE WHEN ldg_item=3 THEN vat_zero ELSE 0 END vp_zero, CASE WHEN ldg_item=4 THEN vat_zero ELSE 0 END ik_zero, CASE WHEN ldg_item=1 THEN vat_rate/(vat_rate+100.0) ELSE 0 END dx_rate, CASE WHEN ldg_item=2 THEN vat_rate/(vat_rate+100.0) ELSE 0 END ux_rate, CASE WHEN ldg_item=3 THEN vat_rate/(vat_rate+100.0) ELSE 0 END vp_rate, CASE WHEN ldg_item=4 THEN vat_rate/(vat_rate+100.0) ELSE 0 END ik_rate, CASE WHEN ldg_item=1 THEN (ldg_sale+ldg_over)/pp_price ELSE 0 END dx_ltrs, CASE WHEN ldg_item=2 THEN (ldg_sale+ldg_over)/pp_price ELSE 0 END ux_ltrs, CASE WHEN ldg_item=3 THEN (ldg_sale+ldg_over)/pp_price ELSE 0 END vp_ltrs, CASE WHEN ldg_item=4 THEN (ldg_sale+ldg_over)/pp_price ELSE 0 END ik_ltrs, CASE WHEN ldg_source IN (2,3) THEN (ldg_credit/ldg_price)*(vat_zero) ELSE 0 END cr_zero, ldg_lesses, ldg_transport, ldg_cash FROM vETRLedger INNER JOIN vPumpsPrices ON pp_date=ldg_date AND pp_fuel=ldg_item AND ldg_station=pp_st INNER JOIN VatReports ON vat_date=ldg_date AND ldg_item=vat_item WHERE ldg_date BETWEEN @date1 AND @date2 ) As Foo WHERE ldg_station=@station GROUP BY ldg_station, ldg_date");
             if (dr.HasRows)
             {
                 while (dr.Read())
@@ -458,37 +458,69 @@ namespace Core.Services
                     report.ux_sales = Convert.ToDouble(dr[2]);
                     report.vp_sales = Convert.ToDouble(dr[3]);
                     report.ik_sales = Convert.ToDouble(dr[4]);
-                    report.tt_sales = Convert.ToDouble(dr[5]);
+                    report.tt_sales = report.dx_sales + report.ux_sales + report.vp_sales + report.ik_sales;
 
-                    report.dx_discs = Convert.ToDouble(dr[6]);
-                    report.ux_discs = Convert.ToDouble(dr[7]);
-                    report.vp_discs = Convert.ToDouble(dr[8]);
-                    report.ik_discs = Convert.ToDouble(dr[9]);
-                    report.tt_discs = Convert.ToDouble(dr[10]);
+                    report.dx_credit = Convert.ToDouble(dr[5]);
+                    report.ux_credit = Convert.ToDouble(dr[6]);
+                    report.vp_credit = Convert.ToDouble(dr[7]);
+                    report.ik_credit = Convert.ToDouble(dr[8]);
+                    report.tt_credit = report.dx_credit + report.ux_credit + report.vp_credit + report.ik_credit;
 
-                    report.dx_price = Convert.ToDouble(dr[11]);
-                    report.ux_price = Convert.ToDouble(dr[12]);
-                    report.vp_price = Convert.ToDouble(dr[13]);
-                    report.ik_price = Convert.ToDouble(dr[14]);
 
-                    report.dx_zero = Convert.ToDouble(dr[15]);
-                    report.ux_zero = Convert.ToDouble(dr[16]);
-                    report.vp_zero = Convert.ToDouble(dr[17]);
-                    report.ik_zero = Convert.ToDouble(dr[18]);
+                    report.dx_discs = Convert.ToDouble(dr[9]);
+                    report.ux_discs = Convert.ToDouble(dr[10]);
+                    report.vp_discs = Convert.ToDouble(dr[11]);
+                    report.ik_discs = Convert.ToDouble(dr[12]);
+                    report.tt_discs = report.dx_discs + report.ux_discs + report.vp_discs + report.ik_discs; 
 
-                    report.dx_lesses = Convert.ToDouble(dr[19]);
-                    report.dx_transp = Convert.ToDouble(dr[20]);
+                    report.dx_lesses = Convert.ToDouble(dr[13]);
+                    report.dx_transp = Convert.ToDouble(dr[14]);
+                    report.dx_cashes = Convert.ToDouble(dr[15]);
 
-                    report.dx_ltrs = Convert.ToDouble(dr[21]);
-                    report.ux_ltrs = Convert.ToDouble(dr[22]);
-                    report.vp_ltrs = Convert.ToDouble(dr[23]);
-                    report.ik_ltrs = Convert.ToDouble(dr[24]);
+                    report.dx_price = Convert.ToDouble(dr[16]);
+                    report.ux_price = Convert.ToDouble(dr[17]);
+                    report.vp_price = Convert.ToDouble(dr[18]);
+                    report.ik_price = Convert.ToDouble(dr[19]);
 
-                    report.vt_vatsx = Convert.ToDouble(dr[25]);
-                    report.vt_zeros = Convert.ToDouble(dr[26]);
-                    report.vt_total = Convert.ToDouble(dr[27]);
+                    report.dx_zero = Convert.ToDouble(dr[20]);
+                    report.ux_zero = Convert.ToDouble(dr[21]);
+                    report.vp_zero = Convert.ToDouble(dr[22]);
+                    report.ik_zero = Convert.ToDouble(dr[23]);
 
-                    report.vt_vatab = report.vt_total - report.vt_zeros;
+                    report.dx_ltrs = Convert.ToDouble(dr[24]);
+                    report.ux_ltrs = Convert.ToDouble(dr[25]);
+                    report.vp_ltrs = Convert.ToDouble(dr[26]);
+                    report.ik_ltrs = Convert.ToDouble(dr[27]);
+
+                    report.vt_vatsx = Convert.ToDouble(dr[28]);
+                    report.vt_zeros = Convert.ToDouble(dr[29]);
+                    report.vt_total = report.tt_sales;
+                    report.vt_vatab = report.tt_sales - report.vt_zeros;
+
+                    report.cr_zeros = Convert.ToDouble(dr[30]);
+                    report.cr_total = Convert.ToDouble(dr[31]);
+                    report.cr_vatab = report.cr_total - report.cr_zeros;
+                    report.cr_vatsx = report.cr_vatab * (8/108);
+
+                    report.dxc_ltrs = (report.dx_sales - report.dx_credit - report.dx_lesses - report.dx_transp + report.dx_discs) / report.dx_price;
+                    report.uxc_ltrs = (report.ux_sales - report.ux_credit + report.ux_discs) / report.ux_price;
+                    report.vpc_ltrs = (report.vp_sales - report.vp_credit + report.vp_discs) / report.vp_price;
+                    report.ikc_ltrs = (report.ik_sales - report.ik_credit + report.ik_discs) / report.ik_price;
+
+                    if (Double.IsNaN(report.dxc_ltrs) || Double.IsInfinity(report.dxc_ltrs))
+                        report.dxc_ltrs = 0;
+                    if (Double.IsNaN(report.uxc_ltrs) || Double.IsInfinity(report.uxc_ltrs))
+                        report.uxc_ltrs = 0;
+                    if (Double.IsNaN(report.vpc_ltrs) || Double.IsInfinity(report.vpc_ltrs))
+                        report.vpc_ltrs = 0;
+                    if (Double.IsNaN(report.ikc_ltrs) || Double.IsInfinity(report.ikc_ltrs))
+                        report.ikc_ltrs = 0;
+                    
+
+                    report.ca_zeros = (report.dxc_ltrs * report.dx_zero) + (report.uxc_ltrs * report.ux_zero) + (report.vpc_ltrs * report.vp_zero) + (report.ikc_ltrs * report.ik_zero);
+                    report.ca_vatab = (report.dxc_ltrs * (report.dx_price - report.dx_zero)) + (report.uxc_ltrs * (report.ux_price - report.ux_zero)) + (report.vpc_ltrs * (report.vp_price - report.vp_zero)) + (report.ikc_ltrs * (report.ik_price - report.ik_zero));
+                    report.ca_total = report.ca_zeros + report.ca_vatab;
+                    report.ca_vatsx = report.ca_vatab * (8.0 / 108.0);
 
                     reports.Add(report);
                 }

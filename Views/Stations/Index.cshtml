@@ -28,13 +28,16 @@
     .col-md-1.get-summary {
         margin-top: 10px;
     }
-    #filter-summary .col-md-1 {
+    #filter-summary .col-md-1, 
+    #filter-ledger .col-md-1 {
         width: 5%;
     }
-    #filter-summary .col-md-3 {
+    #filter-summary .col-md-3, 
+    #filter-ledger .col-md-3 {
         width: 20%;
     }
-    #filter-summary .col-md-5 {
+    #filter-summary .col-md-5, 
+    #filter-ledger .col-md-5 {
         width: 55%;
     }
 </style>
@@ -228,7 +231,32 @@
 
         <!-- Second Tab -->
         <div id="ledger" class="body">
-            N/A
+            <div id="filter-ledger" class="black-text">
+                <div id="summarySel" class="input-field col-md-4">
+                    <i class="material-icons prefix">local_gas_station</i>
+                    <select multiple id="summaryList">
+                        <option value="" disabled selected>Select Stations</option>
+                        @foreach (var st in Model.Stations)
+                        {
+                        <option value="@st.Id">@st.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="input-field col-md-3">
+                    <i class="material-icons prefix">date_range</i>
+                    <input id="startDate" type="text" class="datepicker" value="@DateTime.Now.AddDays(-1).ToString(" d MMMM, yyyy")">
+                </div>
+
+                <div class="input-field col-md-3">
+                    <i class="material-icons prefix">date_range</i>
+                    <input id="stopDate" type="text" class="datepicker" value="@DateTime.Now.AddDays(-1).ToString(" d MMMM, yyyy")">
+                </div>
+
+                <div class="col-md-1 get-summary">
+                    <a class="btn btn-floating pulse btn gradient-45deg-amber-amber right"><i class="material-icons" style="line-height: 42px">search</i></a>
+                </div>
+            </div>
         </div>
 
         <div id="purchases" class="body">No Records</div>
