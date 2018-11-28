@@ -12,6 +12,7 @@ namespace Core.Models
         public Double Uprna { get; set; }
         public Double Debt { get; set; }
         public Double Discount { get; set; }
+        public Double Transport { get; set; }
         public Double Balance { get; set; }
 
         public StationsReconcile()
@@ -24,6 +25,7 @@ namespace Core.Models
             Uprna = 0;
             Debt = 0;
             Discount = 0;
+            Transport = 0;
             Balance = 0;
         }
     }

@@ -219,6 +219,7 @@
                         row += "<td>" + recon.uprna.toString().toAccounting() + "</td>";
                         row += "<td>" + recon.debt.toString().toAccounting() + "</td>";
                         row += "<td>" + recon.discount.toString().toAccounting() + "</td>";
+                        row += "<td>" + recon.transport.toString().toAccounting() + "</td>";
                         row += "<td class='red-text bold-text'>" + recon.balance.toString().toAccounting() + "</td>";
                         row += "<td class='blue-text bold-text'>" + cumm.toString().toAccounting() + "</td>";
                         row += "</tr>";
@@ -383,7 +384,7 @@
                     var delv = 0.0;
                     var purc = 0.0;
                     var cumm = 0.0;
-    
+
                     var array_delv = [0.0, 0.0, 0.0, 0.0, 0.0];
                     var array_purc = [0.0, 0.0, 0.0, 0.0, 0.0];
 
@@ -392,7 +393,7 @@
                         delv += ledger.delivery;
                         purc += ledger.purchase;
                         cumm += ledger.total;
-    
+
                         if (ledger.type == 'DELV') {
                             array_delv[ledger.fuel.id] += ledger.delivery;
                         }
@@ -439,7 +440,7 @@
                     jq('#v1').text(array_purc[3].toString().toAccounting());
                     jq('#k1').text(array_purc[4].toString().toAccounting());
                     jq('#t1').text(purc.toString().toAccounting());
-    
+
                     jq('#d2').text(array_delv[1].toString().toAccounting());
                     jq('#s2').text(array_delv[2].toString().toAccounting());
                     jq('#v2').text(array_delv[3].toString().toAccounting());
@@ -1050,8 +1051,9 @@
                             <th>UPRNA</th>
                             <th>DEBT</th>
                             <th>DISCOUNT</th>
+                            <th>TRANSPORT</th>
                             <th>BALANCE</th>
-                            <th>CUMMULATIVE</th>
+                            <th>CUMULATIVE</th>
                         </tr>
                     </thead>
 
