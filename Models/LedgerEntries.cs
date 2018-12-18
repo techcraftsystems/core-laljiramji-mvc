@@ -15,7 +15,9 @@ namespace Core.Models
         public Double Quantity { get; set; }
         public Double Price { get; set; }
         public Double Amount { get; set; }
+        public Double Discount { get; set; }
         public Stations Station { get; set; }
+        public Customers Customer { get; set; }
 
 
         public LedgerEntries()
@@ -34,8 +36,10 @@ namespace Core.Models
             Quantity = 0;
             Price = 0;
             Amount = 0;
+            Discount = 0;
 
             Station = new Stations();
+            Customer = new Customers();
         }
     }
 }

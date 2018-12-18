@@ -375,6 +375,37 @@ namespace Core.Services
             return entries;
         }
 
+        public List<LedgerEntries> GetLedgerEntriesDuplicates(DateTime start, DateTime stop){
+            List<LedgerEntries> entries = new List<LedgerEntries>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("DECLARE @date1 DATE='" + start.Date + "', @date2 DATE='" + stop.Date + "'; SELECT sr_idnt, sr_date, CASE sr_fuel WHEN 1 THEN 'LTS DIESEL' WHEN 2 THEN 'LTS SUPER' WHEN 3 THEN 'LTS VPOWER' WHEN 4 THEN 'LTS KEROSENE' ELSE 'OTHERS' END xdesc, sr_lpo, sr_invoice, sr_price, sr_amts, sr_cust, Names, sr_st, st_code, st_name FROM ( SELECT sr_idnt, sr_st, sr_cust, sr_date, sr_fuel, sr_overpump, sr_lpo, sr_invoice, sr_price, sr_amts, sr_discount FROM vInvoicesLedger WHERE sr_invoice IN ( SELECT DISTINCT invs FROM vInvoicesDuplicates INNER JOIN vInvoicesLedger ON invs=sr_invoice WHERE sr_date BETWEEN @date1 AND @date2) UNION ALL SELECT sr_idnt, sr_st, sr_cust, sr_date, sr_fuel, sr_overpump, sr_lpo, sr_invoice, sr_price, sr_amts, sr_discount FROM vInvoicesLedger WHERE sr_date BETWEEN @date1 AND @date2 AND sr_invoice=0 ) As Foo INNER JOIN Stations ON st_idnt=sr_st INNER JOIN vCustomers ON sr_cust=Custid ORDER BY sr_invoice, sr_date, sr_fuel");
+            if (dr.HasRows) {
+                while (dr.Read()){
+                    LedgerEntries entry = new LedgerEntries();
+                    entry.Id = Convert.ToInt64(dr[0]);
+                    entry.Date = Convert.ToDateTime(dr[1]).ToString("dd/MM/yyyy");
+                    entry.Description = dr[2].ToString();
+                    entry.Lpo = dr[3].ToString();
+                    entry.Invoice = dr[4].ToString();
+                    entry.Price = Convert.ToDouble(dr[5]);
+                    entry.Amount = Convert.ToDouble(dr[6]);
+                    entry.Quantity = (entry.Amount / entry.Price);
+
+                    entry.Customer.Id = Convert.ToInt64(dr[7]);
+                    entry.Customer.Name = dr[8].ToString();
+
+                    entry.Station.Id = Convert.ToInt64(dr[9]);
+                    entry.Station.Code = dr[10].ToString();
+                    entry.Station.Name = dr[11].ToString();
+
+                    entries.Add(entry);
+                }
+            }
+
+            return entries;
+        }
+
         public List<Expenses> GetExpenditure(Int64 stid, DateTime start, DateTime stop, String filter){
             List<Expenses> expenses = new List<Expenses>();
 

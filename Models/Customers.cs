@@ -27,5 +27,9 @@ namespace Core.Models
             CreditLimit = 0;
             Station = new Stations();
         }
+
+        public Customers(Int64 idnt) : this(){
+            Id = idnt;
+        }
     }
 }

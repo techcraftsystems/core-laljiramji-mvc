@@ -5,6 +5,8 @@ using Core.Models;
 using Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace Core.Controllers
 {
@@ -13,6 +15,7 @@ namespace Core.Controllers
     {
         public IActionResult Index(StationsService svc)
         {
+
             IndexViewModel model = new IndexViewModel();
             model.Pending = new List<Stations>(svc.GetPendingPush());
             model.Updated = new List<Stations>(svc.GetUpdatedPush());
@@ -42,6 +45,10 @@ namespace Core.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public string GetCurrentUser(HttpContext context) {
+            return context.User.FindFirst(ClaimTypes.UserData).Value;
         }
     }
 }
