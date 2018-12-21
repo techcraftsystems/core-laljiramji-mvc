@@ -1,0 +1,185 @@
+﻿@model Core.ViewModel.StationsLedgersDuplicatesViewModel;
+
+@{
+    ViewData["Title"] = "Duplicate Invoices";
+}
+
+<script type="text/javascript">
+    jq(function() {
+        jq('.get-ledger a').click(function(){
+            GetLedgerDuplicates();
+        });
+
+        String.prototype.toAccounting = function() {
+            var str =  parseFloat(this).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+
+            if (str.charAt(0) == '-'){
+                return '(' + str.substring(1,40) + ')';
+            }
+            else {
+                return str;
+            }
+
+        };
+
+        function GetLedgerDuplicates(){
+            jq.ajax({
+                dataType: "json",
+                url: '/Stations/GetLedgerDuplicates',
+                data: {
+                    "start":    jq('#startDate').val(),
+                    "stop":     jq('#stopDate').val()
+                },
+                beforeSend: function() {
+                    jq('body').removeClass('loaded');
+                },
+                success: function(results) {
+                    jq('#ledger-table tbody').empty();
+                    jq('#ledger-table tfoot').empty();
+
+                    var cumm = 0.0;
+
+                    jq.each(results, function(i, entry) {
+                        cumm += entry.amount;
+    
+                        var row = "<tr data-idnt='" + entry.id + "' data-action='" + entry.action + "' data-account='" + entry.account + "'>";
+                        row += "<td>" + entry.date + "</td>";
+                        row += "<td style='text-align:center'>" + entry.quantity.toString().toAccounting() + "</td>";
+                        row += "<td>" + entry.description + "</td>";
+                        row += "<td style='text-align:center'>" + entry.lpo + "</td>";
+                        row += "<td style='text-align:center'>" + entry.invoice + "</td>";
+                        row += "<td>" + entry.station.name + "</td>";
+                        row += "<td><a href='/customers/" + entry.station.code.toLowerCase() + "/" + entry.customer.id + "'>" + entry.name + "</a></td>";
+                        row += "<td>" + entry.price.toString().toAccounting() + "</td>";
+                        row += "<td class='bold-text' style='text-align:right;'>" + entry.amount.toString().toAccounting() + "</td>";
+                        row += "<td style='width:60px;'><i class='material-icons blue-text left'>code</i><i class='material-icons red-text right'>delete_forever</i></td>";
+                        row += "</tr>";
+
+                        jq('#ledger-table tbody').append(row);
+                    })
+
+                    var footr = "<tr>";
+                    footr += "<td class='bold-text' colspan='7'>&nbsp;SUMMARY</td>";
+                    footr += "<td class='bold-text right'>" + cumm.toString().toAccounting() + "</td>";
+                    footr += "<td>&nbsp;</td>";
+                    footr += "</tr>";
+
+                    jq('#ledger-table tfoot').append(footr);
+                },
+                error: function(xhr, ajaxOptions, thrownError) {
+                    console.log(xhr.status);
+                    console.log(thrownError);
+                },
+                complete: function() {
+                    $('body').addClass('loaded');
+                }
+            });
+        }
+
+        GetLedgerDuplicates();
+    });
+</script>
+
+<style>
+    table tbody tr th a {
+        color: #448AFF;
+    }
+    table tbody tr th a:hover {
+        color: rgba(58, 138, 255, 0.7);
+        text-decoration: none;
+    }
+    #summaryTbl thead tr th,
+    #summaryTbl tfoot tr td,
+    #summaryTbl tbody tr td {
+        text-align: right;
+    }
+    #summaryTbl thead tr th {
+        padding: 10px;
+    }
+    .col-md-1.get-summary {
+        margin-top: 10px;
+    }
+    #filter-summary .col-md-1,
+    #filter-ledger .col-md-1 {
+        width: 5%;
+    }
+    #filter-summary .col-md-3,
+    #filter-ledger .col-md-3 {
+        width: 20%;
+    }
+    #filter-summary .col-md-5,
+    #filter-ledger .col-md-5 {
+        width: 55%;
+    }
+    #ledger-table td:first-child,
+    #ledger-table th:first-child,
+    #reconcile-table td:first-child,
+    #reconcile-table th:first-child {
+        text-align: left;
+        padding-left: 10px;
+    }
+    #purchase-table td,
+    #reconcile-table td,
+    #ledger-table td {
+        padding: 1px 0px 1px 5px;
+    }
+    #ledger-table td:nth-child(8),
+    #ledger-table th:nth-child(8) {
+        text-align: right;
+    }
+    td i.right {
+        margin-left: 5px;
+    }
+    td i.left {
+        margin-right: 0px;
+    }
+</style>
+
+<div id="filter-ledger" class="black-text">
+    <div id="summarySel" class="input-field col-md-4" style="width:55%">
+        <i class="material-icons prefix">local_gas_station</i>
+        <select multiple id="summaryList">
+            <option value="" disabled selected>Select Stations</option>
+            @foreach (var st in Model.Stations)
+            {
+                <option value="@st.Id">@st.Name</option>
+            }
+        </select>
+    </div>
+
+    <div class="input-field col-md-3">
+        <i class="material-icons prefix">date_range</i>
+        <input id="startDate" type="text" class="datepicker" value="@Model.StartDate.ToString(" d MMMM, yyyy")">
+    </div>
+
+    <div class="input-field col-md-3">
+        <i class="material-icons prefix">date_range</i>
+        <input id="stopDate" type="text" class="datepicker" value="@Model.EndDate.ToString(" d MMMM, yyyy")">
+    </div>
+
+    <div class="col-md-1 get-ledger">
+        <a class="btn btn-floating pulse btn gradient-45deg-amber-amber right"><i class="material-icons" style="line-height: 42px">search</i></a>
+    </div>
+
+    <div style="clear:both"></div>
+</div>
+
+<table id="ledger-table" class="bordered" data-loaded="0" style="margin-top:-20px">
+    <thead>
+        <tr>
+            <th>DATE</th>
+            <th style="text-align:center">LTS</th>
+            <th>DESCRIPTION</th>
+            <th>LPO</th>
+            <th>INVOICE</th>
+            <th>STATION</th>
+            <th>NAME</th>
+            <th>PRICE</th>
+            <th style="text-align:right">AMOUNT</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+
+    <tbody></tbody>
+    <tfoot></tfoot>
+</table>

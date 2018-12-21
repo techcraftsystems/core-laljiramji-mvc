@@ -36,6 +36,13 @@ namespace Core.Controllers
             return View(model);
         }
 
+        [Route("core/stations/ledgers/duplicates")]
+        public ActionResult LedgersDuplicates(StationsLedgersDuplicatesViewModel model, StationsService svc)
+        {
+            model.Stations = new List<Stations>(svc.GetStations());
+            return View(model);
+        }
+
         [AllowAnonymous]
         public JsonResult GetStationsSummary(String date1, String date2, String stats, StationsService svc)
         {
@@ -92,6 +99,13 @@ namespace Core.Controllers
                 filter = "";
 
             List<LedgerEntries> entries = svc.GetLedgerEntries(stid, DateTime.Parse(start), DateTime.Parse(stop), filter);
+            return Json(entries);
+        }
+
+        [AllowAnonymous]
+        public JsonResult GetLedgerDuplicates(string start, string stop, StationsService service)
+        {
+            List<LedgerEntries> entries = service.GetLedgerDuplicates(DateTime.Parse(start), DateTime.Parse(stop));
             return Json(entries);
         }
 
