@@ -94,6 +94,19 @@
     #purchase-summary td:first-child {
         text-align: left;
     }
+    .tabs .tab a {
+        padding: 0 15px;
+    }
+    a.material-icons.tiny-box {
+        display: block;
+        font-size: 14px;
+        height: 6px;
+        line-height: 1;
+        cursor: pointer;
+    }
+    a.material-icons:hover {
+        color: #2196F3 !important;
+    }
 </style>
 
 <script src="~/lib/data-tables/js/jquery.dataTables.min.js"></script>
@@ -101,62 +114,13 @@
 
 <script>
     var xDate = new Date('@Model.Selected.Push.Date');
+    var xIdnt = @Model.Selected.Id;
+    var xCode = '@Model.Selected.Code';
 
     jq(function() {
         jq('.tabs').tabs();
         jq('#customer-table').DataTable({
             "displayLength": 25,
-        });
-
-        jq(".collection").on("click", ".email-unread", function() {
-            var action = jq(this).data('station');
-            if (action != '@Model.Selected.Code.ToLower()'){
-                window.location.href = action;
-            }
-        });
-
-        jq('ul .recon').click(function(){
-            if(jq("#reconcile-table").data('loaded') == 0){
-                GetStationsReconciles();
-                jq("#reconcile-table").data('loaded', 1);
-            }
-        });
-
-        jq('.get-reconcile a').click(function(){
-            GetStationsReconciles();
-        });
-
-        jq('ul .ledgr').click(function(){
-            if(jq("#ledger-table").data('loaded') == 0){
-                GetLedgerEntries();
-                jq("#ledger-table").data('loaded', 1);
-            }
-        });
-
-        jq('.get-ledger a').click(function(){
-            GetLedgerEntries();
-        });
-
-        jq('ul .expns').click(function(){
-            if(jq("#expense-table").data('loaded') == 0){
-                GetExpenditure();
-                jq("#expense-table").data('loaded', 1);
-            }
-        });
-
-        jq('.get-expense a').click(function(){
-            GetExpenditure();
-        });
-
-        jq('ul .purch').click(function(){
-            if(jq("#purchase-table").data('loaded') == 0){
-                GetPurchasesLedger();
-                jq("#purchase-table").data('loaded', 1);
-            }
-        });
-
-        jq('.get-purchases a').click(function(){
-            GetPurchasesLedger();
         });
 
         jq("#clients-bar").sparkline([70, 80, 65, 78, 58, 80, 78, 80, 70, 50, 75, 65, 80, 70, 65, 90, 65, 80, 70, 65, 90, 70, 80, 65, 78, 58, 80, 78, 80, 70, 50, 75, 65, 80, 70, 65, 90, 65, 80, 70, 65, 90, 70, 80, 65, 78, 58, 80, 78, 80, 70, 50, 75, 65, 80, 70, 65, 90, 65, 80, 70, 65, 90, 70, 80, 65, 78, 58, 80, 78, 80, 70, 50, 75, 65], {
@@ -178,297 +142,11 @@
             else {
                 return str;
             }
-
         };
-
-        function GetStationsReconciles(){
-            jq.ajax({
-                dataType: "json",
-                url: '/Stations/GetStationsReconciles',
-                data: {
-                    "stid": @Model.Selected.Id,
-                    "year": jq('#reconcile-year :selected').val(),
-                    "mnth": jq('#reconcile-mnth :selected').val()
-                },
-                beforeSend: function() {
-                    jq('body').removeClass('loaded');
-                },
-                success: function(results) {
-                    var cumm = 0.0;
-                    var amts = 0.0;
-                    var paid = 0.0;
-                    var uprn = 0.0;
-                    var debt = 0.0;
-                    var disc = 0.0;
-                    var tnsp = 0.0;
-
-                    jq('#reconcile-table tbody').empty();
-                    jq('#reconcile-table tfoot').empty();
-
-                    jq.each(results, function(i, recon) {
-                        cumm += recon.balance;
-                        amts += recon.amount;
-                        paid += recon.payment;
-                        uprn += recon.uprna;
-                        debt += recon.debt;
-                        disc += recon.discount;
-                        tnsp += recon.transport;
-
-                        var row = "<tr>";
-                        row += "<td>" + recon.date + "</td>";
-                        row += "<td>" + recon.amount.toString().toAccounting() + "</td>";
-                        row += "<td>" + recon.payment.toString().toAccounting() + "</td>";
-                        row += "<td>" + recon.uprna.toString().toAccounting() + "</td>";
-                        row += "<td>" + recon.debt.toString().toAccounting() + "</td>";
-                        row += "<td>" + recon.discount.toString().toAccounting() + "</td>";
-                        row += "<td>" + recon.transport.toString().toAccounting() + "</td>";
-                        row += "<td class='red-text bold-text'>" + recon.balance.toString().toAccounting() + "</td>";
-                        row += "<td class='blue-text bold-text'>" + cumm.toString().toAccounting() + "</td>";
-                        row += "</tr>";
-
-                        jq('#reconcile-table tbody').append(row);
-                    })
-
-                    var footr = "<tr>";
-                    footr += "<td></td>";
-                    footr += "<td class='bold-text'>" + amts.toString().toAccounting() + "</td>";
-                    footr += "<td class='bold-text'>" + paid.toString().toAccounting() + "</td>";
-                    footr += "<td class='bold-text'>" + uprn.toString().toAccounting() + "</td>";
-                    footr += "<td class='bold-text'>" + debt.toString().toAccounting() + "</td>";
-                    footr += "<td class='bold-text'>" + disc.toString().toAccounting() + "</td>";
-                    footr += "<td class='bold-text'>" + tnsp.toString().toAccounting() + "</td>";
-                    footr += "<td class='red-text bold-text'>" + cumm.toString().toAccounting() + "</td>";
-                    footr += "<td class='blue-text bold-text'>" + cumm.toString().toAccounting() + "</td>";
-                    footr += "</tr>";
-
-                    jq('#reconcile-table tfoot').append(footr);
-
-                },
-                error: function(xhr, ajaxOptions, thrownError) {
-                    console.log(xhr.status);
-                    console.log(thrownError);
-                },
-                complete: function() {
-                    $('body').addClass('loaded');
-                }
-            });
-        }
-
-        function GetLedgerEntries(){
-            jq.ajax({
-                dataType: "json",
-                url: '/Stations/GetLedgerEntries',
-                data: {
-                    "stid":     @Model.Selected.Id,
-                    "start":    jq('#ledgerStartDate').val(),
-                    "stop":     jq('#ledgerStopsDate').val(),
-                    "filter":   jq('#ledgerFilter').val()
-                },
-                beforeSend: function() {
-                    jq('body').removeClass('loaded');
-                },
-                success: function(results) {
-                    jq('#ledger-table tbody').empty();
-                    jq('#ledger-table tfoot').empty();
-
-                    var cumm = 0.0;
-
-                    jq.each(results, function(i, entry) {
-                        cumm += entry.amount;
-
-                        var name = entry.name;
-                        if (entry.action == 0) {
-                            name = "<a href='/customers/@Model.Selected.Code.ToLower()/" + entry.account + "'>" + entry.name + "</a>";
-                        }
-
-                        var row = "<tr data-idnt='" + entry.id + "' data-action='" + entry.action + "' data-account='" + entry.account + "'>";
-                        row += "<td>" + entry.date + "</td>";
-                        row += "<td>" + entry.quantity.toString().toAccounting() + "</td>";
-                        row += "<td>" + entry.description + "</td>";
-                        row += "<td>" + entry.lpo + "</td>";
-                        row += "<td>" + entry.invoice + "</td>";
-                        row += "<td>" + name + "</td>";
-                        row += "<td class='right'>" + entry.price.toString().toAccounting() + "</td>";
-                        row += "<td class='bold-text'>" + entry.amount.toString().toAccounting() + "</td>";
-                        row += "<td><i class='material-icons blue-text left'>code</i><i class='material-icons red-text right'>delete_forever</i></td>";
-                        row += "</tr>";
-
-                        jq('#ledger-table tbody').append(row);
-                    })
-
-                    var footr = "<tr>";
-                    footr += "<td class='bold-text' colspan='7'>&nbsp;SUMMARY</td>";
-                    footr += "<td class='bold-text right'>" + cumm.toString().toAccounting() + "</td>";
-                    footr += "<td>&nbsp;</td>";
-                    footr += "</tr>";
-
-                    jq('#ledger-table tfoot').append(footr);
-                },
-                error: function(xhr, ajaxOptions, thrownError) {
-                    console.log(xhr.status);
-                    console.log(thrownError);
-                },
-                complete: function() {
-                    $('body').addClass('loaded');
-                }
-            });
-        }
-
-        function GetExpenditure(){
-            jq.ajax({
-                dataType: "json",
-                url: '/Stations/GetExpenditure',
-                data: {
-                    "stid":     @Model.Selected.Id,
-                    "start":    jq('#expenseStartDate').val(),
-                    "stop":     jq('#expenseStopsDate').val(),
-                    "filter":   jq('#expenseFilter').val()
-                },
-                beforeSend: function() {
-                    jq('body').removeClass('loaded');
-                },
-                success: function(results) {
-                    jq('#expense-table tbody').empty();
-                    jq('#expense-table tfoot').empty();
-
-                    var cumm = 0.0;
-
-                    jq.each(results, function(i, expense) {
-                        cumm += expense.amount;
-
-                        var row = "<tr data-idnt='" + expense.id + "' data-account='" + expense.account.id + "'>";
-                        row += "<td>" + expense.date + "</td>";
-                        row += "<td>" + expense.location + "</td>";
-                        row += "<td>" + expense.account.name + "</td>";
-                        row += "<td>" + expense.description + "</td>";
-                        row += "<td class='bold-text'>" + expense.amount.toString().toAccounting() + "</td>";
-                        row += "<td><i class='material-icons blue-text left'>code</i><i class='material-icons red-text right'>delete_forever</i></td>";
-                        row += "</tr>";
-
-                        jq('#expense-table tbody').append(row);
-                    })
-
-                    var footr = "<tr>";
-                    footr += "<td class='bold-text' colspan='4'>&nbsp;EXPENDITURE SUMMARY</td>";
-                    footr += "<td class='bold-text right'>" + cumm.toString().toAccounting() + "</td>";
-                    footr += "<td>&nbsp;</td>";
-                    footr += "</tr>";
-
-                    jq('#expense-table tfoot').append(footr);
-                },
-                error: function(xhr, ajaxOptions, thrownError) {
-                    console.log(xhr.status);
-                    console.log(thrownError);
-                },
-                complete: function() {
-                    $('body').addClass('loaded');
-                }
-            });
-        }
-
-        function GetPurchasesLedger(){
-            jq.ajax({
-                dataType: "json",
-                url: '/Stations/GetPurchasesLedger',
-                data: {
-                    "stid":     @Model.Selected.Id,
-                    "start":    jq('#purchaseStartDate').val(),
-                    "stop":     jq('#purchaseStopsDate').val(),
-                    "filter":   jq('#purchaseFilter').val()
-                },
-                beforeSend: function() {
-                    jq('body').removeClass('loaded');
-                },
-                success: function(results) {
-                    jq('#purchase-table tbody').empty();
-                    jq('#purchase-table tfoot').empty();
-
-                    var ltrs = 0.0;
-                    var delv = 0.0;
-                    var purc = 0.0;
-                    var cumm = 0.0;
-
-                    var array_delv = [0.0, 0.0, 0.0, 0.0, 0.0];
-                    var array_purc = [0.0, 0.0, 0.0, 0.0, 0.0];
-
-                    jq.each(results, function(i, ledger) {
-                        ltrs += ledger.quantity;
-                        delv += ledger.delivery;
-                        purc += ledger.purchase;
-                        cumm += ledger.total;
-
-                        if (ledger.type == 'DELV') {
-                            array_delv[ledger.fuel.id] += ledger.delivery;
-                        }
-                        else {
-                            array_purc[ledger.fuel.id] += ledger.purchase;
-                        }
-
-                        var supp = '';
-
-                        if (ledger.supplier.id != 0) {
-                            supp = "<a href='/core/suppliers/" + ledger.supplier.id + "'>" + ledger.supplier.name + "</a>";
-                        }
-                        else {
-                            supp = ledger.supplier.name;
-                        }
-
-                        var row = "<tr data-idnt='" + ledger.id + "'>";
-                        row += "<td>" + ledger.date + "</td>";
-                        row += "<td>" + ledger.type + "</td>";
-                        row += "<td><a href='/core/fuel/" + ledger.fuel.id + "'>" + ledger.fuel.name + "</td>";
-                        row += "<td>" + supp + "</td>";
-                        row += "<td>" + ledger.invoice + "</td>";
-                        row += "<td>" + ledger.delivery.toString().toAccounting() + "</td>";
-                        row += "<td>" + ledger.purchase.toString().toAccounting() + "</td>";
-                        row += "<td>" + ledger.price.toString().toAccounting() + "</td>";
-                        row += "<td class='bold-text right'>" + ledger.total.toString().toAccounting() + "</td>";
-                        row += "</tr>";
-
-                        jq('#purchase-table tbody').append(row);
-                    })
-
-                    var footr = "<tr>";
-                    footr += "<td class='bold-text' colspan='5'>&nbsp;PURCHASES SUMMARY</td>";
-                    footr += "<td class='bold-text'>" + delv.toString().toAccounting() + "</td>";
-                    footr += "<td class='bold-text'>" + purc.toString().toAccounting() + "</td>";
-                    footr += "<td>&nbsp;</td>";
-                    footr += "<td class='bold-text right'>" + cumm.toString().toAccounting() + "</td>";
-                    footr += "</tr>";
-
-                    jq('#purchase-table tfoot').append(footr);
-
-                    jq('#d1').text(array_purc[1].toString().toAccounting());
-                    jq('#s1').text(array_purc[2].toString().toAccounting());
-                    jq('#v1').text(array_purc[3].toString().toAccounting());
-                    jq('#k1').text(array_purc[4].toString().toAccounting());
-                    jq('#t1').text(purc.toString().toAccounting());
-
-                    jq('#d2').text(array_delv[1].toString().toAccounting());
-                    jq('#s2').text(array_delv[2].toString().toAccounting());
-                    jq('#v2').text(array_delv[3].toString().toAccounting());
-                    jq('#k2').text(array_delv[4].toString().toAccounting());
-                    jq('#t2').text(delv.toString().toAccounting());
-
-                    jq('#d3').text((array_delv[1]-array_purc[1]).toString().toAccounting());
-                    jq('#s3').text((array_delv[2]-array_purc[2]).toString().toAccounting());
-                    jq('#v3').text((array_delv[3]-array_purc[3]).toString().toAccounting());
-                    jq('#k3').text((array_delv[4]-array_purc[4]).toString().toAccounting());
-                    jq('#t3').text((delv-purc).toString().toAccounting());
-
-                    console.log(array_delv);
-                },
-                error: function(xhr, ajaxOptions, thrownError) {
-                    console.log(xhr.status);
-                    console.log(thrownError);
-                },
-                complete: function() {
-                    $('body').addClass('loaded');
-                }
-            });
-        }
     });
 </script>
+
+<script src="~/js/stations-main-script.js"></script>
 
 <div class="row" style="margin-bottom:0px;">
     <div id="email-list" class="col s10 m3 l3 card-panel z-depth-1" style="margin-bottom:0px;">
@@ -500,6 +178,7 @@
                 <li class="tab"><a href="#customer">Customers</a></li>
                 <li class="tab ledgr"><a href="#ledger">Invoices</a></li>
                 <li class="tab expns"><a href="#expenses">Expenses</a></li>
+                <li class="tab pymts"><a href="#payments">Payments</a></li>
                 <li class="tab purch"><a href="#purchases">Purchases</a></li>
                 <li class="tab recon"><a href="#reconcile">Reconcile</a></li>
             </ul>
@@ -908,6 +587,47 @@
 
                     <tfoot>
                     </tfoot>
+                </table>
+            </div>
+
+            <!--PAYMENTS TAB-->
+            <div id="payments" class="body">
+                <div class="row" style="margin-top: 10px;">
+                    <div class="input-field col-md-3">
+                        <i class="material-icons prefix">date_range</i>
+                        <input id="paymentStartDate" type="text" class="datepicker" value="@Model.Selected.Push.ToString("d MMMM, yyyy")">
+                    </div>
+
+                    <div class="input-field col-md-3">
+                        <i class="material-icons prefix">date_range</i>
+                        <input id="paymentStopsDate" type="text" class="datepicker" value="@DateTime.Now.ToString("d MMMM, yyyy")">
+                    </div>
+
+                    <div class="input-field col-md-5">
+                        <i class="material-icons prefix">filter_list</i>
+                        <input id="paymentFilter" type="text" placeholder="Filter Expenses" />
+                    </div>
+
+                    <div class="col-md-1 get-payments">
+                        <a class="btn btn-floating pulse btn gradient-45deg-amber-amber right"><i class="material-icons" style="line-height: 42px">search</i></a>
+                    </div>
+                </div>
+
+                <table id="payment-table" class="bordered" data-loaded="0" style="margin-top: -20px">
+                    <thead>
+                        <tr>
+                            <th>DATE</th>
+                            <th>CUSTOMER</th>
+                            <th>RECEIPT</th>
+                            <th>CHEQUE</th>
+                            <th style="text-align:right;padding-right:15px;">AMOUNT</th>
+                            <th>NOTES</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                    </thead>
+
+                    <tbody></tbody>
+                    <tfoot></tfoot>
                 </table>
             </div>
 

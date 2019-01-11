@@ -137,3 +137,16 @@ table.station tbody tr td {
 .center-text {
     text-align: center;
 }
+a.material-icons.tiny-box {
+    display: block;
+    font-size: 14px;
+    height: 6px;
+    line-height: 1;
+    cursor: pointer;
+}
+a.material-icons:hover {
+    color: #2196F3 !important;
+}
+a.material-icons.tiny-red:hover {
+    color: #F44336 !important;
+}
