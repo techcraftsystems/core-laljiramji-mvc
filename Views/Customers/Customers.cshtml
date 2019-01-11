@@ -63,18 +63,10 @@
 </style>
 
 <script type="text/javascript">
+    var xCust = @Model.Id;
+    var xStid = @Model.Station.Id;
+
     jq(function() {
-        jq('ul .invs').click(function(){
-            if(jq("#invoice-table").data('loaded') == 0){
-                GetLedgerEntries();
-                jq("#invoice-table").data('loaded', 1);
-            }
-        });
-
-        jq('.get-invoices a').click(function(){
-            GetLedgerEntries();
-        });
-
         String.prototype.toAccounting = function() {
             var str =  parseFloat(this).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
 
@@ -84,64 +76,10 @@
             else {
                 return str;
             }
-
         };
-        function GetLedgerEntries(){
-            jq.ajax({
-                dataType: "json",
-                url: '/Customers/GetLedgerEntries',
-                data: {
-                    "custid":   @Model.Id,
-                    "stid":     @Model.Station.Id,
-                    "start":    jq('#invoiceStartDate').val(),
-                    "stop":     jq('#invoiceStopsDate').val(),
-                    "filter":   jq('#invoiceFilter').val()
-                },
-                beforeSend: function() {
-                    jq('body').removeClass('loaded');
-                },
-                success: function(results) {
-                    jq('#invoice-table tbody').empty();
-                    jq('#invoice-table tfoot').empty();
-
-                    var cumm = 0.0;
-
-                    jq.each(results, function(i, entry) {
-                        cumm += entry.amount;
-
-                        var row = "<tr data-idnt='" + entry.id + "' data-action='" + entry.action + "' data-account='" + entry.account + "'>";
-                        row += "<td>" + entry.date + "</td>";
-                        row += "<td>" + entry.quantity.toString().toAccounting() + "</td>";
-                        row += "<td>" + entry.description + "</td>";
-                        row += "<td>" + entry.lpo + "</td>";
-                        row += "<td>" + entry.invoice + "</td>";
-                        row += "<td>" + entry.price.toString().toAccounting() + "</td>";
-                        row += "<td class='bold-text'>" + entry.amount.toString().toAccounting() + "</td>";
-                        row += "<td><i class='material-icons blue-text left'>code</i><i class='material-icons red-text right'>delete_forever</i></td>";
-                        row += "</tr>";
-
-                        jq('#invoice-table tbody').append(row);
-                    })
-
-                    var footr = "<tr>";
-                    footr += "<td class='bold-text' colspan='6'>&nbsp;SUMMARY</td>";
-                    footr += "<td class='bold-text right'>" + cumm.toString().toAccounting() + "</td>";
-                    footr += "<td>&nbsp;</td>";
-                    footr += "</tr>";
-
-                    jq('#invoice-table tfoot').append(footr);
-                },
-                error: function(xhr, ajaxOptions, thrownError) {
-                    console.log(xhr.status);
-                    console.log(thrownError);
-                },
-                complete: function() {
-                    $('body').addClass('loaded');
-                }
-            });
-        }
     });
 </script>
+<script src="~/js/customers-main-script.js"></script>
 
 <div class="rows">
     <!--Navigation Column-->
@@ -216,7 +154,7 @@
 
                         <div class="input-field col-md-3">
                             <i class="material-icons prefix">date_range</i>
-                            <input id="invoiceStopsDate" type="text" class="datepicker" value="@DateTime.Now.AddDays(-1).ToString("d MMMM, yyyy")" />
+                            <input id="invoiceStopsDate" type="text" class="datepicker" value="@DateTime.Now.ToString("d MMMM, yyyy")" />
                         </div>
 
                         <div class="input-field col-md-5">
@@ -252,20 +190,20 @@
                     <div class="row" style="margin-top: 10px;">
                         <div class="input-field col-md-3">
                             <i class="material-icons prefix">date_range</i>
-                            <input id="paymentStartDate" type="text" class="datepicker" value="@DateTime.Now.AddDays(-1).ToString(" d MMMM, yyyy")">
+                            <input id="paymentStartDate" type="text" class="datepicker" value="@DateTime.Now.AddDays(-1).ToString("d MMMM, yyyy")">
                         </div>
 
                         <div class="input-field col-md-3">
                             <i class="material-icons prefix">date_range</i>
-                            <input id="paymentStopsDate" type="text" class="datepicker" value="@DateTime.Now.AddDays(-1).ToString(" d MMMM, yyyy")">
+                            <input id="paymentStopsDate" type="text" class="datepicker" value="@DateTime.Now.ToString("d MMMM, yyyy")">
                         </div>
 
                         <div class="input-field col-md-5">
                             <i class="material-icons prefix">filter_list</i>
-                            <input id="ipaymentFilter" type="text" placeholder="Filter Payments" />
+                            <input id="paymentFilter" type="text" placeholder="Filter Payments" />
                         </div>
 
-                        <div class="col-md-1 get-purchases">
+                        <div class="col-md-1 get-payments">
                             <a class="btn btn-floating pulse btn gradient-45deg-amber-amber right"><i class="material-icons" style="line-height: 42px">search</i></a>
                         </div>
                     </div>
@@ -277,9 +215,8 @@
                                 <th>RECEIPT</th>
                                 <th>DESCRIPTION</th>
                                 <th>CHQ.NO</th>
-                                <th>CHQ.AMT</th>
-                                <th>CASH</th>
-                                <th>TOTAL</th>
+                                <th class="right-text" style="padding-right:15px;">AMOUNT</th>
+                                <th>&nbsp;</th>
                             </tr>
                         </thead>
                         <tbody></tbody>

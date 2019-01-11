@@ -598,7 +598,7 @@ namespace Core.Services
             return reports;
         }
 
-        public List<CustomersPayments> GetCustomerPayments(DateTime start, DateTime stop, string stations, Customers customer, string filter = "")
+        public List<CustomersPayments> GetCustomerPayments(DateTime start, DateTime stop, string stations, string customers, string filter = "")
         {
             List<CustomersPayments> payments = new List<CustomersPayments>();
 
@@ -606,6 +606,10 @@ namespace Core.Services
             string q = conn.GetQueryString(filter, "CAST(rcpt AS NVARCHAR)+'-'+CAST(imcq AS NVARCHAR)+'-'+CAST(im_paid AS NVARCHAR)+'-'+st_code+'-'+st_name+'-'+CASE im_type WHEN 4 THEN 'LIPA NA MPESA' WHEN 3 THEN BankName+(CASE WHEN BankName IN ('CFC', 'KCB', 'EQUITY') THEN ' VISA' END)ELSE ISNULL(Names,'-- INVALID') END", "im_date BETWEEN '" + start.Date + "' AND '" + stop.Date + "'");
             if (!string.IsNullOrEmpty(stations)) {
                 q += " AND im_st IN (" + stations + ")";
+            }
+
+            if (!string.IsNullOrEmpty(customers)) {
+                q += " AND im_type=0 AND im_cust IN (" + customers + ")";
             }
 
             SqlDataReader dr = conn.SqlServerConnect("SELECT im_idnt, im_type, im_date, rcpt, imcq, mm_notes, im_paid, st_idnt, st_code, st_name, st_database, im_cust, CASE im_type WHEN 4 THEN 'LIPA NA MPESA' WHEN 3 THEN BankName+(CASE WHEN BankName IN ('CFC', 'KCB', 'EQUITY') THEN ' VISA' END) ELSE ISNULL(Names,'-- INVALID') END NameX FROM vCustomersPayment INNER JOIN Stations ON im_st=st_idnt LEFT OUTER JOIN vBankAccounts ON im_cust=BankID AND im_st=BankSt LEFT OUTER JOIN vCustomers ON im_cust=Custid AND im_st=Sts " + q + " ORDER BY im_date, st_order, rcpt, NameX");

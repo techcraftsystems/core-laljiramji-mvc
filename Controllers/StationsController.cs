@@ -130,12 +130,18 @@ namespace Core.Controllers
         }
 
         [AllowAnonymous]
-        public JsonResult GetCustomerPayments(string date1, string date2, string stations, StationsService service)
+        public JsonResult GetCustomerPayments(string date1, string date2, string stations, string customers, string filter, StationsService service)
         {
             DateTime xdate1 = DateTime.Parse(date1);
             DateTime xdate2 = DateTime.Parse(date2);
 
-            List<CustomersPayments> payments = new List<CustomersPayments>(service.GetCustomerPayments(xdate1, xdate2, stations, null));
+            if (string.IsNullOrEmpty(customers))
+                customers = "";
+
+            if (string.IsNullOrEmpty(filter))
+                filter = "";
+
+            List<CustomersPayments> payments = new List<CustomersPayments>(service.GetCustomerPayments(xdate1, xdate2, stations, customers, filter));
             return Json(payments);
         }
     }
