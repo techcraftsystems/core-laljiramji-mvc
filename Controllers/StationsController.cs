@@ -128,5 +128,15 @@ namespace Core.Controllers
             List<PurchasesLedger> ledgers = svc.GetPurchasesLedger(stid, DateTime.Parse(start), DateTime.Parse(stop), filter);
             return Json(ledgers);
         }
+
+        [AllowAnonymous]
+        public JsonResult GetCustomerPayments(string date1, string date2, string stations, StationsService service)
+        {
+            DateTime xdate1 = DateTime.Parse(date1);
+            DateTime xdate2 = DateTime.Parse(date2);
+
+            List<CustomersPayments> payments = new List<CustomersPayments>(service.GetCustomerPayments(xdate1, xdate2, stations, null));
+            return Json(payments);
+        }
     }
 }

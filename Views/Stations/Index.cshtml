@@ -7,167 +7,65 @@
     .picker__frame {
         top: 200px !important;
     }
-    .picker--opened .picker__holder{
+
+    .picker--opened .picker__holder {
         background: none;
     }
+
     table tbody tr th a {
         color: #448AFF;
     }
-    table tbody tr th a:hover {
-        color: rgba(58, 138, 255, 0.7);
-        text-decoration: none;
-    }
+
+        table tbody tr th a:hover {
+            color: rgba(58, 138, 255, 0.7);
+            text-decoration: none;
+        }
+
     #summaryTbl thead tr th,
     #summaryTbl tfoot tr td,
     #summaryTbl tbody tr td {
         text-align: right;
     }
+
     #summaryTbl thead tr th {
         padding: 10px;
     }
-    .col-md-1.get-summary {
-        margin-top: 10px;
-    }
-    #filter-summary .col-md-1, 
+    #filter-summary .col-md-1,
     #filter-ledger .col-md-1 {
         width: 5%;
     }
-    #filter-summary .col-md-3, 
+
+    #filter-summary .col-md-3,
     #filter-ledger .col-md-3 {
         width: 20%;
     }
-    #filter-summary .col-md-5, 
+
+    #filter-summary .col-md-5,
     #filter-ledger .col-md-5 {
         width: 55%;
+    }
+    a.material-icons.tiny-box {
+        display: block;
+        font-size: 14px;
+        height: 6px;
+        line-height: 1;
+        cursor: pointer;
+    }
+    a.material-icons:hover {
+        color: #2196F3 !important;
     }
 </style>
 
 <script src="~/js/vendor.sparkline.min.js"></script>
-
-<script>jq(function() {
-        jq('.tabs').tabs();
-
-        var _oldShow = jq.fn.show;
-
-        jq.fn.show = function(speed, oldCallback) {
-            return jq(this).each(function() {
-                var obj = jq(this),
-                    newCallback = function() {
-                        if (jq.isFunction(oldCallback)) {
-                            oldCallback.apply(obj);
-                        }
-                        obj.trigger('afterShow');
-                    };
-
-                // you can trigger a before show if you want
-                obj.trigger('beforeShow');
-
-                // now use the old function to show the element passing the new callback
-                _oldShow.apply(obj, [speed, newCallback]);
-            });
-        }
-
-        jq(".get-summary a").click(function() {
-            GetStationSummary(true);
-        });
-
-        String.prototype.toAccounting = function() {
-            return parseFloat(this).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
-        };
-
-        function GetStationSummary(Notify) {
-            jq.ajax({
-                dataType: "json",
-                url: '/Stations/GetStationsSummary',
-                data: {
-                    "date1": jq("#startDate").val(),
-                    "date2": jq("#stopDate").val(),
-                    "stats": jq(".select-dropdown").val()
-                },
-                beforeSend: function() {
-                    if (Notify) {
-                        $('body').removeClass('loaded');
-                    }
-                },
-                success: function(results) {
-                    var sale = 0.0;
-                    var cash = 0.0;
-                    var invs = 0.0;
-                    var visa = 0.0;
-                    var mpes = 0.0;
-                    var poss = 0.0;
-                    var exps = 0.0;
-                    var disc = 0.0;
-                    var summ = 0.0;
-
-                    jq('#summaryTbl tbody').empty();
-                    jq('#summaryTbl tfoot').empty();
-
-                    jq.each(results, function(i, st) {
-                        var row = "<tr>";
-                        row += "<th><b>" + (i + 1) + ". <a href='stations/" + st.station.code + "'>" + st.station.name + "</a></b></th>";
-                        row += "<td class='red-text bold-text'>" + st.sale.toString().toAccounting() + "</td>";
-                        row += "<td>" + st.cash.toString().toAccounting() + "</td>";
-                        row += "<td>" + st.invoice.toString().toAccounting() + "</td>";
-                        row += "<td>" + st.visa.toString().toAccounting() + "</td>";
-                        row += "<td>" + st.mpesa.toString().toAccounting() + "</td>";
-                        row += "<td>" + st.pos.toString().toAccounting() + "</td>";
-                        row += "<td>" + st.expense.toString().toAccounting() + "</td>";
-                        row += "<td>" + st.discount.toString().toAccounting() + "</td>";
-                        row += "<td class='red-text bold-text'>" + st.summary.toString().toAccounting() + "</td>";
-                        row += "<td class='blue-text'>" + (st.sale - st.summary).toString().toAccounting() + "</td>";
-                        row += "</tr>";
-
-                        sale += st.sale;
-                        cash += st.cash;
-                        invs += st.invoice;
-                        visa += st.visa;
-                        mpes += st.mpesa;
-                        poss += st.pos;
-                        exps += st.expense;
-                        disc += st.discount;
-                        summ += st.summary;
-
-                        jq('#summaryTbl tbody').append(row);
-                    })
-
-                    var footr = "<tr>";
-                    footr += "<td></td>";
-                    footr += "<td><b>" + sale.toString().toAccounting() + "</b></td>";
-                    footr += "<td>" + cash.toString().toAccounting() + "</td>";
-                    footr += "<td>" + invs.toString().toAccounting() + "</td>";
-                    footr += "<td>" + visa.toString().toAccounting() + "</td>";
-                    footr += "<td>" + mpes.toString().toAccounting() + "</td>";
-                    footr += "<td>" + poss.toString().toAccounting() + "</td>";
-                    footr += "<td>" + exps.toString().toAccounting() + "</td>";
-                    footr += "<td>" + disc.toString().toAccounting() + "</td>";
-                    footr += "<td><b>" + summ.toString().toAccounting() + "</b></td>";
-                    footr += "<td>" + (sale - summ).toString().toAccounting() + "</td>";
-                    footr += "</tr>";
-
-                    jq('#summaryTbl tfoot').append(footr);
-
-                },
-                error: function(xhr, ajaxOptions, thrownError) {
-                    console.log(xhr.status);
-                    console.log(thrownError);
-                },
-                complete: function() {
-                    $('body').addClass('loaded');
-                }
-            });
-        }
-
-        GetStationSummary(false);
-});</script>
+<script src="~/js/stations-main-script.js"></script>
 
 <nav class="navbar nav-extended">
     <div class="nav-content" style="border: 1px solid rgba(0,0,0,0.1)">
         <ul class="tabs">
             <li class="tab"><a href="#summary" class="active">Summary</a>/li>
             <li class="tab"><a href="#ledger">Ledger</a></li>
+            <li class="tab pymt"><a href="#payments">Payments</a></li>
             <li class="tab"><a href="#purchases">Purchases</a></li>
-            <li class="tab"><a href="#wetstocks">Wet Stocks</a></li>
             <li class="tab"><a href="#expenses">Expenses</a></li>
             <li class="tab"><a href="#reconcilliation">Reconcilliation</a></li>
         </ul>
@@ -180,8 +78,7 @@
                             <i class="material-icons prefix">local_gas_station</i>
                             <select multiple id="summaryList">
                                 <option value="" disabled selected>Select Stations</option>
-                                @foreach (var st in Model.Stations)
-                                {
+                                @foreach (var st in Model.Stations) {
                                     <option value="@st.Id">@st.Name</option>
                                 }
                             </select>
@@ -219,8 +116,7 @@
                             </tr>
                         </thead>
 
-                        <tbody>
-                        </tbody>
+                        <tbody></tbody>
 
                         <tfoot class="deep-orange white-text">
                         </tfoot>
@@ -231,36 +127,80 @@
 
         <!-- Second Tab -->
         <div id="ledger" class="body">
-            <div id="filter-ledger" class="black-text">
-                <div id="summarySel" class="input-field col-md-4">
+            <div id="filter-summary" class="black-text">
+                <div id="ledgerSel" class="input-field col-md-4">
                     <i class="material-icons prefix">local_gas_station</i>
-                    <select multiple id="summaryList">
+                    <select multiple id="ledgerList">
                         <option value="" disabled selected>Select Stations</option>
-                        @foreach (var st in Model.Stations)
-                        {
-                        <option value="@st.Id">@st.Name</option>
+                        @foreach (var st in Model.Stations) {
+                            <option value="@st.Id">@st.Name</option>
                         }
                     </select>
                 </div>
 
                 <div class="input-field col-md-3">
                     <i class="material-icons prefix">date_range</i>
-                    <input id="startDate" type="text" class="datepicker" value="@DateTime.Now.AddDays(-1).ToString(" d MMMM, yyyy")">
+                    <input id="ledgerStartDate" type="text" class="datepicker" value="@DateTime.Now.AddDays(-1).ToString(" d MMMM, yyyy")">
                 </div>
 
                 <div class="input-field col-md-3">
                     <i class="material-icons prefix">date_range</i>
-                    <input id="stopDate" type="text" class="datepicker" value="@DateTime.Now.AddDays(-1).ToString(" d MMMM, yyyy")">
+                    <input id="ledgerStopDate" type="text" class="datepicker" value="@DateTime.Now.AddDays(-1).ToString(" d MMMM, yyyy")">
                 </div>
 
-                <div class="col-md-1 get-summary">
+                <div class="right get-ledger">
                     <a class="btn btn-floating pulse btn gradient-45deg-amber-amber right"><i class="material-icons" style="line-height: 42px">search</i></a>
                 </div>
             </div>
         </div>
 
+        <div id="payments" class="body">
+            <div id="filter-summary" class="black-text">
+                <div id="paymentSel" class="input-field col-md-5">
+                    <i class="material-icons prefix">local_gas_station</i>
+                    <select multiple id="paymentList">
+                        <option value="" disabled selected>Select Stations</option>
+                        @foreach (var st in Model.Stations) {
+                            <option value="@st.Id">@st.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="input-field col-md-3">
+                    <i class="material-icons prefix">date_range</i>
+                    <input id="paymentStartDate" type="text" class="datepicker" value="@DateTime.Now.AddDays(-1).ToString("d MMMM, yyyy")">
+                </div>
+
+                <div class="input-field col-md-3">
+                    <i class="material-icons prefix">date_range</i>
+                    <input id="paymentStopDate" type="text" class="datepicker" value="@DateTime.Now.ToString("d MMMM, yyyy")">
+                </div>
+
+                <div class="col-md-1 get-payments">
+                    <a class="btn btn-floating pulse btn gradient-45deg-amber-amber right"><i class="material-icons" style="line-height: 42px">search</i></a>
+                </div>
+            </div>
+            <div style="clear:both"></div>
+            <table id="paymentTbl" class="custom bordered" data-loaded="0">
+                <thead class="deep-orange white-text">
+                    <tr>
+                        <th style="width:10px">#</th>
+                        <th>DATE</th>
+                        <th>CUSTOMER</th>
+                        <th>STATION</th>
+                        <th>RECEIPT</th>
+                        <th>CHEQUE</th>
+                        <th style="text-align:right;padding-right:15px;">AMOUNT</th>
+                        <th>NOTES</th>
+                        <th>&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+                <tfoot></tfoot>
+            </table>
+
+        </div>
         <div id="purchases" class="body">No Records</div>
-        <div id="wetstocks" class="body">Starting Engine</div>
         <div id="expenses" class="body">Not Yet Updated</div>
     </div>
 </nav>

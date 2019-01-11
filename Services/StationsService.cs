@@ -272,7 +272,7 @@ namespace Core.Services
             return total;
         }
 
-        public List<LedgerTotals> GetLedgerTotals(String stations, DateTime date1, DateTime date2){
+        public List<LedgerTotals> GetLedgerTotals(string stations, DateTime date1, DateTime date2){
             List<LedgerTotals> totals = new List<LedgerTotals>();
             String additionalquery = "";
 
@@ -347,7 +347,7 @@ namespace Core.Services
             }
 
             SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("SELECT mm_idnt, mm_action, mm_account, mm_date, mm_desc, am_lpos, am_invs, mm_name, mm_price, mm_amount FROM vLedgerzEntry " + conn.GetQueryString(filter, "mm_desc+'-'+am_lpos+'-'+am_invs+'-'+mm_name+'-'+CAST(mm_amount AS NVARCHAR)", "mm_st=" + stid + " AND mm_date BETWEEN '" + start.Date + "' AND '" + stop.Date + "'") + AdditionalString + " ORDER BY mm_date, am_invs, am_lpos, mm_desc");
+            SqlDataReader dr = conn.SqlServerConnect("SELECT mm_idnt, mm_action, mm_account, mm_date, mm_desc, am_lpos, am_invs, mm_name, mm_price, mm_amount FROM vLedgerzEntry " + conn.GetQueryString(filter, "mm_desc+'-'+am_lpos+'-'+am_invs+'-'+mm_name+'-'+CAST(mm_amount AS NVARCHAR)+'-'+CAST(mm_price AS NVARCHAR)", "mm_st=" + stid + " AND mm_date BETWEEN '" + start.Date + "' AND '" + stop.Date + "'") + AdditionalString + " ORDER BY mm_date, am_invs, am_lpos, mm_desc");
             if (dr.HasRows)
             {
                 while (dr.Read())
@@ -379,7 +379,7 @@ namespace Core.Services
             List<LedgerEntries> entries = new List<LedgerEntries>();
 
             SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("DECLARE @date1 DATE='" + start.Date + "', @date2 DATE='" + stop.Date + "'; SELECT sr_idnt, sr_date, CASE sr_fuel WHEN 1 THEN 'LTS DIESEL' WHEN 2 THEN 'LTS SUPER' WHEN 3 THEN 'LTS VPOWER' WHEN 4 THEN 'LTS KEROSENE' ELSE 'OTHERS' END xdesc, sr_lpo, sr_invoice, sr_price, sr_amts, sr_cust, Names, sr_st, st_code, st_name FROM ( SELECT sr_idnt, sr_st, sr_cust, sr_date, sr_fuel, sr_overpump, sr_lpo, sr_invoice, sr_price, sr_amts, sr_discount FROM vInvoicesLedger WHERE sr_invoice IN ( SELECT DISTINCT invs FROM vInvoicesDuplicates INNER JOIN vInvoicesLedger ON invs=sr_invoice WHERE sr_date BETWEEN @date1 AND @date2) UNION ALL SELECT sr_idnt, sr_st, sr_cust, sr_date, sr_fuel, sr_overpump, sr_lpo, sr_invoice, sr_price, sr_amts, sr_discount FROM vInvoicesLedger WHERE sr_date BETWEEN @date1 AND @date2 AND sr_invoice=0 ) As Foo INNER JOIN Stations ON st_idnt=sr_st INNER JOIN vCustomers ON sr_cust=Custid ORDER BY sr_invoice, sr_date, sr_fuel");
+            SqlDataReader dr = conn.SqlServerConnect("DECLARE @date1 DATE='" + start.Date + "', @date2 DATE='" + stop.Date + "'; SELECT TOP(200) sr_idnt, sr_date, CASE sr_fuel WHEN 1 THEN 'LTS DIESEL' WHEN 2 THEN 'LTS SUPER' WHEN 3 THEN 'LTS VPOWER' WHEN 4 THEN 'LTS KEROSENE' ELSE 'OTHERS' END xdesc, sr_lpo, sr_invoice, sr_price, sr_amts, sr_cust, Names, sr_st, st_code, st_name FROM ( SELECT sr_idnt, sr_st, sr_cust, sr_date, sr_fuel, sr_overpump, sr_lpo, sr_invoice, sr_price, sr_amts, sr_discount FROM vInvoicesLedger WHERE sr_invoice IN ( SELECT DISTINCT invs FROM vInvoicesDuplicates INNER JOIN vInvoicesLedger ON invs=sr_invoice WHERE sr_date BETWEEN @date1 AND @date2) UNION ALL SELECT sr_idnt, sr_st, sr_cust, sr_date, sr_fuel, sr_overpump, sr_lpo, sr_invoice, sr_price, sr_amts, sr_discount FROM vInvoicesLedger WHERE sr_date BETWEEN @date1 AND @date2 AND sr_invoice=0 ) As Foo INNER JOIN Stations ON st_idnt=sr_st INNER JOIN vCustomers ON sr_cust=Custid AND Sts=st_idnt ORDER BY sr_invoice, sr_date, sr_fuel");
             if (dr.HasRows)
             {
                 while (dr.Read())
@@ -596,6 +596,48 @@ namespace Core.Services
             }
 
             return reports;
+        }
+
+        public List<CustomersPayments> GetCustomerPayments(DateTime start, DateTime stop, string stations, Customers customer, string filter = "")
+        {
+            List<CustomersPayments> payments = new List<CustomersPayments>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            string q = conn.GetQueryString(filter, "CAST(rcpt AS NVARCHAR)+'-'+CAST(imcq AS NVARCHAR)+'-'+CAST(im_paid AS NVARCHAR)+'-'+st_code+'-'+st_name+'-'+CASE im_type WHEN 4 THEN 'LIPA NA MPESA' WHEN 3 THEN BankName+(CASE WHEN BankName IN ('CFC', 'KCB', 'EQUITY') THEN ' VISA' END)ELSE ISNULL(Names,'-- INVALID') END", "im_date BETWEEN '" + start.Date + "' AND '" + stop.Date + "'");
+            if (!string.IsNullOrEmpty(stations)) {
+                q += " AND im_st IN (" + stations + ")";
+            }
+
+            SqlDataReader dr = conn.SqlServerConnect("SELECT im_idnt, im_type, im_date, rcpt, imcq, mm_notes, im_paid, st_idnt, st_code, st_name, st_database, im_cust, CASE im_type WHEN 4 THEN 'LIPA NA MPESA' WHEN 3 THEN BankName+(CASE WHEN BankName IN ('CFC', 'KCB', 'EQUITY') THEN ' VISA' END) ELSE ISNULL(Names,'-- INVALID') END NameX FROM vCustomersPayment INNER JOIN Stations ON im_st=st_idnt LEFT OUTER JOIN vBankAccounts ON im_cust=BankID AND im_st=BankSt LEFT OUTER JOIN vCustomers ON im_cust=Custid AND im_st=Sts " + q + " ORDER BY im_date, st_order, rcpt, NameX");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    CustomersPayments pymt = new CustomersPayments {
+                        Id = Convert.ToInt64(dr[0]),
+                        Type = Convert.ToInt64(dr[1]),
+                        Date = Convert.ToDateTime(dr[2]).ToString("dd/MM/yyyy"),
+                        Receipt = dr[3].ToString(),
+                        Cheque = dr[4].ToString(),
+                        Notes = dr[5].ToString(),
+                        Amount = Convert.ToDouble(dr[6])
+                    };
+
+                    pymt.Station = new Stations {
+                        Id = Convert.ToInt64(dr[7]),
+                        Code = dr[8].ToString(),
+                        Name = dr[9].ToString(),
+                        Prefix = dr[10].ToString()
+                    };
+
+                    pymt.Customer = new Customers {
+                        Id = Convert.ToInt64(dr[11]),
+                        Name = dr[12].ToString()
+                    };
+
+                    payments.Add(pymt);
+                }
+            }
+
+            return payments;
         }
     }
 }
