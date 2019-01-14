@@ -1,20 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Core.Services;
+using Core.ViewModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Core.Controllers
 {
+    [Authorize]
     public class BankingController : Controller
     {
         // GET: /<controller>/
-        [Route("core/bank")]
-        public IActionResult Index()
+        [Route("bank")]
+        public IActionResult Index(BankingIndexViewModel model, AccountsService service)
         {
-            return View();
+            model.Banks = service.GetBanks();
+            return View(model);
         }
+
+        [Route("bank/{code}")]
+        public IActionResult Main(string code, BankingMainViewModel model, AccountsService service)
+        {
+            model.Banks = service.GetBanks();
+            model.Bank = service.GetBank(code);
+            return View(model);
+        }
+
+        public JsonResult GetStationsReconciles(int year, int mnth, string accounts, AccountsService service, string filter = "")
+        {
+            DateTime date1 = new DateTime(year, mnth, 1);
+            DateTime date2 = date1.AddMonths(1).AddDays(-1);
+
+            List<BankingReconcileModel> reconciles = service.GetBankingReconciles(date1, date2, accounts, filter);
+            return Json(reconciles);
+        }
+
     }
 }

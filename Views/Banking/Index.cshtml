@@ -1,5 +1,66 @@
-﻿@{
+﻿@model Core.ViewModel.BankingIndexViewModel;
+@{
     ViewData["Title"] = "Banking";
 }
 
-<h1>Banking Module</h1>
+<div class="col-md-3 zero-margin">
+    <div id="flight-card" class="card">
+        <div class="card-header deep-orange accent-2">
+            <div class="card-title">
+                <h4 class="flight-card-title">Bank Accounts</h4>
+                <p class="flight-card-date">@DateTime.Now.ToString("MMM dd, ddd hh:mm")</p>
+            </div>
+        </div>
+        <div class="card-content-bg white-text">
+            <div class="card-content">
+                <div class="row flight-state-wrapper">
+                    <div class="col s5 m5 l5 center-align">
+                        <div class="flight-state">
+                            <h4 class="margin">ABC</h4>
+                            <p class="ultra-small">ABC Bank</p>
+                        </div>
+                    </div>
+                    <div class="col s2 m2 l2 center-align">
+                        <i class="material-icons flight-icon">swap_horiz</i>
+                    </div>
+                    <div class="col s5 m5 l5 center-align">
+                        <div class="flight-state">
+                            <h4 class="margin">EQ</h4>
+                            <p class="ultra-small">Equity Bank</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s6 m6 l6 center-align">
+                        <div class="flight-info">
+                            <p class="small">
+                                <span class="grey-text text-lighten-4">Stations:</span> @Model.Banks[0].StationCount
+                            </p>
+                            <p class="small">
+                                8,699,567.00
+                            </p>
+                            <p class="small">
+                                <a class="blue-text text-lighten-2" href="/bank/abc">Active: @Model.Banks[0].LastTransaction.ToString("dd/MM")</a>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col s6 m6 l6 center-align flight-state-two">
+                        <div class="flight-info">
+                            <p class="small">
+                                <span class="grey-text text-lighten-4">Stations:</span> @Model.Banks[1].StationCount
+                            </p>
+                            <p class="small">
+                                22,673,456.00
+                            </p>
+                            <p class="small">
+                                <a class="blue-text text-lighten-2" href="/bank/eq">Active: @Model.Banks[1].LastTransaction.ToString("dd/MM")</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="clear:both"></div>

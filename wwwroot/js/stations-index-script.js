@@ -147,7 +147,18 @@ jq(function() {
                     var row = "<tr>";
                     row += "<td>" + (i + 1) + "</td>";
                     row += "<td>" + pt.date + "</td>";
-                    row += "<td><a class='blue-text' href='/customers/" + pt.station.code + "/" + pt.customer.id + "'>" + pt.customer.name + "</a></td>";
+
+                    if (pt.type == 0) {
+                        row += "<td><a class='blue-text' href='/customers/" + pt.station.code + "/" + pt.customer.id + "'>" + pt.customer.name + "</a></td>";
+                    }
+                    else if (pt.type == 3) {
+                        row += "<td><a class='blue-text' href='/accounts/" + pt.station.code + "/" + pt.customer.id + "'>" + pt.customer.name + "</a></td>";
+                    }
+                    else {
+                        row += "<td><a class='blue-text' href='/accounts/" + pt.station.code + "/" + pt.customer.id + "'>" + pt.customer.name + "</a></td>";
+                        row += "<td><a class='blue-text' href='/accounts/" + pt.station.code + "'/mpesa>" + pt.customer.name + "</a></td>";
+                    }
+
                     row += "<td><a class='blue-text' href='/core/stations/" + pt.station.code + "'>" + pt.station.name.toUpperCase() + "</a></td>";
                     row += "<td>" + pt.receipt + "</td>";
                     row += "<td>" + pt.cheque + "</td>";

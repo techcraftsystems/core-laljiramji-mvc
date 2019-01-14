@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using Core.Models;
 using Core.Extensions;
+using Core.ViewModel;
 
 namespace Core.Services
 {
@@ -642,6 +643,28 @@ namespace Core.Services
             }
 
             return payments;
+        }
+
+        public List<MonthsModel> InitializeMonthsModel()
+        {
+            DateTime date = new DateTime(DateTime.Now.Year, 1, 1);
+            List<MonthsModel> months = new List<MonthsModel>();
+
+            for (int i = 1; i < 13; i++)
+            {
+                MonthsModel month = new MonthsModel
+                {
+                    Value = date.Month,
+                    Name = date.ToString("MMMM")
+                };
+
+                month.Select |= DateTime.Now.Month == date.Month;
+                months.Add(month);
+
+                date = date.AddMonths(1);
+            }
+
+            return months;
         }
     }
 }

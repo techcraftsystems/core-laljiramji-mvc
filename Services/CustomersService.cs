@@ -6,7 +6,7 @@ using Core.Extensions;
 
 namespace Core.Services
 {
-    public class CustomerServices
+    public class CustomersService
     {
         public Customers GetCustomer(String station, Int64 id){
             Customers customer = new Customers();

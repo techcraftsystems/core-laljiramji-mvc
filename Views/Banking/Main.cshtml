@@ -1,0 +1,137 @@
+﻿@model Core.ViewModel.BankingMainViewModel;
+
+@{
+    ViewData["Title"] = Model.Bank.Name;
+}
+
+<script>
+    var xIdnt = @Model.Bank.Id;
+    var xCode = '@Model.Bank.Code';
+
+    String.prototype.toAccounting = function() {
+        var str = parseFloat(this).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+
+        if (str.charAt(0) == '-'){
+            return '(' + str.substring(1,40) + ')';
+        }
+        else {
+            return str;
+        }
+    };
+</script>
+
+<script src="~/js/banking-main-script.js"></script>
+
+<style>
+    .nav-content .body {
+        min-height: 400px;
+    }
+    nav .input-field label {
+        top: -20px;
+        left: auto;
+    }
+    td, th {
+        padding: 5px;
+    }
+</style>
+
+<div class="col-md-3 zero-margin">
+    <div id="flight-card" class="card">
+        <div class="card-header deep-orange accent-2">
+            <div class="card-title">
+                <h4 class="flight-card-title">Accounts</h4>
+            </div>
+        </div>
+
+        <div id="email-list" style="margin-bottom:0px;">
+            <ul class="collection">
+                @foreach (var bk in Model.Banks) {
+                    var dateClass = bk.Code == Model.Bank.Code ? "grey-text" : "blue-text";
+                    var iconClass = bk.Code == Model.Bank.Code ? "attach_file" : "";
+                    var pushDates = bk.LastTransaction.Date == DateTime.Now.Date ? "Today" : bk.LastTransaction.ToString("ddd dd");
+
+                    <li class="collection-item avatar email-unread @(bk.Code == Model.Bank.Code ? "selected" : "")" data-account="@bk.Code">
+                        <img src="~/images/logos/@(bk.Code).png" alt="" class="circle">
+                        <span class="email-title">@bk.Name</span>
+                        <p class="truncate grey-text ultra-small">Ksh @string.Format("{0:N}", bk.Amount) in Account</p>
+                        <a href="#!" class="secondary-content email-time">
+                            <i class="material-icons attach-file">@iconClass</i>
+                            <span class="@dateClass ultra-small">@pushDates</span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-9" style="padding:0; margin-top:7px; margin-bottom:0px;">
+    <nav class="navbar nav-extended">
+        <div class="nav-content" style="border: 1px solid rgba(0,0,0,0.1)">
+            <ul class="tabs">
+                <li class="tab genrl"><a href="#general" class="active">General</a></li>
+                <li class="tab recon"><a href="#reconcile">Reconcile</a></li>
+            </ul>
+
+            <div id="general" class="body">
+                COMING UP
+            </div>
+            <div id="reconcile" class="body">
+                <div class="row" style="margin-top: 10px;">
+                    <div class="input-field col-md-2">
+                        <select id="reconcile-year">
+                            <option value="@DateTime.Now.Year" selected>@DateTime.Now.Year</option>
+                            <option value="@DateTime.Now.AddYears(-1).Year">@DateTime.Now.AddYears(-1).Year</option>
+                            <option value="@DateTime.Now.AddYears(-2).Year">@DateTime.Now.AddYears(-2).Year</option>
+                            <option value="@DateTime.Now.AddYears(-3).Year">@DateTime.Now.AddYears(-3).Year</option>
+                        </select>
+                        <label>Select Year</label>
+                    </div>
+
+                    <div class="input-field col-md-3">
+                        <select id="reconcile-mnth">
+                            @foreach (var mnth in Model.Months)
+                            {
+                                if (mnth.Select == true) {
+                                    <option value="@mnth.Value" selected>@mnth.Name</option>
+                                }
+                                else {
+                                    <option value="@mnth.Value">@mnth.Name</option>
+                                }
+                             }
+                        </select>
+                        <label>Select Month</label>
+                    </div>
+
+                    <div class="col-md-7 get-reconcile">
+                        <a class="btn btn-floating pulse btn gradient-45deg-amber-amber right"><i class="material-icons" style="line-height:42px">search</i></a>
+                    </div>
+                </div>
+
+                <table id="reconcile-table" class="bordered" data-loaded="0" style="margin-top:-15px; font-size:0.9em">
+                    <thead>
+                        <tr>
+                            <th style="width:55px">DATE</th>
+                            <th>QTY</th>
+                            <th>@@</th>
+                            <th>DESCRIPTION</th>
+                            <th class="center-align">NAME</th>
+                            <th>CHQS</th>
+                            <th>INVOICE</th>
+                            <th class="right-align">REVENUE</th>
+                            <th class="right-align">EXPENSE</th>
+                            <th class="right-align">CUMULATIVE</th>
+                        </tr>
+                    </thead>
+
+                    <tbody></tbody>
+                    <tfoot></tfoot>
+                </table>
+
+                <a style="margin-top:30px" class="btn waves-effect waves-light gradient-45deg-light-blue-cyan gradient-shadow">VIEW REPORT</a>
+            </div>
+        </div>
+    </nav>
+</div>
+
+<div style="clear:both"></div>

@@ -13,21 +13,19 @@ namespace Core.Controllers
     {
         // GET: /<controller>/
         [Route("customers")]
-        public IActionResult Index(CustomerServices svc)
+        public IActionResult Index(CustomersService svc)
         {
             List<Customers> customers = new List<Customers>(svc.GetCustomers(""));
             return View(customers);
         }
 
         [Route("customers/{station}/{id}")]
-        public IActionResult Customers(String station, Int64 id, CustomerServices svc)
+        public IActionResult Customers(String station, Int64 id, CustomersService svc)
         {
             Customers customer = svc.GetCustomer(station, id);
             return View(customer);
         }
 
-
-        [AllowAnonymous]
         public JsonResult GetLedgerEntries(Int64 custid, Int64 stid, string start, string stop, string filter, StationsService svc)
         {
             if (string.IsNullOrWhiteSpace(filter))

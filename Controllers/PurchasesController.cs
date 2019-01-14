@@ -49,13 +49,11 @@ namespace Core.Controllers
             return View(model);
         }
 
-        [AllowAnonymous]
         public Double GetFuelPurchasesLedgerOpenning(Int64 stid, string date, PurchasesService svc)
         {
             return svc.GetFuelPurchasesLedgerOpenning(stid, DateTime.Parse(date));
         }
 
-        [AllowAnonymous]
         public JsonResult GetFuelPurchasesLedgers(Int64 stid, string start, string stop, string filter, PurchasesService svc)
         {
             if (string.IsNullOrWhiteSpace(filter))

@@ -22,7 +22,7 @@ namespace Core.Controllers
         }
 
         [Route("core/stations/{name}")]
-        public IActionResult Main(String name, StationsService svc, CustomerServices csv)
+        public IActionResult Main(String name, StationsService svc, CustomersService csv)
         {
             StationsListViewModel model = new StationsListViewModel();
             model.Selected = svc.GetStation(name);
@@ -86,14 +86,12 @@ namespace Core.Controllers
             return Json(totals);
         }
 
-        [AllowAnonymous]
         public JsonResult GetStationsReconciles(Int64 stid, Int64 year, Int64 mnth, StationsService svc)
         {
             List<StationsReconcile> reconciles = svc.GetStationsReconciles(stid, year, mnth);
             return Json(reconciles);
         }
 
-        [AllowAnonymous]
         public JsonResult GetLedgerEntries(Int64 stid, string start, string stop, string filter, StationsService svc){
             if (string.IsNullOrWhiteSpace(filter))
                 filter = "";
@@ -102,14 +100,12 @@ namespace Core.Controllers
             return Json(entries);
         }
 
-        [AllowAnonymous]
         public JsonResult GetLedgerDuplicates(string start, string stop, StationsService service)
         {
             List<LedgerEntries> entries = service.GetLedgerDuplicates(DateTime.Parse(start), DateTime.Parse(stop));
             return Json(entries);
         }
 
-        [AllowAnonymous]
         public JsonResult GetExpenditure(Int64 stid, string start, string stop, string filter, StationsService svc)
         {
             if (string.IsNullOrWhiteSpace(filter))
@@ -119,7 +115,6 @@ namespace Core.Controllers
             return Json(expenses);
         }
 
-        [AllowAnonymous]
         public JsonResult GetPurchasesLedger(Int64 stid, string start, string stop, string filter, StationsService svc)
         {
             if (string.IsNullOrWhiteSpace(filter))
@@ -129,7 +124,6 @@ namespace Core.Controllers
             return Json(ledgers);
         }
 
-        [AllowAnonymous]
         public JsonResult GetCustomerPayments(string date1, string date2, string stations, string customers, string filter, StationsService service)
         {
             DateTime xdate1 = DateTime.Parse(date1);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Core.Models;
+using Core.Services;
 
 namespace Core.ViewModel
 {
@@ -26,27 +27,7 @@ namespace Core.ViewModel
             Customers = new List<Customers>();
 
             Month = DateTime.Now.Month;
-
-            Initialize();
-        }
-
-        public void Initialize()
-        {
-            DateTime date = new DateTime(DateTime.Now.Year, 1, 1);
-            Months = new List<MonthsModel>();
-
-            for (int i = 1; i < 13; i++)
-            {
-                MonthsModel month = new MonthsModel();
-                month.Value = date.Month;
-                month.Name = date.ToString("MMMM");
-
-                month.Select |= DateTime.Now.Month == date.Month;
-
-                Months.Add(month);
-
-                date = date.AddMonths(1);
-            }
+            Months = new StationsService().InitializeMonthsModel();
         }
     }
 }
