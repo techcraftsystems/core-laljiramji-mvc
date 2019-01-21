@@ -3,6 +3,14 @@
     ViewData["Title"] = "Banking";
 }
 
+<script>
+    $(function() {
+        jq("div.flight-state h4").click(function(){
+            window.location.href = "/bank/" + jq(this).text().toLowerCase().trim();
+        });
+    });
+</script>
+
 <div class="col-md-3 zero-margin">
     <div id="flight-card" class="card">
         <div class="card-header deep-orange accent-2">
@@ -16,7 +24,7 @@
                 <div class="row flight-state-wrapper">
                     <div class="col s5 m5 l5 center-align">
                         <div class="flight-state">
-                            <h4 class="margin">ABC</h4>
+                            <h4 class="margin pointer">ABC</h4>
                             <p class="ultra-small">ABC Bank</p>
                         </div>
                     </div>
@@ -25,7 +33,7 @@
                     </div>
                     <div class="col s5 m5 l5 center-align">
                         <div class="flight-state">
-                            <h4 class="margin">EQ</h4>
+                            <h4 class="margin pointer">EQ</h4>
                             <p class="ultra-small">Equity Bank</p>
                         </div>
                     </div>
