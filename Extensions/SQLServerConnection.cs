@@ -5,7 +5,7 @@ namespace Core.Extensions
 {
     public class SqlServerConnection
     {
-        private static String sConn = "Data Source=41.139.250.38;Initial Catalog=core_system;User ID=ct;Password=ct-2011;Max Pool Size=200;";
+        private static String sConn = "Data Source=192.168.1.11;Initial Catalog=core_system;User ID=ct;Password=ct-2011;Max Pool Size=200;";
         private readonly SqlConnection conn = new SqlConnection(sConn);
         private SqlCommand comm = new SqlCommand();
 
@@ -31,7 +31,7 @@ namespace Core.Extensions
 
                 return Convert.ToInt64(command.ExecuteScalar());
             }
-            catch (Exception)
+            catch (Exception) 
             {
                 return 0;
             }

@@ -63,6 +63,7 @@ namespace Core.Controllers
                 {
                     new Claim(ClaimTypes.Name, user.Name),
                     new Claim(ClaimTypes.UserData, user.Username),
+                    new Claim(ClaimTypes.Actor, user.Id.ToString()),
                     new Claim(ClaimTypes.Role, "Administrator"),
                 };
 

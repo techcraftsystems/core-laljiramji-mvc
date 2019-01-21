@@ -6,10 +6,13 @@ namespace Core.Models
         public Int64 Id { get; set; }
         public String Name { get; set; }
 
-        public Suppliers()
-        {
+        public Suppliers() {
             Id = 0;
             Name = "";
+        }
+
+        public Suppliers(long idnt) : this() {
+            Id = idnt;
         }
     }
 }

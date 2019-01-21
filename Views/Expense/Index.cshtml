@@ -1,0 +1,217 @@
+﻿@model Core.ViewModel.ExpenseIndexViewModel;
+
+@{
+    ViewData["Title"] = "Expenses";
+    double xAmts = 0;
+}
+
+<style>
+    a {
+        cursor: pointer !important;
+    }
+    nav .input-field input:focus, nav .input-field input[type=text]:valid, nav .input-field input[type=password]:valid, nav .input-field input[type=email]:valid, nav .input-field input[type=url]:valid, nav .input-field input[type=date]:valid {
+        border-bottom: 1px solid #9e9e9e;
+    }
+    td {
+        padding: 10px;
+    }
+    a.material-icons.tiny-box {
+        display: block;
+        font-size: 14px;
+        height: 14px;
+        line-height: 1;
+        cursor: pointer;
+        text-decoration: none;
+    }
+    a.material-icons:hover {
+        color: #2196F3 !important;
+    }
+</style>
+<script src="~/js/expense-index-script.js"></script>
+
+<div class="col-md-3 zero-margin">
+    <div id="flight-card" class="card" style="margin-bottom:0">
+        <div class="card-header deep-orange accent-2">
+            <div class="card-title">
+                <h4 class="flight-card-title">Expenditure</h4>
+                <p class="flight-card-date">@DateTime.Now.ToString("MMM dd, ddd hh:mm")</p>
+            </div>
+        </div>
+    </div>
+    <ul id="profile-page-about-details" class="collection z-depth-1 col s12 m3 l3" style="padding:0; margin-top:0">
+        <li class="collection-item">
+            <div class="">
+                <div class="col s12">
+                    <i class="material-icons left blue-text">store</i><a class="blue-text">Add Station Expense</a>
+                </div>
+            </div>
+        </li>
+        <li class="collection-item">
+            <div class="">
+                <div class="col s12">
+                    <i class="material-icons left blue-text">local_shipping</i><a class="blue-text modal-trigger" data-target="truck-fuel-modal">Add Trucks Fuel</a>
+                </div>
+            </div>
+        </li>
+    </ul>
+
+    <ul id="profile-page-about-details" class="collection z-depth-1 col s12 m3 l3" style="padding:0;margin-top:-10px;">
+        <li class="collection-item">
+            <div class="">
+                <div class="col s12">
+                    <i class="material-icons left black-text">attach_file</i><a class="black-text">Trucks VAT Report</a>
+                </div>
+            </div>
+        </li>
+        <li class="collection-item">
+            <div class="">
+                <div class="col s12">
+                    <i class="material-icons left black-text">event</i><a class="black-text modal-trigger" data-target="fuel-monthly-modal">Trucks Fuel Report</a>
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>
+
+<!--MAIN WINDOW-->
+<div class="col-md-9" style="padding:0; margin-top:7px; margin-bottom:0px;">
+    <nav class="navbar nav-extended">
+        <div class="nav-content" style="border: 1px solid rgba(0,0,0,0.1)">
+            <ul class="tabs">
+                <li class="tab"><a href="#general" class="active">General</a></li>
+                <li class="tab"><a href="#reconcile" class="active">Reconcile</a></li>
+            </ul>
+
+            <div id="general" class="body">
+                <div class="row" style="margin-top: 10px;">
+                    <div class="input-field col-md-3">
+                        <i class="material-icons prefix">date_range</i>
+                        <input id="expenseStartDate" type="text" class="datepicker" value="@Model.Date1x.ToString("d MMMM, yyyy")">
+                    </div>
+
+                    <div class="input-field col-md-3">
+                        <i class="material-icons prefix">date_range</i>
+                        <input id="expenseStopsDate" type="text" class="datepicker" value="@Model.Date2x.ToString("d MMMM, yyyy")">
+                    </div>
+
+                    <div class="input-field col-md-5">
+                        <i class="material-icons prefix">filter_list</i>
+                        <input id="expenseFilter" type="text" placeholder="Filter Expenses" />
+                    </div>
+
+                    <div class="col-md-1 get-expense">
+                        <a class="btn btn-floating pulse btn gradient-45deg-amber-amber right"><i class="material-icons" style="line-height: 42px">search</i></a>
+                    </div>
+                </div>
+
+                <table id="expense-table" class="bordered" data-loaded="0" style="margin-top: -20px">
+                    <thead>
+                        <tr>
+                            <th>DATE</th>
+                            <th>QNTY</th>
+                            <th>REFS.</th>
+                            <th>ACCOUNT</th>
+                            <th>DELV</th>
+                            <th>INVOICE</th>
+                            <th>DESCRIPTION</th>
+                            <th class="right-align">PRICE</th>
+                            <th class="right-align">AMOUNT</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var expense in Model.Expenses) {
+                            xAmts += expense.Amount;
+
+                            <tr>
+                                <td>@expense.Date</td>
+                                <td class="center-align">@string.Format("{0:N0}", expense.Quantity)</td>
+                                <td>@expense.Account</td>
+                                <td>@expense.Details</td>
+                                <td>@expense.Delivery</td>
+                                <td>@expense.Invoice</td>
+                                <td>@expense.Description</td>
+                                <td class="right-align">@string.Format("{0:N0}", expense.Price)</td>
+                                <td class="right-align">@string.Format("{0:N}", expense.Amount)</td>
+                                <td><a class="material-icons tiny-box grey-text">border_color</a></td>
+                            </tr>
+                        }
+                    </tbody>
+
+                    <tfoot>
+                        <tr>
+                            <th colspan="8">SUMMARY</th>
+                            <th class="right-align">@string.Format("{0:N}", xAmts)</th>
+                        </tr>
+                    </tfoot>
+                </table>
+
+            </div>
+            <div id="reconcile" class="body"></div>
+        </div>
+    </nav>
+</div>
+
+<div style="clear:both"></div>
+
+<div id="truck-fuel-modal" class="modal modal-fixed-footer" style="width: 1000px">
+    <div class="modal-content">
+        <h4>FUEL EXPENDITURE</h4>
+        @using (Html.BeginForm("AddTruckFuelExpense", "Expense", FormMethod.Post, new { id = "truck-fuel-form" }))
+        {
+            <table id="truck-fuel-table">
+                <thead>
+                    <tr>
+                        <th>DATE</th>
+                        <th>TRUCK</th>
+                        <th>SUPPLIER</th>
+                        <th>INVOICE</th>
+                        <th>QUANTITY</th>
+                        <th class="right-align">PRICE</th>
+                        <th class="right-align">AMOUNT</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="width-150px">@Html.TextBoxFor(model => model.TrucksExpenses.DateString, new { @class = "datepicker" })</td>
+                        <td class="width-150px">@Html.DropDownListFor(model => model.TrucksExpenses.Truck.Id, Model.Trucks)</td>
+                        <td>@Html.DropDownListFor(model => model.TrucksExpenses.Supplier.Id, Model.Suppliers)</td>
+                        <td class="width-90px">@Html.TextBoxFor(model => model.TrucksExpenses.Invoice)</td>
+                        <td class="width-100px">@Html.TextBoxFor(model => model.TrucksExpenses.Quantity, new { @class = "qnty" })</td>
+                        <td class="width-60px">@Html.TextBoxFor(model => model.TrucksExpenses.Price, new { @class = "price right-align" })</td>
+                        <td class="width-120px"><input type="text" class="amts right-align" value="0" readonly></td>
+                    </tr>
+                </tbody>
+            </table>
+        }
+
+        <a class="btn-truck-fuel-row btn-floating waves-effect waves-light gradient-45deg-light-blue-cyan">
+            <i class="material-icons">exposure_plus_1</i>
+        </a>
+    </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat">Disagree</a>
+        <a class="modal-action modal-post waves-effect waves-green btn-flat">Agree</a>
+    </div>
+</div>
+
+<div id="fuel-monthly-modal" class="modal modal-fixed-footer" style="width:450px">
+    <div class="modal-content">
+        <h4>Fuel Trucks Report</h4>
+        <p>Specify the below year to generate the Fuel Trucks Report</p>
+        <div>
+            <div class="input-field">
+                <i class="material-icons prefix">event_note</i>
+                <input class="modal-year validate" type="number" value="@DateTime.Now.Year" />
+                <label>Specify Year</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
+        <a class="modal-action modal-post waves-effect waves-green btn-flat ">Agree</a>
+    </div>
+</div>

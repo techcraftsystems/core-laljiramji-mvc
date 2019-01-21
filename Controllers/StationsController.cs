@@ -22,7 +22,7 @@ namespace Core.Controllers
         }
 
         [Route("core/stations/{name}")]
-        public IActionResult Main(String name, StationsService svc, CustomersService csv)
+        public IActionResult Main(String name, StationsService svc, CoreService csv)
         {
             StationsListViewModel model = new StationsListViewModel();
             model.Selected = svc.GetStation(name);

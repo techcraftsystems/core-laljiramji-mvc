@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Core.ViewModel;
 using Core.Services;
+using Core.DataModel;
 
 namespace Core.Controllers
 {
@@ -50,6 +51,13 @@ namespace Core.Controllers
             model.month = month;
             model.report = svc.GetReportVatBreakdown(model.station, date, date.AddMonths(1).AddDays(-1));
 
+            return View(model);
+        }
+
+        [Route("reports/trucks/fuel/{year}")]
+        public IActionResult TrucksFuelMonthly(int year)
+        {
+            List<TrucksMonthlySummary> model = new CoreService().GetTrucksMonthlySummary(year);
             return View(model);
         }
     }

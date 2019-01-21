@@ -283,5 +283,10 @@ $(window).on('load', function() {
 	});
 });
 
+//Document Ready
+jq(function() {
+    jq('li.collection-item.dismissable p.contacts').click(function(){
+        window.location.href = jq(this).data('url');
+    });
 
-
+});

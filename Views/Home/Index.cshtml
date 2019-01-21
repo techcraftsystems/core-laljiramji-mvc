@@ -48,8 +48,23 @@
         }
     }, 2000);
 </script>
-
 <script src="~/js/scripts/dashboard-analytics.js"></script>
+
+<style>
+    .collection-item .row {
+        margin: 0;
+    }
+
+    .collection .collection-item {
+        padding: 10px 0px;
+    }
+    li.collection-item.dismissable p {
+        padding: 8px 0 15px 35px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 1.2em;
+    }
+</style>
 
 <!--dashboard Icons-->
 <div id="card-stats">
@@ -470,6 +485,15 @@
             <li class="collection-header deep-orange accent-2">
                 <h4 class="task-card-title">Station Actions</h4>
                 <p class="task-card-date">@DateTime.Now.AddDays(-1).ToString("MMM dd, yyyy")</p>
+            </li>
+            <li class="collection-item dismissable">
+                <p class="contacts" data-url="/expenses">
+                    Expense Manager
+                    <span href="#" class="secondary-content">
+                        <span class="ultra-small">Add/Edit</span>
+                    </span>
+                </p>
+                <span class="task-cat deep-orange">Station Expenses</span>
             </li>
             <li class="collection-item dismissable">
                 <input type="checkbox" id="task1" />

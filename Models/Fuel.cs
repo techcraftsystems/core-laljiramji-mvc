@@ -3,13 +3,16 @@ namespace Core.Models
 {
     public class Fuel
     {
-        public Int64 Id { get; set; }
-        public String Name { get; set; }
+        public long Id { get; set; }
+        public string Name { get; set; }
 
-        public Fuel()
-        {
+        public Fuel() {
             Id = 0;
             Name = "";
+        }
+
+        public Fuel(long idnt) : this() {
+            Id = idnt;
         }
     }
 }

@@ -385,16 +385,18 @@ namespace Core.Services
             {
                 while (dr.Read())
                 {
-                    LedgerEntries entry = new LedgerEntries();
-                    entry.Id = Convert.ToInt64(dr[0]);
-                    entry.Date = Convert.ToDateTime(dr[1]).ToString("dd/MM/yyyy");
+                    LedgerEntries entry = new LedgerEntries
+                    {
+                        Id = Convert.ToInt64(dr[0]),
+                        Date = Convert.ToDateTime(dr[1]).ToString("dd/MM/yyyy"),
 
-                    entry.Description = dr[2].ToString();
-                    entry.Lpo = dr[3].ToString();
-                    entry.Invoice = dr[4].ToString();
+                        Description = dr[2].ToString(),
+                        Lpo = dr[3].ToString(),
+                        Invoice = dr[4].ToString(),
 
-                    entry.Price = Convert.ToDouble(dr[5]);
-                    entry.Amount = Convert.ToDouble(dr[6]);
+                        Price = Convert.ToDouble(dr[5]),
+                        Amount = Convert.ToDouble(dr[6])
+                    };
                     entry.Quantity = (entry.Amount / entry.Price);
 
                     entry.Customer.Id = Convert.ToInt64(dr[7]);

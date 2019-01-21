@@ -1,0 +1,118 @@
+﻿@model System.Collections.Generic.List<Core.DataModel.TrucksMonthlySummary>
+
+@{
+    ViewData["Title"] = "Trucks Monthly Summary";
+    double Jan = 0;
+    double Feb = 0;
+    double Mar = 0;
+    double Apr = 0;
+    double May = 0;
+    double Jun = 0;
+    double Jul = 0;
+    double Aug = 0;
+    double Sep = 0;
+    double Oct = 0;
+    double Nov = 0;
+    double Dec = 0;
+    double Total = 0;
+}
+
+<style>
+    table td, table th {
+        text-align: right;
+    }
+    table td:first-child, table th:first-child {
+        text-align: left;
+    }
+</style>
+
+<h5><i class="material-icons left">home</i> > Reports > Trucks > Fuel Summary</h5>
+
+<div class="col-md-12 zero-margin">
+    <div class="card zero-margin">
+        <div class="card-content deep-orange accent-2 white-text table-card" style="border-radius:0">
+            <h5 class="card-stats-number"><i class="material-icons left">local_shipping</i>Yearly Summary</h5>
+            <p class="card-stats-compare right">
+                <i class="material-icons left">play_for_work</i> Litres
+            </p>
+        </div>
+
+        <table id="reading" class="custom bordered">
+            <thead class="deep-orange accent-2">
+                <tr>
+                    <th>TRUCK</th>
+                    <th>JAN</th>
+                    <th>FEB</th>
+                    <th>MAR</th>
+                    <th>APR</th>
+                    <th>MAY</th>
+                    <th>JUN</th>
+                    <th>JUL</th>
+                    <th>AUG</th>
+                    <th>SEP</th>
+                    <th>OCT</th>
+                    <th>NOV</th>
+                    <th>DEC</th>
+                    <th>TOTAL</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var rpt in Model)
+                {
+                    <tr>
+                        <td class="bold-text">@rpt.Truck.Registration</td>
+                        <td>@string.Format("{0:N}", rpt.Jan)</td>
+                        <td>@string.Format("{0:N}", rpt.Feb)</td>
+                        <td>@string.Format("{0:N}", rpt.Mar)</td>
+                        <td>@string.Format("{0:N}", rpt.Apr)</td>
+                        <td>@string.Format("{0:N}", rpt.May)</td>
+                        <td>@string.Format("{0:N}", rpt.Jun)</td>
+                        <td>@string.Format("{0:N}", rpt.Jul)</td>
+                        <td>@string.Format("{0:N}", rpt.Aug)</td>
+                        <td>@string.Format("{0:N}", rpt.Sep)</td>
+                        <td>@string.Format("{0:N}", rpt.Oct)</td>
+                        <td>@string.Format("{0:N}", rpt.Nov)</td>
+                        <td>@string.Format("{0:N}", rpt.Dec)</td>
+                        <td class="bold-text">@string.Format("{0:N}", rpt.Total)</td>
+                    </tr>
+
+                    Jan += rpt.Jan;
+                    Feb += rpt.Feb;
+                    Mar += rpt.Mar;
+                    Apr += rpt.Apr;
+                    May += rpt.May;
+                    Jun += rpt.Jun;
+                    Jul += rpt.Jul;
+                    Aug += rpt.Aug;
+                    Sep += rpt.Sep;
+                    Oct += rpt.Oct;
+                    Nov += rpt.Nov;
+                    Dec += rpt.Dec;
+                    Total += rpt.Total;
+                }
+            </tbody>
+
+            <tfoot class="deep-orange accent-2">
+                <tr class="white-text">
+                    <th>&nbsp;</th>
+                    <th>@string.Format("{0:N}", Jan)</th>
+                    <th>@string.Format("{0:N}", Feb)</th>
+                    <th>@string.Format("{0:N}", Mar)</th>
+                    <th>@string.Format("{0:N}", Apr)</th>
+                    <th>@string.Format("{0:N}", May)</th>
+                    <th>@string.Format("{0:N}", Jun)</th>
+                    <th>@string.Format("{0:N}", Jul)</th>
+                    <th>@string.Format("{0:N}", Aug)</th>
+                    <th>@string.Format("{0:N}", Sep)</th>
+                    <th>@string.Format("{0:N}", Oct)</th>
+                    <th>@string.Format("{0:N}", Nov)</th>
+                    <th>@string.Format("{0:N}", Dec)</th>
+                    <td class="bold-text">@string.Format("{0:N}", Total)</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<div class="clear both"></div>

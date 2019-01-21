@@ -161,5 +161,7 @@
     <Folder Include="Views\Banking\" />
     <Folder Include="Views\Fragments\" />
     <Folder Include="Views\Products\" />
+    <Folder Include="Views\Expense\" />
+    <Folder Include="DataModel\" />
   </ItemGroup>
 </Project>
