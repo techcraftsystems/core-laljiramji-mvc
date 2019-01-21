@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Core.ViewModel;
 using Core.Services;
 using Core.DataModel;
+using Core.Models;
 
 namespace Core.Controllers
 {
@@ -55,9 +56,14 @@ namespace Core.Controllers
         }
 
         [Route("reports/trucks/fuel/{year}")]
-        public IActionResult TrucksFuelMonthly(int year)
-        {
+        public IActionResult TrucksFuelMonthly(int year) {
             List<TrucksMonthlySummary> model = new CoreService().GetTrucksMonthlySummary(year);
+            return View(model);
+        }
+
+        [Route("reports/trucks/fuel-vat/{month}/{year}")]
+        public IActionResult TrucksFuelVat(int month, int year) {
+            List<TrucksFuelExpense> model = new List<TrucksFuelExpense>(new CoreService().GetTrucksFuelExpense(month, year));//new CoreService().GetTrucksMonthlySummary(year);
             return View(model);
         }
     }

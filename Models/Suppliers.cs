@@ -14,5 +14,10 @@ namespace Core.Models
         public Suppliers(long idnt) : this() {
             Id = idnt;
         }
+
+        public Suppliers(long idnt, string name) : this() {
+            Id = idnt;
+            Name = name;
+        }
     }
 }

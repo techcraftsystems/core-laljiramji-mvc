@@ -1,0 +1,88 @@
+﻿@model System.Collections.Generic.List<Core.Models.TrucksFuelExpense>
+
+@{
+    ViewData["Title"] = "Fuel VAT Report";
+    double Ltrs = 0;
+    double Cumm = 0;
+    double Excl = 0;
+    double Vats = 0;
+    double Zero = 0;
+}
+
+<h5><i class="material-icons left">home</i> > Reports > Trucks > VAT Summary</h5>
+
+<div class="col-md-12 zero-margin">
+    <div class="card zero-margin">
+        <div class="card-content deep-orange accent-2 white-text table-card" style="border-radius:0">
+            <h5 class="card-stats-number"><i class="material-icons left">local_shipping</i>Month's Summary</h5>
+            <p class="card-stats-compare right">
+                <i class="material-icons left">play_for_work</i> Summary
+            </p>
+        </div>
+
+        <table id="reading" class="custom bordered">
+            <thead class="deep-orange accent-2">
+                <tr>
+                    <th>DATE</th>
+                    <th>QNTY</th>
+                    <th>PRICE</th>
+                    <th>TRUCK</th>
+                    <th>NAME</th>
+                    <th>DELV</th>
+                    <th>INVOICE</th>
+                    <th class="right-align">AMOUNT</th>
+                    <th class="right-align">CUMULATICE</th>
+                    <th class="right-align">EXCL</th>
+                    <th class="right-align">V.A.T</th>
+                    <th class="right-align">ZERO</th>
+                    <th class="right-align">TOTAL</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var rpt in Model)
+                {
+                    Cumm += rpt.Amount;
+                    Ltrs += rpt.Quantity;
+                    Excl += rpt.Amount - rpt.VatAmount - rpt.Zerorated;
+                    Vats += rpt.VatAmount;
+                    Zero += rpt.Zerorated;
+
+                    <tr>
+                        <td>@rpt.Date.ToString("dd/MM/yyyy")</td>
+                        <td>@rpt.Quantity</td>
+                        <td>@rpt.Price</td>
+                        <td>@rpt.Truck.Registration</td>
+                        <td>@rpt.Supplier.Name.ToUpper()</td>
+                        <td>X</td>
+                        <td>@rpt.Invoice</td>
+                        <td class="right-align">@string.Format("{0:N2}", rpt.Amount)</td>
+                        <td class="right-align bold-text">@string.Format("{0:N2}", Cumm)</td>
+                        <td class="right-align">@string.Format("{0:N2}", rpt.Amount - rpt.VatAmount - rpt.Zerorated)</td>
+                        <td class="right-align">@string.Format("{0:N2}", rpt.VatAmount)</td>
+                        <td class="right-align">@string.Format("{0:N2}", rpt.Zerorated)</td>
+                        <td class="right-align bold-text">@string.Format("{0:N2}", rpt.Amount)</td>
+
+                    </tr>
+
+                }
+            </tbody>
+
+            <tfoot class="deep-orange accent-2">
+                <tr class="white-text">
+                    <th>&nbsp;</th>
+                    <th>@string.Format("{0:N0}", Ltrs)</th>
+                    <th colspan="5">&nbsp;</th>
+                    <th class="right-align">@string.Format("{0:N}", Cumm)</th>
+                    <th class="right-align">@string.Format("{0:N}", Cumm)</th>
+                    <th class="right-align">@string.Format("{0:N}", Excl)</th>
+                    <th class="right-align">@string.Format("{0:N}", Vats)</th>
+                    <th class="right-align">@string.Format("{0:N}", Zero)</th>
+                    <th class="right-align">@string.Format("{0:N}", Cumm)</th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<div class="clear both"></div>

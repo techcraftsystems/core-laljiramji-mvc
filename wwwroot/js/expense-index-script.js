@@ -24,6 +24,13 @@ $(function() {
         window.location.href = "/reports/trucks/fuel/" + jq("#fuel-monthly-modal .modal-year").val(); 
     });
 
+    jq('#fuel-vat-modal .modal-footer .modal-post').click(function() {
+        var mnths = 0;
+        mnths = parseInt(jq("#fuel-vat-modal .modal-months :selected").val())+1;
+        
+        window.location.href = "/reports/trucks/fuel-vat/" + mnths + "/" + jq("#fuel-vat-modal .modal-year").val(); 
+    });
+
     jq('#truck-fuel-table tbody input.qnty').change(function(){
         var row = jq(this).closest('tr');
         var qty = jq(this).val();
