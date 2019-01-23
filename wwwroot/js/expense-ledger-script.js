@@ -16,13 +16,16 @@ String.prototype.toAccounting = function() {
 };
 
 function GetStationsExpenses() {
+    var stations = jq('#summarySel').closest('div').find('select').val();
+
     jq.ajax({
         dataType: "json",
         url: '/Expense/GetStationsExpenses',
         data: {
             "start":        jq("#startDate").val(),
             "stop":         jq("#stopsDate").val(),
-            "filter":       jq('#Filter').val()
+            "filter":       jq('#Filter').val(),
+            "stations":     stations.toString(),
         },
         beforeSend: function() {
             $('body').removeClass('loaded');

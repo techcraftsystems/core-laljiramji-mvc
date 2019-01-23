@@ -76,12 +76,14 @@ namespace Core.Controllers
             return Json(core.GetExpensesCore(DateTime.Parse(start), DateTime.Parse(stop), filter));
         }
 
-        public JsonResult GetStationsExpenses(string start, string stop, string filter, CoreService core)
+        public JsonResult GetStationsExpenses(string start, string stop, CoreService core, string stations = "", string filter = "")
         {
             if (string.IsNullOrWhiteSpace(filter))
                 filter = "";
+            if (string.IsNullOrWhiteSpace(stations))
+                stations = "";
 
-            return Json(core.GetStationsExpenses(DateTime.Parse(start), DateTime.Parse(stop), filter));
+            return Json(core.GetStationsExpenses(DateTime.Parse(start), DateTime.Parse(stop), stations, filter));
         }
     }
 }

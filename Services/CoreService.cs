@@ -261,11 +261,15 @@ namespace Core.Services
             return null;
         }
 
-        public List<StationsExpenses> GetStationsExpenses(DateTime start, DateTime stop, string filter = "") {
+        public List<StationsExpenses> GetStationsExpenses(DateTime start, DateTime stop, string stations = "", string filter = "") {
             List<StationsExpenses> expenses = new List<StationsExpenses>();
 
             SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("SELECT xp_idnt, xp_date, xp_invoice, xp_amount, xp_vat_amts, xp_zero_rated, xp_description, xp_user, ec_idnt, ec_category, sp_idnt, sp_name, ISNULL(st_idnt,0)st_idnt, st_code, ISNULL(st_name,'MIXED')st_name FROM Expenses INNER JOIN ExpensesCategory ON xp_category=ec_idnt INNER JOIN Suppliers ON xp_supplier=sp_idnt LEFT OUTER JOIN Stations ON xp_station=st_idnt " + conn.GetQueryString(filter, "xp_invoice+'-'+CAST(xp_amount AS NVARCHAR)+'-'+xp_description+'-'+ec_category+'-'+sp_name+'-'+ISNULL(st_name,'MIXED')") + " ORDER BY xp_date, xp_idnt");
+            string filterString = conn.GetQueryString(filter, "xp_invoice+'-'+CAST(xp_amount AS NVARCHAR)+'-'+xp_description+'-'+ec_category+'-'+sp_name+'-'+ISNULL(st_name,'MIXED')", "xp_date BETWEEN '" + start.Date + "' AND '" + stop.Date + "'");
+            if (!string.IsNullOrEmpty(stations))
+                filterString += " AND xp_station IN (" + stations + ")";
+
+            SqlDataReader dr = conn.SqlServerConnect("SELECT xp_idnt, xp_date, xp_invoice, xp_amount, xp_vat_amts, xp_zero_rated, xp_description, xp_user, ec_idnt, ec_category, sp_idnt, sp_name, ISNULL(st_idnt,0)st_idnt, st_code, ISNULL(st_name,'MIXED')st_name FROM Expenses INNER JOIN ExpensesCategory ON xp_category=ec_idnt INNER JOIN Suppliers ON xp_supplier=sp_idnt LEFT OUTER JOIN Stations ON xp_station=st_idnt " + filterString + " ORDER BY xp_date, xp_idnt");
             if (dr.HasRows) {
                 while (dr.Read()) {
                     expenses.Add(new StationsExpenses {

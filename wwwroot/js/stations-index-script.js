@@ -155,8 +155,7 @@ jq(function() {
                         row += "<td><a class='blue-text' href='/accounts/" + pt.station.code + "/" + pt.customer.id + "'>" + pt.customer.name + "</a></td>";
                     }
                     else {
-                        row += "<td><a class='blue-text' href='/accounts/" + pt.station.code + "/" + pt.customer.id + "'>" + pt.customer.name + "</a></td>";
-                        row += "<td><a class='blue-text' href='/accounts/" + pt.station.code + "'/mpesa>" + pt.customer.name + "</a></td>";
+                        row += "<td><a class='blue-text' href='/accounts/" + pt.station.code + "/mpesa'>" + pt.customer.name + "</a></td>";
                     }
 
                     row += "<td><a class='blue-text' href='/core/stations/" + pt.station.code + "'>" + pt.station.name.toUpperCase() + "</a></td>";
