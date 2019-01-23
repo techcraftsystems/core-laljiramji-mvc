@@ -20,6 +20,31 @@ $(function() {
         jq('#truck-fuel-form').submit();
     });
 
+    jq('#station-expense-modal .modal-footer .modal-post').click(function() {
+        if (jq('#StationExpense_DateString').val().trim() == ''){
+            Materialize.toast('<span>Specify a valid Date</span><a class="btn-flat yellow-text right" href="#!">Close<a>', 3000);
+            return;
+        }
+
+        if (jq('#StationExpense_Invoice').val().trim() == ''){
+            Materialize.toast('<span>Specify expense Invoice Number</span><a class="btn-flat yellow-text right" href="#!">Close<a>', 3000);
+            return;
+        }
+
+        if (jq('#StationExpense_Description').val().trim() == ''){
+            Materialize.toast('<span>Specify the expenditure Description</span><a class="btn-flat yellow-text right" href="#!">Close<a>', 3000);
+            return;
+        }
+
+        if (jq('#StationExpense_Amount').val().trim() == '' || jq('#StationExpense_Amount').val() == 0){
+            Materialize.toast('<span>Specify the expense Amount</span><a class="btn-flat yellow-text right" href="#!">Close<a>', 3000);
+            return;
+        }
+
+        jq('#station-expense-form').submit();
+    });
+
+
     jq('#fuel-monthly-modal .modal-footer .modal-post').click(function() {
         window.location.href = "/reports/trucks/fuel/" + jq("#fuel-monthly-modal .modal-year").val(); 
     });

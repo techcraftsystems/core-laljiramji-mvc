@@ -105,12 +105,28 @@ namespace Core.Services
             return customers;
         }
 
+        public List<SelectListItem> GetStationsIEnumerable(bool includeOthers = false) {
+            List<SelectListItem> stations = GetIEnumerable("SELECT st_idnt, st_name FROM Stations ORDER BY st_order");
+            if (includeOthers) {
+                stations.Insert(0, new SelectListItem {
+                    Value = "0",
+                    Text = "Mixed",
+                });
+            }
+
+            return stations;
+        }
+
         public List<SelectListItem> GetTrucksIEnumerable() {
             return GetIEnumerable("SELECT tr_idnt, tr_registration FROM Trucks ORDER BY tr_registration");
         }
 
         public List<SelectListItem> GetSuppliersIEnumerable() {
             return GetIEnumerable("SELECT sp_idnt, sp_name FROM Suppliers ORDER BY sp_idnt");
+        }
+
+        public List<SelectListItem> GetExpenseCategoriesIEnumerable() {
+            return GetIEnumerable("SELECT ec_idnt, ec_category FROM ExpensesCategory ORDER BY ec_category");
         }
 
         public double GetLatestPurchasePrice() {
@@ -144,7 +160,7 @@ namespace Core.Services
             List<ExpensesCore> expenses = new List<ExpensesCore>();
 
             SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("SELECT tf_idnt, tf_source, tf_date, tr_registration, sp_name, tf_dev, tf_invoice, xs_source, tf_qnty, tf_price, tf_amount FROM vExpensesCore INNER JOIN ExpensesSource ON tf_source=xs_idnt " + conn.GetQueryString(filter, "tr_registration+'-'+sp_name+'-'+tf_dev+'-'+tf_invoice+'-'+xs_source+'-'+CAST(tf_qnty AS NVARCHAR)+'-'+CAST(tf_price AS NVARCHAR)+'-'+CAST(tf_amount  AS NVARCHAR)", "tf_date BETWEEN '" + start.Date + "' AND '" + stop.Date + "'") + " ORDER BY tf_date, tf_source, tf_idnt");
+            SqlDataReader dr = conn.SqlServerConnect("SELECT tf_idnt, tf_source, tf_date, tr_registration, sp_name, tf_dev, tf_invoice, ISNULL(tf_station, xs_source), tf_qnty, tf_price, tf_amount FROM vExpensesCore INNER JOIN ExpensesSource ON tf_source=xs_idnt " + conn.GetQueryString(filter, "tr_registration+'-'+sp_name+'-'+tf_dev+'-'+tf_invoice+'-'+ISNULL(tf_station,xs_source)+'-'+CAST(tf_qnty AS NVARCHAR)+'-'+CAST(tf_price AS NVARCHAR)+'-'+CAST(tf_amount  AS NVARCHAR)", "tf_date BETWEEN '" + start.Date + "' AND '" + stop.Date + "'") + " ORDER BY tf_date, tf_source, tf_idnt");
             if (dr.HasRows) {
                 while (dr.Read()) {
                     expenses.Add(new ExpensesCore {
@@ -222,11 +238,69 @@ namespace Core.Services
             return report;
         }
 
+        public StationsExpenses GetStationsExpenses(long idnt) {
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("SELECT xp_idnt, xp_date, xp_invoice, xp_amount, xp_vat_amts, xp_zero_rated, xp_description, xp_user, ec_idnt, ec_category, sp_idnt, sp_name, ISNULL(st_idnt,0)st_idnt, st_code, ISNULL(st_name,'MIXED')st_name FROM Expenses INNER JOIN ExpensesCategory ON xp_category=ec_idnt INNER JOIN Suppliers ON xp_supplier=sp_idnt LEFT OUTER JOIN Stations ON xp_station=st_idnt WHERE xp_idnt=" + idnt);
+            if (dr.Read()) {
+                return new StationsExpenses {
+                    Id = Convert.ToInt64(dr[0]),
+                    Date = Convert.ToDateTime(dr[1]),
+                    DateString = Convert.ToDateTime(dr[1]).ToString("dd/MM/yyyy"),
+                    Invoice = dr[2].ToString(),
+                    Amount = Convert.ToDouble(dr[3]),
+                    VatAmount = Convert.ToDouble(dr[4]),
+                    Zerorated = Convert.ToDouble(dr[5]),
+                    Description = dr[6].ToString().ToUpper(),
+                    User = new Users(dr[7].ToString()),
+                    Category = new ExpensesCategory(Convert.ToInt64(dr[8]), dr[9].ToString()),
+                    Supplier = new Suppliers(Convert.ToInt64(dr[10]), dr[11].ToString().ToUpper()),
+                    Station = new Stations(Convert.ToInt64(dr[12]), dr[13].ToString(), dr[14].ToString().ToUpper()),
+                };
+            }
+
+            return null;
+        }
+
+        public List<StationsExpenses> GetStationsExpenses(DateTime start, DateTime stop, string filter = "") {
+            List<StationsExpenses> expenses = new List<StationsExpenses>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("SELECT xp_idnt, xp_date, xp_invoice, xp_amount, xp_vat_amts, xp_zero_rated, xp_description, xp_user, ec_idnt, ec_category, sp_idnt, sp_name, ISNULL(st_idnt,0)st_idnt, st_code, ISNULL(st_name,'MIXED')st_name FROM Expenses INNER JOIN ExpensesCategory ON xp_category=ec_idnt INNER JOIN Suppliers ON xp_supplier=sp_idnt LEFT OUTER JOIN Stations ON xp_station=st_idnt " + conn.GetQueryString(filter, "xp_invoice+'-'+CAST(xp_amount AS NVARCHAR)+'-'+xp_description+'-'+ec_category+'-'+sp_name+'-'+ISNULL(st_name,'MIXED')") + " ORDER BY xp_date, xp_idnt");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    expenses.Add(new StationsExpenses {
+                        Id = Convert.ToInt64(dr[0]),
+                        Date = Convert.ToDateTime(dr[1]),
+                        DateString = Convert.ToDateTime(dr[1]).ToString("dd/MM/yyyy"),
+                        Invoice = dr[2].ToString(),
+                        Amount = Convert.ToDouble(dr[3]),
+                        VatAmount = Convert.ToDouble(dr[4]),
+                        Zerorated = Convert.ToDouble(dr[5]),
+                        Description = dr[6].ToString().ToUpper(),
+                        User = new Users(dr[7].ToString()),
+                        Category = new ExpensesCategory(Convert.ToInt64(dr[8]), dr[9].ToString()),
+                        Supplier = new Suppliers(Convert.ToInt64(dr[10]), dr[11].ToString().ToUpper()),
+                        Station = new Stations(Convert.ToInt64(dr[12]), dr[13].ToString(), dr[14].ToString().ToUpper()),
+                    });
+                }
+            }
+
+            return expenses;
+        }
+
 
         //::Data Writters
         public TrucksFuelExpense SaveTrucksFuelExpense(TrucksFuelExpense expense) {
             SqlServerConnection conn = new SqlServerConnection();
             expense.Id = conn.SqlServerUpdate("DECLARE @idnt INT=" + expense.Id+ ", @date DATE='" + expense.Date + "', @trck INT=" + expense.Truck.Id + ", @supp INT=" + expense.Supplier.Id + ", @invs NVARCHAR(MAX)='" + expense.Invoice + "', @qnty FLOAT=" + expense.Quantity + ", @prce FLOAT=" + expense.Price + ", @amts FLOAT=" + expense.Amount + ", @vats FLOAT=" + expense.VatAmount + ", @zero FLOAT=" + expense.Zerorated + ", @user NVARCHAR(50)='" + Username + "', @desc NVARCHAR(MAX)='" + expense.Description + "'; IF NOT EXISTS (SELECT tf_idnt FROM TrucksFuel WHERE tf_idnt=@idnt) BEGIN INSERT INTO TrucksFuel (tf_date, tf_truck, tf_supplier, tf_invoice, tf_qnty, tf_price, tf_amount, tf_vatamts, tf_zerorated, tf_user, tf_description) output INSERTED.tf_idnt VALUES (@date, @trck, @supp, @invs, @qnty, @prce, @amts, @vats, @zero, @user, @desc) END ELSE BEGIN UPDATE TrucksFuel SET tf_date=@date, tf_truck=@trck, tf_supplier=@supp, tf_invoice=@invs, tf_qnty=@qnty, tf_price=@prce, tf_amount=@amts, tf_vatamts=@vats, tf_zerorated=@zero, tf_description=@desc output INSERTED.tf_idnt WHERE tf_idnt=@idnt END");
+
+            return expense;
+        }
+
+        public StationsExpenses SaveStationsExpenses(StationsExpenses expense)
+        {
+            SqlServerConnection conn = new SqlServerConnection();
+            expense.Id = conn.SqlServerUpdate("DECLARE @idnt INT=" + expense.Id + ", @date DATE='" + expense.Date + "', @catg INT=" + expense.Category.Id + ", @supp INT=" + expense.Supplier.Id + ", @stns INT=" + expense.Station.Id + ",  @invs NVARCHAR(MAX)='" + expense.Invoice + "', @amts FLOAT=" + expense.Amount + ", @vats FLOAT=" + expense.VatAmount + ", @zero FLOAT=" + expense.Zerorated + ", @user NVARCHAR(50)='" + Username + "', @desc NVARCHAR(MAX)='" + expense.Description + "'; IF NOT EXISTS (SELECT xp_idnt FROM Expenses WHERE xp_idnt=@idnt) BEGIN INSERT INTO Expenses (xp_date, xp_invoice, xp_category, xp_station, xp_supplier, xp_amount, xp_vat_amts, xp_zero_rated, xp_description, xp_user) output INSERTED.xp_idnt VALUES (@date, @invs, @catg, @stns, @supp, @amts, @vats, @zero, @desc, @user) END ELSE BEGIN UPDATE Expenses SET xp_date=@date, xp_invoice=@invs, xp_category=@catg, xp_station=@stns, xp_supplier=@supp, xp_amount=@amts, xp_vat_amts=@vats, xp_zero_rated=@zero, xp_description=@desc output INSERTED.xp_idnt WHERE xp_idnt=@idnt END");
 
             return expense;
         }

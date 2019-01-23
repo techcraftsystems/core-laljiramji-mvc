@@ -9,8 +9,13 @@ namespace Core.ViewModel
     public class ExpenseIndexViewModel
     {
         public TrucksFuelExpense TrucksExpenses { get; set; }
+        public StationsExpenses StationExpense { get; set; }
+
         public List<SelectListItem> Trucks { get; set; }
+        public List<SelectListItem> Stations { get; set; }
         public List<SelectListItem> Suppliers { get; set; }
+        public List<SelectListItem> Categories { get; set; }
+
         public List<ExpensesCore> Expenses { get; set; }
 
         public DateTime Date1x { get; set; }
@@ -18,6 +23,7 @@ namespace Core.ViewModel
 
         public ExpenseIndexViewModel() {
             TrucksExpenses = new TrucksFuelExpense();
+            StationExpense = new StationsExpenses();
             TrucksExpenses.UpdateLatestPurchasePrice();
 
             Date1x = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);

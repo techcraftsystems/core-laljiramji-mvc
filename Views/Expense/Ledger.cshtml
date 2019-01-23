@@ -1,0 +1,84 @@
+﻿@model Core.ViewModel.ExpensesLedgerViewModel;
+
+@{
+    ViewData["Title"] = "Expenses Ledger";
+    double amts = 0;
+}
+
+<script src="~/js/expense-ledger-script.js"></script>
+
+<div class="col-md-12 zero-margin">
+    <div class="card zero-margin " style="min-height:520px; margin-top:10px; margin-bottom:20px">
+        <div id="filter-summary" class="black-text">
+            <div id="summarySel" class="input-field col-md-5">
+                <i class="material-icons prefix">local_gas_station</i>
+                <select multiple id="summaryList">
+                    <option value="" disabled selected>Select Stations</option>
+                    @foreach (var st in Model.Stations)
+                    {
+                        <option value="@st.Value">@st.Text</option>
+                    }
+                </select>
+            </div>
+
+            <div class="input-field col-md-2">
+                <i class="material-icons prefix">date_range</i>
+                <input id="startDate" type="text" class="datepicker" value="@Model.StartDate.ToString("d MMMM, yyyy")">
+            </div>
+
+            <div class="input-field col-md-2">
+                <i class="material-icons prefix">date_range</i>
+                <input id="stopsDate" type="text" class="datepicker" value="@Model.StopsDate.ToString("d MMMM, yyyy")">
+            </div>
+
+            <div class="input-field col-md-3">
+                <i class="material-icons prefix">filter_list</i>
+                <input id="Filter" type="text" placeholder="Filter Expenses" />
+            </div>
+
+            <div class="right" style="margin-left:-50px;padding:10px 5px 0 0">
+                <a class="btn btn-floating btn-expense pulse btn gradient-45deg-amber-amber right"><i class="material-icons" style="line-height: 42px">search</i></a>
+            </div>
+        </div>
+
+        <table id="expense-table" class="custom bordered">
+            <thead class="deep-orange white-text">
+                <tr>
+                    <th>DATE</th>
+                    <th>INVOICE</th>
+                    <th>CATEGORY</th>
+                    <th>SUPPLIER</th>
+                    <th>ACCOUNT</th>
+                    <th>DESCRIPTION</th>
+                    <th class="right-align">AMOUNT</th>
+                    <th>&nbsp;</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var xp in Model.Expenses)
+                {
+                    amts += xp.Amount;
+                    <tr>
+                        <td>@xp.DateString</td>
+                        <td>@xp.Invoice</td>
+                        <td>@xp.Category.Name</td>
+                        <td>@xp.Supplier.Name</td>
+                        <td>@xp.Station.Name</td>
+                        <td>@xp.Description</td>
+                        <td class="right-align">@string.Format("{0:N}", xp.Amount)</td>
+                        <td><a class="material-icons tiny-box grey-text">border_color</a></td>
+                    </tr>
+                }
+            </tbody>
+
+            <tfoot class="deep-orange white-text">
+                <tr>
+                    <th colspan='6' style='padding-left:20px'>PAYMENT SUMMARY</th>
+                    <th class='right-align'>@string.Format("{0:N}", amts)</th>
+                    <th>&nbsp;</th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>

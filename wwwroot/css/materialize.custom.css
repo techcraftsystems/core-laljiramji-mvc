@@ -145,6 +145,7 @@ a.material-icons.tiny-box {
     height: 6px;
     line-height: 1;
     cursor: pointer;
+    text-decoration: none;
 }
 a.material-icons:hover {
     color: #2196F3 !important;

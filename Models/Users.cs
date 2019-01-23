@@ -14,8 +14,7 @@ namespace Core.Models
         public String AccessLevel { get; set; }
         public string Message { get; set; }
 
-        public Users()
-        {
+        public Users() {
             Id = 0;
             Name = "";
             Email = "";
@@ -25,8 +24,11 @@ namespace Core.Models
             ToChange = false;
             AdminLevel = 0;
             AccessLevel = "";
-
             Message = "";
+        }
+
+        public Users(string username) : this() {
+            Username = username;
         }
     }
 }

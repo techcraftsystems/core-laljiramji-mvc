@@ -18,8 +18,6 @@ namespace Core.Models
         public Double FuelSales { get; set; }
         public Double LubeSales { get; set; }
 
-
-
         public Stations()
         {
             Id = 0;
@@ -33,6 +31,21 @@ namespace Core.Models
             LubeSales = 0;
 
             Brand = new StationsBrand();
+        }
+
+        public Stations(long idnt) : this() {
+            Id = idnt;
+        }
+
+        public Stations(long idnt, string name) : this() {
+            Id = idnt;
+            Name = name;
+        }
+
+        public Stations(long idnt, string code, string name) : this() {
+            Id = idnt;
+            Code = code;
+            Name = name;
         }
     }
 }
