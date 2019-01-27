@@ -1,0 +1,197 @@
+﻿@model Core.ViewModel.ReportsStationsSummaryViewModel;
+
+@{
+    ViewData["Title"] = Model.Station.Name + " Summary";
+
+    double dx_sale = 0;
+    double ux_sale = 0;
+    double vp_sale = 0;
+    double ik_sale = 0;
+    double tt_sale = 0;
+
+    double dx_credit = 0;
+    double ux_credit = 0;
+    double vp_credit = 0;
+    double ik_credit = 0;
+    double tt_credit = 0;
+
+    double cash = 0;
+    double disc = 0;
+    double credit = 0;
+    double transport = 0;
+    double lesses = 0;
+
+    double lube = 0;
+    double lube_credit = 0;
+    double gas = 0;
+    double gas_vat = 0;
+    double soda = 0;
+    double rent = 0;
+
+    double carwash = 0;
+    double carwash_credit = 0;
+    double service = 0;
+    double service_credit = 0;
+    double tyre = 0;
+    double tyre_credit = 0;
+}
+
+<script>
+    $rev = jq('div.container');
+    $rev.removeClass('container');
+    $rev.removeClass('body-content');
+</script>
+
+<style>
+    footer, hr {
+        display:none;
+    }
+</style>
+
+<table class="custom bordered" style="margin-top:10px;">
+    <thead class="deep-orange accent-2">
+        <tr style="font-size:1.5em">
+            <th>&nbsp;</th>
+            <th colspan="5" class="center-align">CASH SALES</th>
+            <th colspan="5" class="center-align">CREDIT SALES</th>
+            <th colspan="5" class="center-align">CREDIT AND SUMMARIES</th>
+            <th colspan="6" class="center-align">PRODUCT SUMMARIES</th>
+            <th colspan="8" class="center-align">OTHER REVUENUE SOURCES</th>
+        </tr>
+        <tr>
+            <th>DATE</th>
+            <th class="right-align">DX</th>
+            <th class="right-align">UX</th>
+            <th class="right-align">VP</th>
+            <th class="right-align">IK</th>
+            <th class="right-align">TOTAL</th>
+            <th class="right-align">DX</th>
+            <th class="right-align">UX</th>
+            <th class="right-align">VP</th>
+            <th class="right-align">IK</th>
+            <th class="right-align">TOTAL</th>
+            <th class="right-align">CASH</th>
+            <th class="right-align">DISC</th>
+            <th class="right-align">CREDIT</th>
+            <th class="right-align">TRANSPORT</th>
+            <th class="right-align">LESSES</th>
+            <th class="right-align">LUBE</th>
+            <th class="right-align">CREDIT</th>
+            <th class="right-align">GAS</th>
+            <th class="right-align">GAS(VAT)</th>
+            <th class="right-align">SODA</th>
+            <th class="right-align">TOTAL</th>
+            <th class="right-align">RENT</th>
+            <th class="right-align">CARWASH</th>
+            <th class="right-align">CREDIT</th>
+            <th class="right-align">SERVICE</th>
+            <th class="right-align">CREDIT</th>
+            <th class="right-align">PUNCTURE</th>
+            <th class="right-align">CREDIT</th>
+            <th class="right-align">TOTAL</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var rpt in Model.Report)
+        {
+            dx_sale += rpt.DxSale;
+            ux_sale += rpt.UxSale;
+            vp_sale += rpt.VpSale;
+            ik_sale += rpt.IkSale;
+            tt_sale += rpt.Sale;
+
+            dx_credit += rpt.DxCredit;
+            ux_credit += rpt.UxCredit;
+            vp_credit += rpt.VpCredit;
+            ik_credit += rpt.IkCredit;
+            tt_credit += rpt.Credit;
+
+            cash += rpt.Cash;
+            disc += rpt.Discount;
+            credit += rpt.Credit;
+            transport += rpt.Transport;
+            lesses += rpt.Lesses;
+
+            lube += rpt.Lube;
+            lube_credit += rpt.LubeCredit;
+            gas += rpt.Gas;
+            gas_vat += rpt.GasVat;
+            soda += rpt.Soda;
+
+            carwash += rpt.Carwash;
+            carwash_credit += rpt.CarwashCredit;
+            service += rpt.Service;
+            service_credit += rpt.ServiceCredit;
+            tyre += rpt.Tyre;
+            tyre_credit += rpt.TyreCredit;
+
+            <tr>
+                <td class="center-align">@rpt.Date.ToString("dd")</td>
+                <td class="right-align">@string.Format("{0:N}", rpt.DxSale)</td>
+                <td class="right-align">@string.Format("{0:N}", rpt.UxSale)</td>
+                <td class="right-align">@string.Format("{0:N}", rpt.VpSale)</td>
+                <td class="right-align">@string.Format("{0:N}", rpt.IkSale)</td>
+                <td class="right-align bold-text yellow">@string.Format("{0:N}", rpt.Sale)</td>
+                <td class="right-align">@string.Format("{0:N}", rpt.DxCredit)</td>
+                <td class="right-align">@string.Format("{0:N}", rpt.UxCredit)</td>
+                <td class="right-align">@string.Format("{0:N}", rpt.VpCredit)</td>
+                <td class="right-align">@string.Format("{0:N}", rpt.IkCredit)</td>
+                <td class="right-align bold-text yellow">@string.Format("{0:N}", rpt.Credit)</td>
+                <td class="right-align">@string.Format("{0:N}", rpt.Cash)</td>
+                <td class="right-align">@string.Format("{0:N}", rpt.Discount)</td>
+                <td class="right-align">@string.Format("{0:N}", rpt.OxCredit)</td>
+                <td class="right-align">@string.Format("{0:N}", rpt.Transport)</td>
+                <td class="right-align bold-text yellow">@string.Format("{0:N}", rpt.Lesses)</td>
+                <td class="right-align">@string.Format("{0:N}", rpt.Lube)</td>
+                <td class="right-align">@string.Format("{0:N}", rpt.LubeCredit)</td>
+                <td class="right-align">@string.Format("{0:N}", rpt.Gas)</td>
+                <td class="right-align">@string.Format("{0:N}", rpt.GasVat)</td>
+                <td class="right-align">@string.Format("{0:N}", rpt.Soda)</td>
+                <td class="right-align bold-text yellow">@string.Format("{0:N}", rpt.Lube + rpt.LubeCredit + rpt.Gas + rpt.GasVat + rpt.Soda)</td>
+                <td class="right-align">@string.Format("{0:N}", rpt.Rent)</td>
+                <td class="right-align">@string.Format("{0:N}", rpt.Carwash)</td>
+                <td class="right-align">@string.Format("{0:N}", rpt.CarwashCredit)</td>
+                <td class="right-align">@string.Format("{0:N}", rpt.Service)</td>
+                <td class="right-align">@string.Format("{0:N}", rpt.ServiceCredit)</td>
+                <td class="right-align">@string.Format("{0:N}", rpt.Tyre)</td>
+                <td class="right-align">@string.Format("{0:N}", rpt.TyreCredit)</td>
+                <td class="right-align bold-text yellow">@string.Format("{0:N}", rpt.Rent + rpt.Carwash + rpt.CarwashCredit + rpt.Service + rpt.ServiceCredit + rpt.Tyre + rpt.TyreCredit)</td>
+            </tr>
+        }
+    </tbody>
+
+    <tfoot class="deep-orange accent-2 white-text">
+        <tr>
+            <td>&nbsp;</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", dx_sale)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", ux_sale)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", vp_sale)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", ik_sale)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", tt_sale)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", dx_credit)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", ux_credit)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", vp_credit)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", ik_credit)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", tt_credit)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", cash)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", disc)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", credit)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", transport)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", lesses)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", lube)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", lube_credit)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", gas)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", gas_vat)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", soda)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", lube + lube_credit + gas + gas_vat + soda)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", rent)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", carwash)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", carwash_credit)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", service)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", service_credit)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", tyre)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", tyre_credit)</td>
+            <td class="right-align bold-text">@string.Format("{0:N}", rent + carwash + carwash_credit + service + service_credit + tyre + tyre_credit)</td>
+        </tr>
+    </tfoot>
+</table>

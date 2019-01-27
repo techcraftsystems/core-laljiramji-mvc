@@ -38,7 +38,11 @@
         font-size: 3.1rem;
     }
 </style>
-<script src="~/js/custom-reports-index-script.js"></script>
+
+<script>
+    var route = '';
+</script>
+<script src="~/js/reports-index-script.js"></script>
 
 <h4>System Reports</h4>
 
@@ -87,9 +91,16 @@
             </li>
 
             <li class="deep-purple-text">
-                <div class="waves-effect waves-light modal-trigger" data-target="modal32">
+                <div class="waves-effect waves-light modal-trigger multiple-trigger" data-target="modal32" data-trigger="/reports/vat/">
                     <i class="material-icons medium icon-demo">burst_mode</i>
                     <p>Station Breakdown</p>
+                </div>
+            </li>
+
+            <li class="deep-purple-text">
+                <div class="waves-effect waves-light modal-trigger multiple-trigger" data-target="modal32" data-trigger="/reports/stations/summary/">
+                    <i class="material-icons medium icon-demo">assignment</i>
+                    <p>Station Summary</p>
                 </div>
             </li>
         </ul>

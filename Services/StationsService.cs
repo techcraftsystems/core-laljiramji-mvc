@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using Core.Models;
 using Core.Extensions;
 using Core.ViewModel;
+using Core.ReportModel;
 
 namespace Core.Services
 {
@@ -615,7 +616,7 @@ namespace Core.Services
                 q += " AND im_type=0 AND im_cust IN (" + customers + ")";
             }
 
-            SqlDataReader dr = conn.SqlServerConnect("SELECT im_idnt, im_type, im_date, rcpt, imcq, mm_notes, im_paid, st_idnt, st_code, st_name, st_database, im_cust, CASE im_type WHEN 4 THEN 'LIPA NA MPESA' WHEN 3 THEN BankName+(CASE WHEN BankName IN ('CFC', 'KCB', 'EQUITY') THEN ' VISA' END) ELSE ISNULL(Names,'-- INVALID') END NameX FROM vCustomersPayment INNER JOIN Stations ON im_st=st_idnt LEFT OUTER JOIN vBankAccounts ON im_cust=BankID AND im_st=BankSt LEFT OUTER JOIN vCustomers ON im_cust=Custid AND im_st=Sts " + q + " ORDER BY im_date, st_order, rcpt, NameX");
+            SqlDataReader dr = conn.SqlServerConnect("SELECT im_idnt, im_type, im_date, rcpt, imcq, mm_notes, im_paid, st_idnt, st_code, st_name, st_database, im_cust, CASE im_type WHEN 4 THEN 'LIPA NA MPESA' WHEN 3 THEN BankName+(CASE WHEN BankName IN ('CFC', 'KCB', 'EQUITY') THEN ' VISA' ELSE '' END) ELSE ISNULL(Names,'N/A') END NameX FROM (SELECT im_st, im_idnt, im_cust, 0 im_type, im_date, rcpt, imcq, mm_notes, im_paid FROM vCustomersPayment UNION ALL SELECT aw_st, aw_idnt, aw_account, aw_type, aw_date, 88, aw_chqs, aw_notes, aw_amount FROM vAccountsWithdraw) As Foo INNER JOIN Stations ON im_st=st_idnt LEFT OUTER JOIN vBankAccounts ON im_cust=BankID AND im_st=BankSt LEFT OUTER JOIN vCustomers ON im_cust=Custid AND im_st=Sts " + q + " ORDER BY im_date, st_order, rcpt, NameX");
             if (dr.HasRows) {
                 while (dr.Read()) {
                     CustomersPayments pymt = new CustomersPayments {
@@ -646,6 +647,55 @@ namespace Core.Services
 
             return payments;
         }
+
+        public List<StationsMonthlySummary> GetStationsMonthlySummary(Stations station, int month, int year) {
+            List<StationsMonthlySummary> summary = new List<StationsMonthlySummary>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("DECLARE @st INT=" + station.Id + ", @mnth INT=" + month + ", @year INT=" + year + "; SELECT dt [date], SUM(CASE WHEN fuel=1 THEN sale ELSE 0 END) dx_sale, SUM(CASE WHEN fuel=2 THEN sale ELSE 0 END) ux_sale, SUM(CASE WHEN fuel=3 THEN sale ELSE 0 END) vp_sale, SUM(CASE WHEN fuel=4 THEN sale ELSE 0 END) ik_sale, SUM(sale) tt_sale, SUM(CASE WHEN fuel=1 THEN credit ELSE 0 END) dx_credit, SUM(CASE WHEN fuel=2 THEN credit ELSE 0 END) ux_credit, SUM(CASE WHEN fuel=3 THEN credit ELSE 0 END) vp_credit, SUM(CASE WHEN fuel=4 THEN credit ELSE 0 END) ik_credit, SUM(CASE WHEN fuel BETWEEN 1 AND 4 THEN credit ELSE 0 END) tt_credit, SUM(CASE WHEN fuel NOT BETWEEN 1 AND 4 THEN credit ELSE 0 END) ot_credit, SUM(cash) cash, SUM(discount) discount, SUM(transport) transport, SUM(sale-cash-credit-discount-transport) lesses, SUM(lubes) lubes, SUM(CASE WHEN fuel=0 THEN credit ELSE 0 END) lubes_credit, SUM(gas) gas, SUM(gas_vat) gas_vat, SUM(soda) soda, SUM(rent) rent, SUM(carwash) carwash, SUM(CASE WHEN fuel=-1 THEN credit ELSE 0 END) carwash_credit, SUM(srvs) srvs, SUM(CASE WHEN fuel=-2 THEN credit ELSE 0 END) srvs_credit, SUM(tyre) tyre, SUM(CASE WHEN fuel=-3 THEN credit ELSE 0 END) tyre_credit FROM( SELECT pcol_date dt, pcol_fuel fuel, pcol_amts sale, 0 credit, 0 discount, 0 cash, 0 transport, 0 carwash, 0 tyre, 0 srvs, 0 lubes, 0 gas, 0 gas_vat, 0 soda, 0 rent FROM vFuelSales WHERE pcol_st=@st AND MONTH(pcol_date)=@mnth AND YEAR(pcol_date)=@year UNION ALL SELECT sr_date, sr_fuel, 0, sr_amts, sr_discount,0,0,0,0,0,0,0,0,0,0 FROM vFuelSalesCredit WHERE sr_st=@st AND MONTH(sr_date)=@mnth AND YEAR(sr_date)=@year UNION ALL SELECT am_date, am_item, 0, am_amount, 0,0,0,0,0,0,0,0,0,0,0 FROM vFuelSalesAccounts WHERE am_st=@st AND MONTH(am_date)=@mnth AND YEAR(am_date)=@year UNION ALL SELECT ex_date, 0,0,0,0,ex_amount,0,0,0,0,0,0,0,0,0 FROM vExpenses WHERE ex_st=@st AND MONTH(ex_date)=@mnth AND YEAR(ex_date)=@year UNION ALL SELECT ar_date, 0,0,0,0,ar_cash, 0, ar_cwash, ar_tyre, ar_service,0,0,0,0,0 FROM vCash WHERE ar_st=@st AND MONTH(ar_date)=@mnth AND YEAR(ar_date)=@year UNION ALL SELECT pt_date, 0,0,0,0,0, pt_amount,0,0,0,0,0,0,0,0 FROM vTransport WHERE pt_st=@st AND MONTH(pt_date)=@mnth AND YEAR(pt_date)=@year UNION ALL SELECT bk_date, 0,0,0,0,0,0,0,0,0, bk_lubes, bk_gas, bk_gas_vat, bk_soda,0 FROM vBanking WHERE bk_st=@st AND MONTH(bk_date)=@mnth AND YEAR(bk_date)=@year UNION ALL SELECT rt_date, 0,0,0,0,0,0,0,0,0,0,0,0,0, rt_amount FROM vRent WHERE rt_st=@st AND MONTH(rt_date)=@mnth AND YEAR(rt_date)=@year) As Foo GROUP BY dt ORDER BY dt");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    summary.Add(new StationsMonthlySummary {
+                        Date = Convert.ToDateTime(dr[0]),
+
+                        DxSale = Convert.ToDouble(dr[1]),
+                        UxSale = Convert.ToDouble(dr[2]),
+                        VpSale = Convert.ToDouble(dr[3]),
+                        IkSale = Convert.ToDouble(dr[4]),
+                        Sale = Convert.ToDouble(dr[5]),
+
+                        DxCredit = Convert.ToDouble(dr[6]),
+                        UxCredit = Convert.ToDouble(dr[7]),
+                        VpCredit = Convert.ToDouble(dr[8]),
+                        IkCredit = Convert.ToDouble(dr[9]),
+                        Credit = Convert.ToDouble(dr[10]),
+                        OxCredit = Convert.ToDouble(dr[11]),
+
+                        Cash = Convert.ToDouble(dr[12]),
+                        Discount = Convert.ToDouble(dr[13]),
+                        Transport = Convert.ToDouble(dr[14]),
+                        Lesses = Convert.ToDouble(dr[15]),
+
+                        Lube = Convert.ToDouble(dr[16]),
+                        LubeCredit = Convert.ToDouble(dr[17]),
+                        Gas = Convert.ToDouble(dr[18]),
+                        GasVat = Convert.ToDouble(dr[19]),
+                        Soda = Convert.ToDouble(dr[20]),
+                        Rent = Convert.ToDouble(dr[21]),
+
+                        Carwash = Convert.ToDouble(dr[22]),
+                        CarwashCredit = Convert.ToDouble(dr[23]),
+                        Service = Convert.ToDouble(dr[24]),
+                        ServiceCredit = Convert.ToDouble(dr[25]),
+                        Tyre = Convert.ToDouble(dr[26]),
+                        TyreCredit = Convert.ToDouble(dr[27]),
+                    });
+                }
+            }
+
+            return summary;
+        }
+
 
         public List<MonthsModel> InitializeMonthsModel()
         {

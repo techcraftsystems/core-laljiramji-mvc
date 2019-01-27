@@ -55,6 +55,16 @@ namespace Core.Controllers
             return View(model);
         }
 
+        [Route("reports/stations/summary/{code}/{month}/{year}")]
+        public IActionResult StationsSummary(string code, int month, int year, ReportsStationsSummaryViewModel model, StationsService svc)
+        {
+            model.Date = new DateTime(year, month, 1);
+            model.Station = svc.GetStation(code);
+            model.Report = svc.GetStationsMonthlySummary(model.Station, month, year);
+
+            return View(model);
+        }
+
         [Route("reports/trucks/fuel/{year}")]
         public IActionResult TrucksFuelMonthly(int year) {
             List<TrucksMonthlySummary> model = new CoreService().GetTrucksMonthlySummary(year);

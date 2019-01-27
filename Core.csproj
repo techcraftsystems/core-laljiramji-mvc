@@ -163,5 +163,6 @@
     <Folder Include="Views\Products\" />
     <Folder Include="Views\Expense\" />
     <Folder Include="DataModel\" />
+    <Folder Include="ReportModel\" />
   </ItemGroup>
 </Project>

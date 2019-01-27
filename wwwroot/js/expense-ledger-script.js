@@ -51,7 +51,12 @@ function GetStationsExpenses() {
                 total += expense.amount;
 
                 jq('#expense-table tbody').append(row);
-            })
+            });
+
+            if(results.length == 0){
+                var row = "<tr><td class='bold-text'>NO RESULTS FOUND</td></tr>";
+                jq('#expense-table tbody').append(row);
+            }
 
             var footr = "<tr>";
             footr += "<th colspan='6' style='padding-left:20px'>PAYMENT SUMMARY</th>";
