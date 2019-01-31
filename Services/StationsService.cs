@@ -216,28 +216,29 @@ namespace Core.Services
 
 
             SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("DECLARE @yr INT=" + year + ", @st INT=" + stid + "; SELECT Cust, Names, SUM(CASE WHEN Mnths=0 THEN Amts ELSE 0 END) OPN, SUM(CASE WHEN Mnths=1 THEN Amts ELSE 0 END) JAN, SUM(CASE WHEN Mnths=2 THEN Amts ELSE 0 END) FEB, SUM(CASE WHEN Mnths=3 THEN Amts ELSE 0 END) MAR, SUM(CASE WHEN Mnths=4 THEN Amts ELSE 0 END) APR, SUM(CASE WHEN Mnths=5 THEN Amts ELSE 0 END) MAY, SUM(CASE WHEN Mnths=6 THEN Amts ELSE 0 END) JUN, SUM(CASE WHEN Mnths=7 THEN Amts ELSE 0 END) JUL, SUM(CASE WHEN Mnths=8 THEN Amts ELSE 0 END) AUG, SUM(CASE WHEN Mnths=9 THEN Amts ELSE 0 END) SEP, SUM(CASE WHEN Mnths=10 THEN Amts ELSE 0 END) OCT, SUM(CASE WHEN Mnths=11 THEN Amts ELSE 0 END) NOV, SUM(CASE WHEN Mnths=12 THEN Amts ELSE 0 END) DEC, SUM(Amts) TTL FROM (SELECT Stns, Cust, MONTH(Dates) Mnths, (Invs-Pymt) Amts FROM vCustomerStatements WHERE Stns=@st AND YEAR(Dates)=@yr " + additionalQuery + " UNION ALL SELECT Stns, Cust, 0, (Invs-Pymt) Amts FROM vCustomerStatements WHERE Stns=@st AND YEAR(Dates)<@yr) As Foo INNER JOIN vCustomers ON [Custid]=[Cust] AND [Stns]=[Sts] GROUP BY Stns, Names, Cust ORDER BY Names");
+            //SqlDataReader dr = conn.SqlServerConnect("DECLARE @yr INT=" + year + ", @st INT=" + stid + "; SELECT Cust, Names, SUM(CASE WHEN Mnths=0 THEN Amts ELSE 0 END) OPN, SUM(CASE WHEN Mnths=1 THEN Amts ELSE 0 END) JAN, SUM(CASE WHEN Mnths=2 THEN Amts ELSE 0 END) FEB, SUM(CASE WHEN Mnths=3 THEN Amts ELSE 0 END) MAR, SUM(CASE WHEN Mnths=4 THEN Amts ELSE 0 END) APR, SUM(CASE WHEN Mnths=5 THEN Amts ELSE 0 END) MAY, SUM(CASE WHEN Mnths=6 THEN Amts ELSE 0 END) JUN, SUM(CASE WHEN Mnths=7 THEN Amts ELSE 0 END) JUL, SUM(CASE WHEN Mnths=8 THEN Amts ELSE 0 END) AUG, SUM(CASE WHEN Mnths=9 THEN Amts ELSE 0 END) SEP, SUM(CASE WHEN Mnths=10 THEN Amts ELSE 0 END) OCT, SUM(CASE WHEN Mnths=11 THEN Amts ELSE 0 END) NOV, SUM(CASE WHEN Mnths=12 THEN Amts ELSE 0 END) DEC, SUM(Amts) TTL FROM (SELECT Stns, Cust, MONTH(Dates) Mnths, (Invs-Pymt) Amts FROM vCustomerStatements WHERE Stns=@st AND YEAR(Dates)=@yr " + additionalQuery + " UNION ALL SELECT Stns, Cust, 0, (Invs-Pymt) Amts FROM vCustomerStatements WHERE Stns=@st AND YEAR(Dates)<@yr) As Foo INNER JOIN vCustomers ON [Custid]=[Cust] AND [Stns]=[Sts] GROUP BY Stns, Names, Cust ORDER BY Names");
+            SqlDataReader dr = conn.SqlServerConnect("DECLARE @yr INT=" + year + ", @st INT=" + stid + "; SELECT [Type], Cust, CASE WHEN [Type]=4 THEN 'LIPA NA MPESA' WHEN [Type]=3 THEN BankName+(CASE WHEN BankName IN ('EQUITY','CFC') THEN ' VISA' ELSE '' END) ELSE Names END Names, SUM(CASE WHEN Mnths=0 THEN Amts ELSE 0 END) OPN, SUM(CASE WHEN Mnths=1 THEN Amts ELSE 0 END) JAN, SUM(CASE WHEN Mnths=2 THEN Amts ELSE 0 END) FEB, SUM(CASE WHEN Mnths=3 THEN Amts ELSE 0 END) MAR, SUM(CASE WHEN Mnths=4 THEN Amts ELSE 0 END) APR, SUM(CASE WHEN Mnths=5 THEN Amts ELSE 0 END) MAY, SUM(CASE WHEN Mnths=6 THEN Amts ELSE 0 END) JUN, SUM(CASE WHEN Mnths=7 THEN Amts ELSE 0 END) JUL, SUM(CASE WHEN Mnths=8 THEN Amts ELSE 0 END) AUG, SUM(CASE WHEN Mnths=9 THEN Amts ELSE 0 END) SEP, SUM(CASE WHEN Mnths=10 THEN Amts ELSE 0 END) OCT, SUM(CASE WHEN Mnths=11 THEN Amts ELSE 0 END) NOV, SUM(CASE WHEN Mnths=12 THEN Amts ELSE 0 END) DEC, SUM(Amts) TTL FROM (SELECT Stns, 0 [Type], Cust, MONTH(Dates) Mnths, (Invs-Pymt) Amts FROM vCustomerStatements WHERE Stns=@st AND YEAR(Dates)=@yr " + additionalQuery + " UNION ALL SELECT Stns, 0, Cust, 0, (Invs-Pymt) Amts FROM vCustomerStatements WHERE Stns=@st AND YEAR(Dates)<@yr UNION ALL SELECT mm_st, mm_type, mm_account, MONTH(mm_date)mm_mnth, (mm_invs-mm_pymt)mm_amts FROM vAccountsStatements WHERE mm_st=@st AND YEAR(mm_date)=@yr " + additionalQuery + " UNION ALL SELECT mm_st, mm_type, mm_account, 0, (mm_invs-mm_pymt)mm_amts FROM vAccountsStatements WHERE mm_st=@st AND YEAR(mm_date)<@yr) As Foo LEFT OUTER JOIN vCustomers ON [Custid]=[Cust] AND [Stns]=[Sts] AND [Type]=0 LEFT OUTER JOIN vBankAccounts ON BankID=Cust AND BankSt=Stns GROUP BY Stns, Names, BankName, [Type], Cust ORDER BY Names");
             if (dr.HasRows)
             {
                 while (dr.Read())
                 {
                     ReportCustomerYearly entry = new ReportCustomerYearly();
-                    entry.Customer.Id = Convert.ToInt64(dr[0]);
-                    entry.Customer.Name = dr[1].ToString();
-                    entry.Opening = Convert.ToDouble(dr[2]);
-                    entry.Jan = Convert.ToDouble(dr[3]);
-                    entry.Feb = Convert.ToDouble(dr[4]);
-                    entry.Mar = Convert.ToDouble(dr[5]);
-                    entry.Apr = Convert.ToDouble(dr[6]);
-                    entry.May = Convert.ToDouble(dr[7]);
-                    entry.Jun = Convert.ToDouble(dr[8]);
-                    entry.Jul = Convert.ToDouble(dr[9]);
-                    entry.Aug = Convert.ToDouble(dr[10]);
-                    entry.Sep = Convert.ToDouble(dr[11]);
-                    entry.Oct = Convert.ToDouble(dr[12]);
-                    entry.Nov = Convert.ToDouble(dr[13]);
-                    entry.Dec = Convert.ToDouble(dr[14]);
-                    entry.Total = Convert.ToDouble(dr[15]);
+                    entry.Customer.Id = Convert.ToInt64(dr[1]);
+                    entry.Customer.Name = dr[2].ToString();
+                    entry.Opening = Convert.ToDouble(dr[3]);
+                    entry.Jan = Convert.ToDouble(dr[4]);
+                    entry.Feb = Convert.ToDouble(dr[5]);
+                    entry.Mar = Convert.ToDouble(dr[6]);
+                    entry.Apr = Convert.ToDouble(dr[7]);
+                    entry.May = Convert.ToDouble(dr[8]);
+                    entry.Jun = Convert.ToDouble(dr[9]);
+                    entry.Jul = Convert.ToDouble(dr[10]);
+                    entry.Aug = Convert.ToDouble(dr[11]);
+                    entry.Sep = Convert.ToDouble(dr[12]);
+                    entry.Oct = Convert.ToDouble(dr[13]);
+                    entry.Nov = Convert.ToDouble(dr[14]);
+                    entry.Dec = Convert.ToDouble(dr[15]);
+                    entry.Total = Convert.ToDouble(dr[16]);
                     entry.Closing = entry.Opening + entry.Total;
 
                     entries.Add(entry);
@@ -696,6 +697,44 @@ namespace Core.Services
             return summary;
         }
 
+        public List<EtrSheet> GetEtrSheet(Stations station, int month, int year) {
+            List<EtrSheet> sheets = new List<EtrSheet>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("DECLARE @st INT=" + station.Id + ", @mnth INT=" + month + ", @year INT=" + year + "; SELECT op_date, SUM(ldg_cash)cash, SUM(CASE WHEN itm=1 THEN (((ldg_sale-ldg_credit-ldg_lesses-ldg_transport+ldg_disc)/pp_price)*(pp_price-vat_zero))*(vat_rate/(100+vat_rate)) ELSE 0 END)+SUM(CASE WHEN itm=2 THEN (((ldg_sale-ldg_credit+ldg_disc)/pp_price)*(pp_price-vat_zero))*(vat_rate/(100+vat_rate)) ELSE 0 END)+SUM(CASE WHEN itm=3 THEN (((ldg_sale-ldg_credit+ldg_disc)/pp_price)*(pp_price-vat_zero))*(vat_rate/(100+vat_rate)) ELSE 0 END)+SUM(CASE WHEN itm=4 THEN (((ldg_sale-ldg_credit+ldg_disc)/pp_price)*(pp_price-vat_zero))*(vat_rate/(100+vat_rate)) ELSE 0 END) vat_amts, SUM(CASE WHEN itm=1 THEN ((ldg_sale-ldg_credit-ldg_lesses-ldg_transport+ldg_disc)/pp_price)*vat_zero ELSE 0 END)+SUM(CASE WHEN itm=2 THEN ((ldg_sale-ldg_credit+ldg_disc)/pp_price)*vat_zero ELSE 0 END)+SUM(CASE WHEN itm=3 THEN ((ldg_sale-ldg_credit+ldg_disc)/pp_price)*vat_zero ELSE 0 END)+SUM(CASE WHEN itm=4 THEN ((ldg_sale-ldg_credit+ldg_disc)/pp_price)*vat_zero ELSE 0 END) vat_zero, SUM(cw_serv) cw_serv, SUM(soda) soda, SUM(lubes)-SUM(CASE WHEN itm=0 THEN ldg_credit ELSE 0 END) lubes, SUM(ldg_rent) rent, SUM(gas) gas, SUM(gas_vat) gas_vat, SUM(ldg_credit) credit, SUM(CASE WHEN ldg_credit>0 AND itm=1 THEN (ldg_credit/ldg_price)*vat_zero ELSE 0 END)+ SUM(CASE WHEN ldg_credit>0 AND itm=2 THEN (ldg_credit/ldg_price)*vat_zero ELSE 0 END)+ SUM(CASE WHEN ldg_credit>0 AND itm=3 THEN (ldg_credit/ldg_price)*vat_zero ELSE 0 END)+ SUM(CASE WHEN ldg_credit>0 AND itm=4 THEN (ldg_credit/ldg_price)*vat_zero ELSE 0 END) credit_zero, SUM(CASE WHEN ldg_credit>0 AND itm=1 THEN ((ldg_credit/ldg_price)*(ldg_price-vat_zero))*(vat_rate/(100+vat_rate)) ELSE 0 END)+ SUM(CASE WHEN ldg_credit>0 AND itm=2 THEN ((ldg_credit/ldg_price)*(ldg_price-vat_zero))*(vat_rate/(100+vat_rate)) ELSE 0 END)+ SUM(CASE WHEN ldg_credit>0 AND itm=3 THEN ((ldg_credit/ldg_price)*(ldg_price-vat_zero))*(vat_rate/(100+vat_rate)) ELSE 0 END)+ SUM(CASE WHEN ldg_credit>0 AND itm=4 THEN ((ldg_credit/ldg_price)*(ldg_price-vat_zero))*(vat_rate/(100+vat_rate)) ELSE 0 END) credit_vat, SUM(CASE WHEN itm=0 THEN ldg_credit ELSE 0 END) credit_lubes, SUM(ldg_cash+ldg_credit+ldg_rent+gas+gas_vat+soda+lubes) total, ISNULL(etr_totalvat,0) etr_check FROM ( SELECT op_st, op_date, op_fuel itm, 0 ldg_sale, op_amount+(op_discount*-1) ldg_over, 0 ldg_disc, 0 ldg_lesses, 0 ldg_transport, 0 ldg_credit, 0 ldg_cash, 0 ldg_price, 0 ldg_rent, 0 soda, 0 lubes, 0 gas, 0 gas_vat, 0 cw_serv FROM vOverpump WHERE op_st=@st AND YEAR(op_date)=@year AND MONTH(op_date)=@mnth UNION ALL SELECT sr_st, sr_date, sr_fuel, 0,0, sr_discount,0,0, sr_amts,0, sr_price,0,0,0,0,0,0 FROM vInvoicesLedger WHERE sr_st=@st AND YEAR(sr_date)=@year AND MONTH(sr_date)=@mnth UNION ALL SELECT am_st, am_date, am_item, 0,0,0,0,0, am_amts,0, am_price,0,0,0,0,0,0 FROM vAccounts WHERE am_st=@st AND YEAR(am_date)=@year AND MONTH(am_date)=@mnth UNION ALL SELECT pcol_st, pcol_date, pmp_item, pcol_price*(pcol_cl-pcol_op-pcol_adjust-pcol_test),0,0,0,0,0,0,0,0,0,0,0,0,0 FROM vReadings INNER JOIN vPumps ON pcol_st = pmp_st AND pcol_pump = pmp_idnt WHERE pcol_st=@st AND YEAR(pcol_date)=@year AND MONTH(pcol_date)=@mnth UNION ALL SELECT dd_st, dd_date, 0, 0,0,0,dd_lesses,dd_transport,0, dd_cash+dd_expenses,0,0,0,0,0,0,(dd_cwash+dd_service+dd_tyre) FROM vDiffs WHERE dd_st=@st AND YEAR(dd_date)=@year AND MONTH(dd_date)=@mnth UNION ALL SELECT rt_st, rt_date, 0,0,0,0,0,0,0,0,0,rt_amount,0,0,0,0,0 FROM vRent WHERE rt_st=@st AND YEAR(rt_date)=@year AND MONTH(rt_date)=@mnth UNION ALL SELECT bk_st, bk_date, 0,0,0,0,0,0,0,0,0,0, bk_soda, bk_lubes, bk_gas, bk_gas_vat,0 FROM vBanking WHERE bk_st=@st AND YEAR(bk_date)=@year AND MONTH(bk_date)=@mnth ) As Foo LEFT OUTER JOIN vPumpsPrices ON pp_date=op_date AND pp_fuel=itm AND op_st=pp_st LEFT OUTER JOIN VatReports ON vat_date=op_date AND vat_item=itm LEFT OUTER JOIN vEtrBreakdown ON etr_date=op_date AND etr_st=op_st GROUP BY op_date, etr_totalvat ORDER BY op_date");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    EtrSheet item = new EtrSheet {
+                        Date = Convert.ToDateTime(dr[0]),
+                        Cash = Convert.ToDouble(dr[1]),
+                        CashVats = Convert.ToDouble(dr[2]),
+                        CashZero = Convert.ToDouble(dr[3]),
+
+                        Serv = Convert.ToDouble(dr[4]),
+                        Soda = Convert.ToDouble(dr[5]),
+                        Lube = Convert.ToDouble(dr[6]),
+                        Rent = Convert.ToDouble(dr[7]),
+                        Gas = Convert.ToDouble(dr[8]),
+                        GasVat = Convert.ToDouble(dr[9]),
+
+                        Credit = Convert.ToDouble(dr[10]),
+                        CreditZero = Convert.ToDouble(dr[11]),
+                        CreditVats = Convert.ToDouble(dr[12]),
+                        CreditLube = Convert.ToDouble(dr[13]),
+
+                        Total = Convert.ToDouble(dr[14]),
+                        Check = Convert.ToDouble(dr[15]),
+                    };
+
+                    item.Vat08 = item.CashVats + item.CreditVats;
+                    item.Vat16 = (item.Serv + item.Soda + item.Lube + item.CreditLube + item.Rent + item.GasVat) * (16.0 / 116.0);
+
+                    sheets.Add(item);
+                }
+            }
+
+            return sheets;
+        }
 
         public List<MonthsModel> InitializeMonthsModel()
         {

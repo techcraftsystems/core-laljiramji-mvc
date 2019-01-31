@@ -1,0 +1,94 @@
+﻿@model Core.ViewModel.ReportsEtrSheetViewModel;
+@{
+    ViewData["Title"] = "ETR Sheet";
+}
+
+<script>
+    $rev = jq('div.container');
+    $rev.removeClass('container');
+    $rev.removeClass('body-content');
+</script>
+
+<style>
+    footer, hr {
+        display: none;
+    }
+</style>
+
+<table class="custom bordered" style="margin-top:10px;">
+    <thead class="deep-orange accent-2">
+        <tr style="font-size:1.5em">
+            <th>&nbsp;</th>
+            <th colspan="4" class="center-align">CASH SALES</th>
+            <th colspan="6" class="center-align">OTHER REVUENUE SOURCES</th>
+            <th colspan="5" class="center-align">CREDIT SALES</th>
+            <th colspan="3" class="center-align">ETR CHECK</th>
+        </tr>
+        <tr>
+            <th>DATE</th>
+            <th class="right-align">CASH</th>
+            <th class="right-align">EXCL</th>
+            <th class="right-align">V.A.T</th>
+            <th class="right-align">ZERO</th>
+            <th class="right-align">SERVICE</th>
+            <th class="right-align">SODA</th>
+            <th class="right-align">LUBES</th>
+            <th class="right-align">RENT</th>
+            <th class="right-align">GAS</th>
+            <th class="right-align">GAS(V)</th>
+            <th class="right-align">CREDIT</th>
+            <th class="right-align">EXCL</th>
+            <th class="right-align">V.A.T</th>
+            <th class="right-align">ZERO</th>
+            <th class="right-align">LUBES</th>
+            <th class="right-align">TOTAL</th>
+            <th class="right-align">ETR.CHK</th>
+            <th class="right-align">DIFF</th>
+            <th class="right-align">X</th>
+            <th class="right-align">GAS(VAT)</th>
+            <th class="right-align">SODA</th>
+            <th class="right-align">TOTAL</th>
+            <th class="right-align">RENT</th>
+            <th class="right-align">CARWASH</th>
+            <th class="right-align">CREDIT</th>
+            <th class="right-align">SERVICE</th>
+            <th class="right-align">CREDIT</th>
+            <th class="right-align">PUNCTURE</th>
+            <th class="right-align">CREDIT</th>
+            <th class="right-align">TOTAL</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var rpt in Model.Report) {
+
+        <tr>
+            <td class="center-align">@rpt.Date.ToString("dd")</td>
+            <td class="right-align yellow">@string.Format("{0:N}", rpt.Cash)</td>
+            <td class="right-align yellow">@string.Format("{0:N}", rpt.Cash - rpt.CashVats - rpt.CashZero)</td>
+            <td class="right-align yellow">@string.Format("{0:N}", rpt.CashVats)</td>
+            <td class="right-align yellow">@string.Format("{0:N}", rpt.CashZero)</td>
+            <td class="right-align">@string.Format("{0:N}", rpt.Serv)</td>
+            <td class="right-align">@string.Format("{0:N}", rpt.Soda)</td>
+            <td class="right-align">@string.Format("{0:N}", rpt.Lube)</td>
+            <td class="right-align">@string.Format("{0:N}", rpt.Rent)</td>
+            <td class="right-align">@string.Format("{0:N}", rpt.Gas)</td>
+            <td class="right-align">@string.Format("{0:N}", rpt.GasVat)</td>
+            <td class="right-align yellow">@string.Format("{0:N}", rpt.Credit)</td>
+            <td class="right-align">@string.Format("{0:N}", rpt.Credit - rpt.CreditVats - rpt.CreditZero)</td>
+            <td class="right-align red-text">@string.Format("{0:N}", rpt.CreditVats)</td>
+            <td class="right-align green-text">@string.Format("{0:N}", rpt.CreditZero)</td>
+            <td class="right-align">@string.Format("{0:N}", rpt.CreditLube)</td>
+            <td class="right-align yellow">@string.Format("{0:N}", rpt.Total)</td>
+            <td class="right-align blue-text">@string.Format("{0:N}", rpt.Check)</td>
+            <td class="right-align red-text">@string.Format("{0:N}", rpt.Total - rpt.Check)</td>
+            <td class="right-align">&nbsp;</td>
+        </tr>
+        }
+    </tbody>
+
+    <tfoot class="deep-orange accent-2 white-text">
+        <tr>
+            <td>&nbsp;</td>
+        </tr>
+    </tfoot>
+</table>

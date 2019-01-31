@@ -65,6 +65,16 @@ namespace Core.Controllers
             return View(model);
         }
 
+        [Route("reports/etr/{code}/{month}/{year}")]
+        public IActionResult EtrSheet(string code, int month, int year, ReportsEtrSheetViewModel model, StationsService svc)
+        {
+            model.Date = new DateTime(year, month, 1);
+            model.Station = svc.GetStation(code);
+            model.Report = svc.GetEtrSheet(model.Station, month, year);
+
+            return View(model);
+        }
+
         [Route("reports/trucks/fuel/{year}")]
         public IActionResult TrucksFuelMonthly(int year) {
             List<TrucksMonthlySummary> model = new CoreService().GetTrucksMonthlySummary(year);
