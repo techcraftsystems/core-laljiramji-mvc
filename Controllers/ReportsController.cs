@@ -83,7 +83,7 @@ namespace Core.Controllers
 
         [Route("reports/trucks/fuel-vat/{month}/{year}")]
         public IActionResult TrucksFuelVat(int month, int year) {
-            List<TrucksFuelExpense> model = new List<TrucksFuelExpense>(new CoreService().GetTrucksFuelExpense(month, year));//new CoreService().GetTrucksMonthlySummary(year);
+            List<TrucksFuelExpense> model = new List<TrucksFuelExpense>(new CoreService().GetTrucksFuelExpense(month, year));
             return View(model);
         }
     }

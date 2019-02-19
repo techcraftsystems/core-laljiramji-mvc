@@ -220,7 +220,7 @@ namespace Core.Services
             SqlDataReader dr = conn.SqlServerConnect("SELECT tf_idnt, tf_date, tf_truck, tr_registration, tf_supplier, sp_name, tf_invoice, tf_qnty, tf_price, tf_amount, tf_vatamts, tf_zerorated FROM TrucksFuel INNER JOIN Trucks ON tr_idnt=tf_truck INNER JOIN Suppliers ON sp_idnt=tf_supplier WHERE MONTH(tf_date)=" + month + " AND YEAR(tf_date)=" + year + " ORDER BY tf_date, tf_idnt");
             if (dr.HasRows) {
                 while (dr.Read()) {
-                    report.Add(new TrucksFuelExpense {
+                    TrucksFuelExpense xp = new TrucksFuelExpense {
                         Id = Convert.ToInt64(dr[0]),
                         Date = Convert.ToDateTime(dr[1]),
                         Truck = new Trucks(Convert.ToInt64(dr[2]), dr[3].ToString()),
@@ -229,9 +229,13 @@ namespace Core.Services
                         Quantity = Convert.ToDouble(dr[7]),
                         Price = Convert.ToDouble(dr[8]),
                         Amount = Convert.ToDouble(dr[9]),
-                        VatAmount = Convert.ToDouble(dr[10]),
-                        Zerorated = Convert.ToDouble(dr[11])
-                    });
+                        VatAmount = Convert.ToDouble(dr[10])
+                    };
+					
+					xp.Exclussive = (xp.VatAmount / 0.08);
+					xp.Zerorated = xp.Amount - xp.VatAmount - xp.Exclussive;
+					
+					report.Add(xp);
                 }
             }
 

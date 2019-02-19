@@ -44,7 +44,7 @@
                 {
                     Cumm += rpt.Amount;
                     Ltrs += rpt.Quantity;
-                    Excl += rpt.Amount - rpt.VatAmount - rpt.Zerorated;
+                    Excl += rpt.Exclussive;
                     Vats += rpt.VatAmount;
                     Zero += rpt.Zerorated;
 
@@ -58,11 +58,10 @@
                         <td>@rpt.Invoice</td>
                         <td class="right-align">@string.Format("{0:N2}", rpt.Amount)</td>
                         <td class="right-align bold-text">@string.Format("{0:N2}", Cumm)</td>
-                        <td class="right-align">@string.Format("{0:N2}", rpt.Amount - rpt.VatAmount - rpt.Zerorated)</td>
+                        <td class="right-align">@string.Format("{0:N2}", rpt.Exclussive)</td>
                         <td class="right-align">@string.Format("{0:N2}", rpt.VatAmount)</td>
                         <td class="right-align">@string.Format("{0:N2}", rpt.Zerorated)</td>
                         <td class="right-align bold-text">@string.Format("{0:N2}", rpt.Amount)</td>
-
                     </tr>
 
                 }

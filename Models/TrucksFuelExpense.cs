@@ -20,6 +20,7 @@ namespace Core.Models
         public double Amount { get; set; }
         public double VatAmount { get; set; }
         public double Zerorated { get; set; }
+        public double Exclussive { get; set; }
 
         public TrucksFuelExpense() {
             Id = 0;
@@ -36,6 +37,7 @@ namespace Core.Models
             Amount = 0;
             VatAmount = 0;
             Zerorated = 0;
+			Exclussive = 0;
         }
 
         public TrucksFuelExpense Save(HttpContext context) {
