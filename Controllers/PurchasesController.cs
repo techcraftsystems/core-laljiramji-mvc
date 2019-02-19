@@ -22,14 +22,8 @@ namespace Core.Controllers
             return View();
         }
 
-        [Route("purchases/ledger/{code}")]
-        public ActionResult FuelStationPurchaseLedger(String code)
-        {
-            return RedirectToAction("FuelPurchaseLedger", "Purchases", new { @station = code });
-        }
-
         [Route("purchases/ledger")]
-        public IActionResult FuelPurchaseLedger(String station, FuelPurchaseLedgerViewModel model, StationsService svc){
+        public IActionResult FuelLedger(String station, FuelPurchaseLedgerViewModel model, StationsService svc){
             model.Stations = new List<Stations>(svc.GetStationsByNames());
             if (!string.IsNullOrEmpty(station))
                 model.Code = station;
@@ -37,9 +31,13 @@ namespace Core.Controllers
             return View(model);
         }
 
+        [Route("purchases/ledger/summary")]
+        public IActionResult FuelLedgerSummary() {
+            return View();
+        }
+
         [Route("purchases/vat/calculator")]
-        public IActionResult VatCalculator(VatCalculatorViewModel model, PurchasesService svc)
-        {
+        public IActionResult VatCalculator(VatCalculatorViewModel model, PurchasesService svc) {
             List<PurchasesVat> VatEntries = new List<PurchasesVat>(svc.GetLatestPurchasesVat());
             model.Diesel = VatEntries[0];
             model.Super = VatEntries[1];
@@ -49,18 +47,20 @@ namespace Core.Controllers
             return View(model);
         }
 
-        public Double GetFuelPurchasesLedgerOpenning(Int64 stid, string date, PurchasesService svc)
-        {
+        public Double GetFuelPurchasesLedgerOpenning(Int64 stid, string date, PurchasesService svc) {
             return svc.GetFuelPurchasesLedgerOpenning(stid, DateTime.Parse(date));
         }
 
-        public JsonResult GetFuelPurchasesLedgers(Int64 stid, string start, string stop, string filter, PurchasesService svc)
-        {
+        public JsonResult GetFuelPurchasesLedgers(Int64 stid, string start, string stop, string filter = "") {
             if (string.IsNullOrWhiteSpace(filter))
                 filter = "";
+            return Json(new PurchasesService().GetFuelPurchasesLedgers(stid, DateTime.Parse(start), DateTime.Parse(stop), filter));
+        }
 
-            List<FuelPurchasesLedger> ledgers = svc.GetFuelPurchasesLedgers(stid, DateTime.Parse(start), DateTime.Parse(stop), filter);
-            return Json(ledgers);
+        public JsonResult GetFuelPurchasesLedgersSummary(string start, string stop, string filter = "") {
+            if (string.IsNullOrWhiteSpace(filter))
+                filter = "";
+            return Json(new PurchasesService().GetFuelPurchasesLedgersSummary(DateTime.Parse(start), DateTime.Parse(stop), filter)); ;
         }
     }
 }

@@ -24,7 +24,8 @@
     }
 </style>
 
-<script type="text/javascript">jq(function() {
+<script type="text/javascript">
+    jq(function() {
         String.prototype.toAccounting = function() {
             var str = parseFloat(this).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
             if (str == '0.00') {
@@ -97,7 +98,10 @@
                                 row += "<td class='right-text'>" + item.payCard.toString().toAccounting() + "</td>";
                                 row += "<td class='right-text'>" + item.payAmts.toString().toAccounting() + "</td>";
                                 row += "<td class='center-text'>" + item.payDate + "</td>";
-                                row += "<td class='right-text'>" + cumm.toString().toAccounting() + "</td>";
+                                row += "<td class='right-text bold-text'>" + cumm.toString().toAccounting() + "</td>";
+                                row += "<td class='right-text'>" + item.excl.toString().toAccounting() + "</td>";
+                                row += "<td class='right-text'>" + item.vats.toString().toAccounting() + "</td>";
+                                row += "<td class='right-text'>" + item.zero.toString().toAccounting() + "</td>";
                                 row += "</tr>";
 
                                 jq('#ledger-table tbody').append(row);
@@ -113,6 +117,7 @@
                                 footr += "<td class='right-text white-text bold-text'>" + paid.toString().toAccounting() + "</td>";
                                 footr += "<td class='center-text white-text bold-text'>&mdash;</td>";
                                 footr += "<td class='right-text white-text bold-text'>" + cumm.toString().toAccounting() + "</td>";
+                                footr += "<td colspan='3'>&nbsp;</td>";
                                 footr += "</tr>";
                                 jq('#ledger-table tfoot').append(footr);
                             }
@@ -130,7 +135,8 @@
         }
 
         GetFuelPurchasesLedgers();
-});</script>
+});
+</script>
 
 <div class="row" style="margin-top: 10px; margin-bottom: 0px;">
     <div class="input-field col-md-2">
@@ -192,9 +198,12 @@
                 <th class="right-text">PAYMENT</th>
                 <th class="center-text">DATE</th>
                 <th class="right-text">BALANCE</th>
+                <th class="right-text">EXCL</th>
+                <th class="right-text">VAT</th>
+                <th class="right-text">ZERO</th>
             </tr>
         </thead>
-        <tbody></tbody>
+        <tbody style="font-size:0.8em"></tbody>
         <tfoot class="deep-orange accent-2"></tfoot>
     </table>
 </div>

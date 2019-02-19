@@ -10,6 +10,10 @@ $(function() {
         route = jq(this).data('trigger');
     });
 
+    jq('div.redirect-trigger').click(function(){
+        window.location.href = jq(this).data('route');
+    });
+
     jq('#modal21 .modal-footer .modal-post').click(function() {
         var station =   jq('#modal21 .modal-station :selected').val();
         var year =      jq('#modal21 .modal-year').val();

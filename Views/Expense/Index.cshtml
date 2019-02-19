@@ -183,6 +183,7 @@
                         <th>QUANTITY</th>
                         <th class="right-align">PRICE</th>
                         <th class="right-align">AMOUNT</th>
+                        <th class="right-align">V.A.T</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -194,6 +195,7 @@
                         <td class="width-100px">@Html.TextBoxFor(model => model.TrucksExpenses.Quantity, new { @class = "qnty" })</td>
                         <td class="width-60px">@Html.TextBoxFor(model => model.TrucksExpenses.Price, new { @class = "price right-align" })</td>
                         <td class="width-120px"><input type="text" class="amts right-align" value="0" readonly></td>
+                        <td class="width-90px">@Html.TextBoxFor(model => model.TrucksExpenses.Vats, new { @class = "price right-align" })</td>
                     </tr>
                 </tbody>
             </table>
@@ -225,7 +227,7 @@
                         <th>STATION</th>
                         <th>DESCRIPTION</th>
                         <th class="right-align">AMOUNT</th>
-                        <th class="right-align">VAT</th>
+                        <th class="right-align">V.A.T</th>
                         <th class="right-align">ZERORATE</th>
                     </tr>
                 </thead>

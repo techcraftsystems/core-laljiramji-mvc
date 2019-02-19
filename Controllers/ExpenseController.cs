@@ -50,11 +50,9 @@ namespace Core.Controllers
 
             expense.Date = date;
             expense.Amount = expense.Quantity * expense.Price;
-            expense.Zerorated = vat.Zero * expense.Quantity;
-            expense.VatAmount = (expense.Amount - expense.Zerorated)*(vat.Rate / (vat.Rate+100));
+            expense.Zero = expense.Amount - expense.Vats - (expense.Vats/0.08);
             expense.Description = "N/A";
             expense.Save(HttpContext);
-
 
             return LocalRedirect("/expenses/");
         }

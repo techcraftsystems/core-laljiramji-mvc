@@ -4,18 +4,21 @@ namespace Core.Models
     public class FuelPurchasesLedger
     {
         public Stations Station { get; set; }
-        public Int64 Id { get; set; }
-        public String Date { get; set; }
-        public String Invoice { get; set; }
-        public String Description { get; set; }
+        public long Id { get; set; }
+        public string Date { get; set; }
+        public string Invoice { get; set; }
+        public string Description { get; set; }
 
-        public Double Ltrs { get; set; }
-        public Double Price { get; set; }
-        public Double Total { get; set; }
+        public double Ltrs { get; set; }
+        public double Price { get; set; }
+        public double Total { get; set; }
+        public double Excl { get; set; }
+        public double Vats { get; set; }
+        public double Zero { get; set; }
 
-        public String PayDate { get; set; }
-        public Double PayCard { get; set; }
-        public Double PayAmts { get; set; }
+        public string PayDate { get; set; }
+        public double PayCard { get; set; }
+        public double PayAmts { get; set; }
 
         public FuelPurchasesLedger()
         {
@@ -29,6 +32,10 @@ namespace Core.Models
             Ltrs = 0;
             Price = 0;
             Total = 0;
+
+            Excl = 0;
+            Vats = 0;
+            Zero = 0;
 
             PayDate = "";
             PayCard = 0;

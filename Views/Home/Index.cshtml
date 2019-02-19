@@ -433,10 +433,8 @@
             @if (Model.Updated.Count() > 0)
             {
                 <ul class="col-md-6 updated-push">
-                    @for (var ix = 0; ix < Model.Updated.Count(); ix++)
-                    {
-                        if (ix % 2 == 0)
-                        {
+                    @for (var ix = 0; ix < Model.Updated.Count(); ix++) {
+                        if (ix % 2 == 0) {
                             <li>
                                 <i class="material-icons">check</i>
                                 <a asp-area="" asp-controller="Stations" asp-action="Main" asp-route-name="@Model.Updated[ix].Code.ToLower()">@Model.Updated[ix].Name</a>
@@ -446,10 +444,8 @@
                 </ul>
 
                 <ul class="col-md-6 updated-push">
-                    @for (var ix = 1; ix < Model.Updated.Count(); ix++)
-                    {
-                        if (ix % 2 != 0)
-                        {
+                    @for (var ix = 1; ix < Model.Updated.Count(); ix++) {
+                        if (ix % 2 != 0) {
                             <li>
                                 <i class="material-icons">check</i>
                                 <a asp-area="" asp-controller="Stations" asp-action="Main" asp-route-name="@Model.Updated[ix].Code.ToLower()">@Model.Updated[ix].Name</a>
@@ -458,8 +454,7 @@
                     }
                 </ul>
             }
-            else
-            {
+            else {
                 <ul class="updated-push">
                     <li>
                         <i class="material-icons">code</i>
@@ -474,7 +469,7 @@
         <h2>Overview</h2>
         <ul>
             <li><a asp-area="" asp-controller="Purchases" asp-action="VatCalculator">Purchases VATs</a>
-            <li><a asp-area="" asp-controller="Purchases" asp-action="FuelPurchaseLedger">Purchases Ledger</a>
+            <li><a asp-area="" asp-controller="Purchases" asp-action="FuelLedger">Purchases Ledger</a>
             <li><a href="">Customers Ledger</a>
             <li><a href="/core/stations/ledgers/duplicates">Duplicate Invoices</a>
         </ul>
