@@ -50,7 +50,7 @@ namespace Core.Controllers
 
             expense.Date = date;
             expense.Amount = expense.Quantity * expense.Price;
-            expense.Zero = expense.Amount - expense.Vats - (expense.Vats/0.08);
+            expense.Zerorated = expense.Amount - expense.VatAmount - (expense.VatAmount/0.08);
             expense.Description = "N/A";
             expense.Save(HttpContext);
 

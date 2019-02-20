@@ -132,7 +132,7 @@
                         </tr>
                     </thead>
 
-                    <tbody>
+                    <tbody style="font-size:0.9em">
                         @foreach (var expense in Model.Expenses)
                         {
                             xAmts += expense.Amount;
@@ -195,7 +195,7 @@
                         <td class="width-100px">@Html.TextBoxFor(model => model.TrucksExpenses.Quantity, new { @class = "qnty" })</td>
                         <td class="width-60px">@Html.TextBoxFor(model => model.TrucksExpenses.Price, new { @class = "price right-align" })</td>
                         <td class="width-120px"><input type="text" class="amts right-align" value="0" readonly></td>
-                        <td class="width-90px">@Html.TextBoxFor(model => model.TrucksExpenses.Vats, new { @class = "price right-align" })</td>
+                        <td class="width-90px">@Html.TextBoxFor(model => model.TrucksExpenses.VatAmount, new { @class = "price right-align" })</td>
                     </tr>
                 </tbody>
             </table>
