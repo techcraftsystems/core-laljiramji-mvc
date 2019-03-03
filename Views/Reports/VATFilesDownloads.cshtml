@@ -1,0 +1,97 @@
+﻿@model Core.ReportModel.VatFilesDownloadViewModel;
+
+@{
+    ViewData["Title"] = "V.A.T Downloads";
+}
+
+<script>
+    var year = @Model.Year;
+    var mnth = @Model.Month;
+</script>
+
+<script src="~/js/reports-vat-downloads-script.js"></script>
+
+<style>
+    div.card .card-content {
+        padding: 0 0 5px;
+        border-radius: 0 0 2px 2px;
+        cursor: pointer
+    }
+</style>
+
+<div id="ecommerce-offer">
+    <div class="row zero-margin">
+        <div class="col s12 m2">
+            <div class="card gradient-shadow gradient-45deg-light-blue-cyan border-radius-3 purchases" data-rate="8">
+                <div class="card-content center">
+                    <h5 class="white-text lighten-4">8%</h5>
+                    <p class="white-text lighten-4">Purchases</p>
+                </div>
+            </div>
+        </div>
+        <div class="col s12 m2">
+            <div class="card gradient-shadow gradient-45deg-red-pink border-radius-3">
+                <div class="card-content center">
+                    <h5 class="white-text lighten-4">16%</h5>
+                    <p class="white-text lighten-4">Purchases</p>
+                </div>
+            </div>
+        </div>
+        <div class="col s12 m2">
+            <div class="card gradient-shadow gradient-45deg-amber-amber border-radius-3">
+                <div class="card-content center">
+                    <h5 class="white-text lighten-4">Exempt</h5>
+                    <p class="white-text lighten-4">Purchases</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col s12 m2">
+            <div class="card gradient-shadow gradient-45deg-green-teal border-radius-3">
+                <div class="card-content center">
+                    <h5 class="white-text lighten-4">8%</h5>
+                    <p class="white-text lighten-4">Sales</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col s12 m2">
+            <div class="card gradient-shadow gradient-45deg-purple-amber border-radius-3">
+                <div class="card-content center">
+                    <h5 class="white-text lighten-4">16%</h5>
+                    <p class="white-text lighten-4">Sales</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col s12 m2">
+            <div class="card gradient-shadow gradient-45deg-blue-grey-blue-grey border-radius-3">
+                <div class="card-content center">
+                    <h5 class="white-text lighten-4">Exempt</h5>
+                    <p class="white-text lighten-4">Sales</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>For the period <span class="blue-text">@Model.Date.ToString("MMMM yyyy")</span></div>
+
+<div style="display:none;">
+    <table id="purchase-table">
+        <thead>
+            <tr>
+                <th>TYPE</th>
+                <th>PIN</th>
+                <th>SUPPLIER</th>
+                <th>DATE</th>
+                <th>INVOICE</th>
+                <th>DESC</th>
+                <th>BLANK</th>
+                <th>AMOUNT</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>

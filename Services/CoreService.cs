@@ -296,8 +296,38 @@ namespace Core.Services
             return expenses;
         }
 
+        public List<FuelPriceChange> GetLastPriceChange() {
+            List<FuelPriceChange> change = new List<FuelPriceChange>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("SELECT TOP(4) vat_date, vat_rate, vat_zero, vat_trucks, fl_idnt, UPPER(fl_name) fl_item FROM VatReports INNER JOIN Fuel ON vat_item=fl_idnt ORDER BY vat_date DESC, vat_item");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    change.Add(new FuelPriceChange {
+                        Date = Convert.ToDateTime(dr[0]),
+                        Taxx = Convert.ToDouble(dr[1]),
+                        Zero = Convert.ToDouble(dr[2]),
+                        Trucks = Convert.ToDouble(dr[3]),
+                        Fuel = new Fuel { 
+                            Id = Convert.ToInt64(dr[4]),
+                            Name = dr[5].ToString() 
+                        }
+                    });
+                }
+            }
+
+            return change;
+        }
+
 
         //::Data Writters
+        public FuelPriceChange SavePriceChange(FuelPriceChange change) {
+            SqlServerConnection conn = new SqlServerConnection();
+            change.Id = conn.SqlServerUpdate("DECLARE @date DATE='" + change.Date + "', @item INT='" + change.Fuel.Id + "', @trck FLOAT=" + change.Trucks + ", @rate FLOAT=" + change.Taxx + ", @zero FLOAT=" + change.Zero + "; IF NOT EXISTS (SELECT vat_idnt FROM VatReports WHERE vat_date=@date AND vat_item=@item) BEGIN INSERT INTO VatReports (vat_date, vat_item, vat_rate, vat_zero, vat_trucks) output INSERTED.vat_idnt VALUES (@date, @item, @rate, @zero, @trck) END ELSE BEGIN UPDATE VatReports SET vat_rate=@rate, vat_zero=@zero, vat_trucks=@trck output INSERTED.vat_idnt WHERE vat_date=@date AND vat_item=@item END");
+
+            return change;
+        }
+
         public TrucksFuelExpense SaveTrucksFuelExpense(TrucksFuelExpense expense) {
             SqlServerConnection conn = new SqlServerConnection();
             expense.Id = conn.SqlServerUpdate("DECLARE @idnt INT=" + expense.Id+ ", @date DATE='" + expense.Date + "', @trck INT=" + expense.Truck.Id + ", @supp INT=" + expense.Supplier.Id + ", @invs NVARCHAR(MAX)='" + expense.Invoice + "', @qnty FLOAT=" + expense.Quantity + ", @prce FLOAT=" + expense.Price + ", @amts FLOAT=" + expense.Amount + ", @vats FLOAT=" + expense.VatAmount + ", @zero FLOAT=" + expense.Zerorated + ", @user NVARCHAR(50)='" + Username + "', @desc NVARCHAR(MAX)='" + expense.Description + "'; IF NOT EXISTS (SELECT tf_idnt FROM TrucksFuel WHERE tf_idnt=@idnt) BEGIN INSERT INTO TrucksFuel (tf_date, tf_truck, tf_supplier, tf_invoice, tf_qnty, tf_price, tf_amount, tf_vatamts, tf_zerorated, tf_user, tf_description) output INSERTED.tf_idnt VALUES (@date, @trck, @supp, @invs, @qnty, @prce, @amts, @vats, @zero, @user, @desc) END ELSE BEGIN UPDATE TrucksFuel SET tf_date=@date, tf_truck=@trck, tf_supplier=@supp, tf_invoice=@invs, tf_qnty=@qnty, tf_price=@prce, tf_amount=@amts, tf_vatamts=@vats, tf_zerorated=@zero, tf_description=@desc output INSERTED.tf_idnt WHERE tf_idnt=@idnt END");

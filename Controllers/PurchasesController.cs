@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Core.Models;
 using Core.Services;
@@ -15,7 +13,9 @@ namespace Core.Controllers
     [Authorize]
     public class PurchasesController : Controller
     {
-        // GET: /<controller>/
+        [BindProperty]
+        public FuelPriceChangeViewModel PricesUpdate { get; set; }
+
         [Route("core/purchases")]
         public IActionResult Index()
         {
@@ -24,7 +24,7 @@ namespace Core.Controllers
 
         [Route("purchases/ledger")]
         public IActionResult FuelLedger(String station, FuelPurchaseLedgerViewModel model, StationsService svc){
-            model.Stations = new List<Stations>(svc.GetStationsByNames());
+            model.Stations = new List<Stations>(svc.GetStationsNames());
             if (!string.IsNullOrEmpty(station))
                 model.Code = station;
 
@@ -36,6 +36,17 @@ namespace Core.Controllers
             return View();
         }
 
+        [Route("purchases/price/change")]
+        public IActionResult FuelPriceChange(FuelPriceChangeViewModel model, CoreService service)
+        {
+            model.Previous = new List<FuelPriceChange>(service.GetLastPriceChange());
+            model.StartDate = model.Previous[0].Date.AddDays(1);
+            model.StopsDate = model.StartDate.AddMonths(1);
+            model.StopsDate = new DateTime(model.StopsDate.Year, model.StopsDate.Month, 14);
+
+            return View(model);
+        }
+
         [Route("purchases/vat/calculator")]
         public IActionResult VatCalculator(VatCalculatorViewModel model, PurchasesService svc) {
             List<PurchasesVat> VatEntries = new List<PurchasesVat>(svc.GetLatestPurchasesVat());
@@ -45,6 +56,23 @@ namespace Core.Controllers
             model.Kerosene = VatEntries[3];
 
             return View(model);
+        }
+
+        public IActionResult UpdatePriceChange(StationsService service) {
+            for (DateTime date = PricesUpdate.StartDate; date.Date <= PricesUpdate.StopsDate.Date; date = date.AddDays(1)) {
+                foreach (var update in PricesUpdate.Previous){
+                    update.Date = date;
+                    update.Save();
+                }
+            }
+
+            foreach (Stations station in service.GetStationsNames()) {
+                foreach (var update in PricesUpdate.Previous){
+                    service.UpdateStationsZeroRate(station, update);
+                }
+            }
+
+            return LocalRedirect("/");
         }
 
         public Double GetFuelPurchasesLedgerOpenning(Int64 stid, string date, PurchasesService svc) {

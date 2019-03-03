@@ -1,0 +1,75 @@
+﻿@model Core.ViewModel.FuelPriceChangeViewModel;
+
+@{
+    ViewData["Title"] = "Price Change";
+}
+
+<script src="~/js/purchase-fuel-price-change-script.js"></script>
+
+<style>
+    input:not([type]), input[type=text]:not(.browser-default), input[type=password]:not(.browser-default), input[type=email]:not(.browser-default), input[type=url]:not(.browser-default), input[type=time]:not(.browser-default), input[type=date]:not(.browser-default), input[type=datetime]:not(.browser-default), input[type=datetime-local]:not(.browser-default), input[type=tel]:not(.browser-default), input[type=number]:not(.browser-default), input[type=search]:not(.browser-default), textarea.materialize-textarea {
+        border-bottom: 0px none;
+        border-radius: 0;
+        margin: 0;
+        padding: 0;
+        outline: none;
+        height: 2rem;
+    }
+</style>
+
+
+@using (Html.BeginForm("UpdatePriceChange", "Purchases", FormMethod.Post))
+{
+    <div class="card zero-margin" style="margin-top:10px;">
+        <div class="card-content deep-orange accent-2 white-text table-card" style="border-radius:0">
+            <h5 class="card-stats-number"><i class="material-icons left">add_shopping_cart</i>Price Change</h5>
+            <p class="card-stats-compare right">
+                <i class="material-icons left">alarm</i>From
+                <span class="deep-orange-text text-lighten-5">@Model.StartDate.ToString("dd.MMM")</span> to <span class="deep-orange-text text-lighten-5">@Model.StopsDate.ToString("dd.MMM.yyyy")</span>
+            </p>
+        </div>
+
+        <table id="reading" class="custom bordered">
+            <thead class="deep-orange accent-2">
+                <tr>
+                    <th>#</th>
+                    <th>ITEM</th>
+                    <th>RATE%</th>
+                    <th>PREV</th>
+                    <th>ZERO</th>
+                    <th>TRUCKS</th>
+                    <th>NOTES</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @for (int i = 0; i < Model.Previous.Count; i++)
+                {
+                    var item = Model.Previous[i];
+
+                    <tr>
+                        <td style="width:6px">
+                            @(i + 1)
+                            @Html.HiddenFor(model => model.Previous[i].Fuel.Id)
+                        </td>
+                        <td style="width:200px">@item.Fuel.Name.ToUpper()</td>
+                        <td style="width:100px">@Html.TextBoxFor(model => Model.Previous[i].Taxx, new { })</td>
+                        <td style="width:100px">@string.Format("{0:N}", item.Zero)</td>
+                        <td style="width:100px">@Html.TextBoxFor(model => Model.Previous[i].Zero, new { })</td>
+                        <td style="width:100px">@Html.TextBoxFor(model => Model.Previous[i].Trucks, new { })</td>
+                        <td>N/A</td>
+                    </tr>
+                }
+            </tbody>
+
+            <thead class="deep-orange accent-2">
+            </thead>
+        </table>
+        <div style="clear:both"></div>
+
+        @Html.HiddenFor(model => model.StartDate)
+        @Html.HiddenFor(model => model.StopsDate)
+    </div>
+
+    <a class="btn btn-post waves-effect waves-light gradient-45deg-light-blue-cyan" style="margin: 7px 0 0 20px">UPDATE</a>
+}

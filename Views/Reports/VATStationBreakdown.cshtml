@@ -1,4 +1,4 @@
-﻿@model Core.ViewModel.ReportsVATStationBreakdownViewModel;
+﻿@model Core.ReportModel.VatStationBreakdownViewModel;
 
 @{
     ViewData["Title"] = "V.A.T Breakdown " + Model.station.Name;
@@ -58,9 +58,9 @@
             </thead>
             <tbody>
                 @foreach (var rpt in Model.report) {
-                <tr>
-                    <td>@rpt.date.ToString("dd")</td>
-                </tr>
+                    <tr>
+                        <td>@rpt.date.ToString("dd")</td>
+                    </tr>
                 }
             </tbody>
         </table>

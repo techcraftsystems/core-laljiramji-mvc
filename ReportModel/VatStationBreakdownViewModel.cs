@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using Core.Models;
 
-namespace Core.ViewModel
+namespace Core.ReportModel
 {
-    public class ReportsVATStationBreakdownViewModel
+    public class VatStationBreakdownViewModel
     {
         public Stations station { get; set; }
         public int month { get; set; }
         public int year { get; set; }
         public List<ReportVatBreakdown> report { get; set; }
 
-        public ReportsVATStationBreakdownViewModel() {
+        public VatStationBreakdownViewModel() {
             station = new Stations();
             month = 0;
             year = 0;

@@ -6,6 +6,7 @@ using Core.ViewModel;
 using Core.Services;
 using Core.DataModel;
 using Core.Models;
+using Core.ReportModel;
 
 namespace Core.Controllers
 {
@@ -16,7 +17,7 @@ namespace Core.Controllers
         [Route("reports")]
         public IActionResult Index(ReportsIndexViewModel model, StationsService svc)
         {
-            model.Stations = new List<Models.Stations>(svc.GetStationsByNames());
+            model.Stations = new List<Models.Stations>(svc.GetStationsNames());
             return View(model);
         }
 
@@ -43,7 +44,7 @@ namespace Core.Controllers
         }
 
         [Route("reports/vat/{code}/{month}/{year}")]
-        public IActionResult VATStationBreakdown(string code, int month, int year, ReportsVATStationBreakdownViewModel model, StationsService svc)
+        public IActionResult VATStationBreakdown(string code, int month, int year, VatStationBreakdownViewModel model, StationsService svc)
         {
             DateTime date = new DateTime(year, month, 1);
 
@@ -51,6 +52,15 @@ namespace Core.Controllers
             model.year = year;
             model.month = month;
             model.report = svc.GetReportVatBreakdown(model.station, date, date.AddMonths(1).AddDays(-1));
+
+            return View(model);
+        }
+
+        [Route("reports/vat/downloads/{month}/{year}")]
+        public IActionResult VATFilesDownloads(int month, int year, VatFilesDownloadViewModel model, StationsService service) {
+            model.Month = month;
+            model.Year = year;
+            model.Date = new DateTime(year, month, 1);
 
             return View(model);
         }
@@ -85,6 +95,12 @@ namespace Core.Controllers
         public IActionResult TrucksFuelVat(int month, int year) {
             List<TrucksFuelExpense> model = new List<TrucksFuelExpense>(new CoreService().GetTrucksFuelExpense(month, year));
             return View(model);
+        }
+
+        public JsonResult GetVatDownloadPurchaseEntries(int rate, int year, int mnth, StationsService service) {
+            if (rate.Equals(8))
+                return Json(service.GetFuelPurchasesEntries(mnth, year));
+            return null;
         }
     }
 }
