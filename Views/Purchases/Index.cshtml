@@ -1,5 +1,156 @@
-﻿@{
+﻿@model Core.ViewModel.PurchaseViewModel;
+@{
     ViewData["Title"] = "Purchases";
+    double xAmts = 0;
+    DateTime StartDate = new DateTime(DateTime.Now.Year, 1, 1);
 }
 
-<h4>Purchases Module</h4>
+<style>
+    a {
+        cursor: pointer !important;
+    }
+    nav .input-field input:focus, nav .input-field input[type=text]:valid, nav .input-field input[type=password]:valid, nav .input-field input[type=email]:valid, nav .input-field input[type=url]:valid, nav .input-field input[type=date]:valid {
+        border-bottom: 1px solid #9e9e9e;
+    }
+    td {
+        padding: 5px;
+    }
+    a.material-icons.tiny-box {
+        display: inline-block;
+        font-size: 18px;
+    }
+    a.material-icons:hover {
+        color: #2196F3 !important;
+    }
+</style>
+<script src="~/js/purchase-index-script.js"></script>
+
+<div class="col-md-3 zero-margin">
+    <div id="flight-card" class="card" style="margin-bottom:0">
+        <div class="card-header deep-orange accent-2">
+            <div class="card-title">
+                <h4 class="flight-card-title">Purchases</h4>
+                <p class="flight-card-date">@DateTime.Now.ToString("MMM dd, ddd hh:mm")</p>
+            </div>
+        </div>
+    </div>
+    <ul id="profile-page-about-details" class="collection z-depth-1 col s12 m3 l3" style="padding:0; margin-top:0">
+        <li class="collection-item">
+            <div class="">
+                <div class="col s12">
+                    <i class="material-icons left blue-text">add_shopping_cart</i><a class="blue-text modal-trigger" data-target="station-expense-modal">Add Purchase</a>
+                </div>
+            </div>
+        </li>
+        <li class="collection-item">
+            <div class="">
+                <div class="col s12">
+                    <i class="material-icons left blue-text">group_add</i><a class="blue-text modal-trigger" data-target="truck-fuel-modal">Add Supplier</a>
+                </div>
+            </div>
+        </li>
+    </ul>
+
+    <ul id="profile-page-about-details" class="collection z-depth-1 col s12 m3 l3" style="padding:0;margin-top:-10px;">
+        <li class="collection-item">
+            <div class="">
+                <div class="col s12">
+                    <i class="material-icons left black-text">event</i><a class="black-text" href="/purchases/ledger">Purchase Ledger</a>
+                </div>
+            </div>
+        </li>
+        <li class="collection-item">
+            <div class="">
+                <div class="col s12">
+                    <i class="material-icons left black-text">attach_file</i><a class="black-text" href="/purchases/summary/suppliers">Suppliers Summary</a>
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>
+
+<div class="col-md-9" style="padding:0; margin-top:7px; margin-bottom:0px;">
+    <nav class="navbar nav-extended">
+        <div class="nav-content" style="border: 1px solid rgba(0,0,0,0.1)">
+            <ul class="tabs">
+                <li class="tab"><a href="#general" class="active">General</a></li>
+                <li class="tab"><a href="#reconcile" class="active">Payments</a></li>
+            </ul>
+
+            <div id="general" class="body">
+                <div class="row" style="margin-top: 10px;">
+                    <div class="input-field col-md-3">
+                        <i class="material-icons prefix">date_range</i>
+                        <input id="purchase-start-date" type="text" class="datepicker" value="@Model.Date1x.ToString("d MMMM, yyyy")">
+                    </div>
+
+                    <div class="input-field col-md-3">
+                        <i class="material-icons prefix">date_range</i>
+                        <input id="purchase-stops-date" type="text" class="datepicker" value="@Model.Date2x.ToString("d MMMM, yyyy")">
+                    </div>
+
+                    <div class="input-field col-md-5">
+                        <i class="material-icons prefix">filter_list</i>
+                        <input id="purchase-filter" type="text" placeholder="Filter Expenses" />
+                    </div>
+
+                    <div class="col-md-1">
+                        <a class="btn btn-floating pulse btn gradient-45deg-amber-amber right get-purchases"><i class="material-icons" style="line-height: 42px">search</i></a>
+                    </div>
+                </div>
+
+                <table id="purchase-table" class="bordered" data-loaded="0" style="margin-top: -20px">
+                    <thead>
+                        <tr>
+                            <th>DATE</th>
+                            <th>ITEM</th>
+                            <th>SUPPLIER</th>
+                            <th>LPO</th>
+                            <th>INVOICE</th>
+                            <th>STATION</th>
+                            <th class="right-align">AMOUNT</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                    </thead>
+
+                    <tbody style="font-size:0.9em">
+                        @foreach (var purc in Model.Purchases) {
+                            xAmts += purc.Amount;
+
+                            <tr>
+                                <td>@purc.DateString</td>
+                                <td>@purc.Category</td>
+                                <td>@purc.Supplier.Name</td>
+                                <td>@purc.Lpo</td>
+                                <td>@purc.Invoice</td>
+                                <td>@purc.Station.Synonym</td>
+                                <td class="right-align">@string.Format("{0:N}", purc.Amount)</td>
+                                <td style="width:60px">
+                                    <a class="material-icons tiny-box grey-text" data-idnt="@purc.Id">border_color</a>
+                                    <a class="material-icons tiny-box red-text" data-idnt="@purc.Id">delete_forever</a>
+                                </td>
+                            </tr>
+                        }
+
+                        @if (Model.Purchases.Count.Equals(0)){
+                            <tr>
+                                <td colspan="8">NO RECORDS FOUND</td>
+                            </tr>
+                        }
+                    </tbody>
+
+                    <tfoot>
+                        <tr>
+                            <th colspan="6">SUMMARY</th>
+                            <th class="right-align">@string.Format("{0:N}", xAmts)</th>
+                        </tr>
+                    </tfoot>
+                </table>
+
+            </div>
+            <div id="reconcile" class="body"></div>
+        </div>
+    </nav>
+</div>
+
+<div style="clear:both"></div>

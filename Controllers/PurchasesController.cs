@@ -16,10 +16,11 @@ namespace Core.Controllers
         [BindProperty]
         public FuelPriceChangeViewModel PricesUpdate { get; set; }
 
-        [Route("core/purchases")]
-        public IActionResult Index()
-        {
-            return View();
+        [Route("purchases")]
+        public IActionResult Index(PurchaseViewModel model, PurchasesService service) {
+            model.Purchases = service.GetPurchases(model.Date1x, model.Date2x, null, null, null);
+
+            return View(model);
         }
 
         [Route("purchases/ledger")]
@@ -73,6 +74,12 @@ namespace Core.Controllers
             }
 
             return LocalRedirect("/");
+        }
+
+        public JsonResult GetPurchases(string start, string stop, string filter = "") {
+            if (string.IsNullOrWhiteSpace(filter))
+                filter = "";
+            return Json(new PurchasesService().GetPurchases(DateTime.Parse(start), DateTime.Parse(stop), null, null, null, filter));
         }
 
         public Double GetFuelPurchasesLedgerOpenning(Int64 stid, string date, PurchasesService svc) {

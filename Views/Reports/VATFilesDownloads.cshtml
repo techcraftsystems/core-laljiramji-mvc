@@ -4,14 +4,13 @@
     ViewData["Title"] = "V.A.T Downloads";
 }
 
-<script>
-    var year = @Model.Year;
-    var mnth = @Model.Month;
-</script>
-
 <script src="~/js/reports-vat-downloads-script.js"></script>
 
 <style>
+    a.export, 
+    a.export:hover{
+        text-decoration:none;
+    }
     div.card .card-content {
         padding: 0 0 5px;
         border-radius: 0 0 2px 2px;
@@ -22,27 +21,27 @@
 <div id="ecommerce-offer">
     <div class="row zero-margin">
         <div class="col s12 m2">
-            <div class="card gradient-shadow gradient-45deg-light-blue-cyan border-radius-3 purchases" data-rate="8">
-                <div class="card-content center">
+            <div class="card gradient-shadow gradient-45deg-light-blue-cyan border-radius-3 purchases">
+                <a class="card-content center export" data-table="purchase-table-eight" data-title="8%-Purchase.csv">
                     <h5 class="white-text lighten-4">8%</h5>
                     <p class="white-text lighten-4">Purchases</p>
-                </div>
+                </a>
             </div>
         </div>
         <div class="col s12 m2">
             <div class="card gradient-shadow gradient-45deg-red-pink border-radius-3">
-                <div class="card-content center">
+                <a class="card-content center export" data-rate="16%" data-table="purchase-table-sixteen" data-title="16%-Purchase.csv">
                     <h5 class="white-text lighten-4">16%</h5>
                     <p class="white-text lighten-4">Purchases</p>
-                </div>
+                </a>
             </div>
         </div>
         <div class="col s12 m2">
             <div class="card gradient-shadow gradient-45deg-amber-amber border-radius-3">
-                <div class="card-content center">
+                <a class="card-content center export" data-table="purchase-table-zero" data-title="Exempt-Purchase.csv">
                     <h5 class="white-text lighten-4">Exempt</h5>
                     <p class="white-text lighten-4">Purchases</p>
-                </div>
+                </a>
             </div>
         </div>
 
@@ -78,7 +77,7 @@
 <div>For the period <span class="blue-text">@Model.Date.ToString("MMMM yyyy")</span></div>
 
 <div style="display:none;">
-    <table id="purchase-table">
+    <table id="purchase-table-zero">
         <thead>
             <tr>
                 <th>TYPE</th>
@@ -92,6 +91,81 @@
             </tr>
         </thead>
         <tbody>
+            @foreach (var itm in Model.Purchases00Perc) {
+                <tr>
+                    <td>LOCAL</td>
+                    <td>@itm.Supplier.Pin</td>
+                    <td>@itm.Supplier.Name</td>
+                    <td>@itm.Date</td>
+                    <td>@itm.Invoice</td>
+                    <td>@itm.Description</td>
+                    <td></td>
+                    <td>@itm.Amount</td>
+                </tr>
+            }
         </tbody>
+    </table>
+
+    <table id="purchase-table-eight">
+        <thead>
+            <tr>
+                <th>TYPE</th>
+                <th>PIN</th>
+                <th>SUPPLIER</th>
+                <th>DATE</th>
+                <th>INVOICE</th>
+                <th>DESC</th>
+                <th>BLANK</th>
+                <th>AMOUNT</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var itm in Model.Purchases08Perc){
+                <tr>
+                    <td>LOCAL</td>
+                    <td>@itm.Supplier.Pin</td>
+                    <td>@itm.Supplier.Name</td>
+                    <td>@itm.Date</td>
+                    <td>@itm.Invoice</td>
+                    <td>@itm.Description</td>
+                    <td></td>
+                    <td>@itm.Amount</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <table id="purchase-table-sixteen">
+        <thead>
+            <tr>
+                <th>TYPE</th>
+                <th>PIN</th>
+                <th>SUPPLIER</th>
+                <th>DATE</th>
+                <th>INVOICE</th>
+                <th>DESC</th>
+                <th>BLANK</th>
+                <th>AMOUNT</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var itm in Model.Purchases16Perc){
+                <tr>
+                    <td>LOCAL</td>
+                    <td>@itm.Supplier.Pin</td>
+                    <td>@itm.Supplier.Name</td>
+                    <td>@itm.Date</td>
+                    <td>@itm.Invoice</td>
+                    <td>@itm.Description</td>
+                    <td></td>
+                    <td>@itm.Amount</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <table id="sales-table-eight">
+        <thead></thead>
+        <tbody></tbody>
     </table>
 </div>

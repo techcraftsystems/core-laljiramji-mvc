@@ -10,9 +10,17 @@ namespace Core.ReportModel
         public int Year { get; set; }
         public DateTime Date { get; set; }
 
+        public List<VatDownloadEntries> Purchases00Perc { get; set; }
+        public List<VatDownloadEntries> Purchases08Perc { get; set; }
+        public List<VatDownloadEntries> Purchases16Perc { get; set; }
+
         public VatFilesDownloadViewModel() {
             Month = 0;
             Year = 0;
+
+            Purchases00Perc = new List<VatDownloadEntries>();
+            Purchases08Perc = new List<VatDownloadEntries>();
+            Purchases16Perc = new List<VatDownloadEntries>();
         }
     }
 }

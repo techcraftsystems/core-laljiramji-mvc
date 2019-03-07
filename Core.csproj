@@ -165,4 +165,7 @@
     <Folder Include="DataModel\" />
     <Folder Include="ReportModel\" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Remove="Views\Reports\Test.cshtml" />
+  </ItemGroup>
 </Project>

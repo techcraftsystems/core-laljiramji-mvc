@@ -9,6 +9,117 @@ namespace Core.Services
 {
     public class PurchasesService
     {
+        public List<Purchases> GetPurchases(DateTime date1x, DateTime date2x, string category, Stations station, Suppliers supplier, string filter = "")
+        {
+            List<Purchases> purchases = new List<Purchases>();
+            SqlServerConnection conn = new SqlServerConnection();
+
+            string query = conn.GetQueryString(filter, "CAST(PurNum AS NVARCHAR)+'-'+ISNULL(Names,'CASH PURCHASE')+'-'+SuppInv+'-'+Category+'-'+CAST(qty*price AS NVARCHAR)+'-'+Names+'-'+st_name+'-'+st_synonym", "Date BETWEEN '" + date1x.Date + "' AND '" + date2x.Date + "'");
+            if (!string.IsNullOrEmpty(category))
+                query += " AND Category='" + category + "'";
+            if (!(station is null))
+                query += " AND st_idnt=" + station.Id;
+            if (!(supplier is null))
+                query += " AND Suppid=" + supplier.Id;
+
+            SqlDataReader dr = conn.SqlServerConnect("SELECT PurNum, Date, Lpo, SuppInv, MAX(Category)Catg, SUM(qty*price) Amts, Supp, ISNULL(Names,'CASH PURCHASE')Names, st_idnt, st_code, st_name, st_synonym FROM vPurchasesAll INNER JOIN Stations ON Stns=st_idnt LEFT OUTER JOIN vSuppliers ON Suppid=Supp AND Stn=Stns " + query + " GROUP BY PurNum, Date, Lpo, SuppInv, Supp, Names, st_idnt, st_code, st_name, st_order, st_synonym ORDER BY Date, SuppInv, st_order, PurNum");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    purchases.Add(new Purchases {
+                        Id = Convert.ToInt64(dr[0]),
+                        Date = Convert.ToDateTime(dr[1]),
+                        DateString = Convert.ToDateTime(dr[1]).ToString("dd/MM/yyyy"),
+                        Lpo = dr[2].ToString(),
+                        Invoice = dr[3].ToString(),
+                        Category = dr[4].ToString(),
+                        Amount = Convert.ToDouble(dr[5]),
+                        Supplier = new Suppliers {
+                            Id = Convert.ToInt64(dr[6]),
+                            Name = dr[7].ToString()
+                        },
+                        Station = new Stations {
+                            Id = Convert.ToInt64(dr[8]),
+                            Code = dr[9].ToString(),
+                            Name = dr[10].ToString(),
+                            Synonym = dr[11].ToString(),
+                        }
+                    });
+                }
+            }
+
+            return purchases;
+        }
+
+        public List<VatDownloadEntries> GetPurchases00PercEntries(int month, int year) {
+            List<VatDownloadEntries> entries = new List<VatDownloadEntries>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("DECLARE @year INT=" + year + ", @mnth INT=" + month + "; SELECT * FROM (SELECT [Date], SuppInv, 'FUEL PURCHASE' xDesc, SUM((qty*price)-CAST(tax_amount As FLOAT)/0.08-tax_amount) Vatable, ISNULL(sp_name,'CASH PURCHASE') Supplier, ISNULL(sp_pin,'N/A') Pin FROM Suppliers INNER JOIN SuppliersMap ON sp_idnt=sm_mapp RIGHT OUTER JOIN vPurchasesAll ON sm_station=Stns AND sm_code=Supp WHERE tax=8 AND YEAR(Date)=@year AND MONTH(Date)=@mnth GROUP BY sp_pin, sp_name, [Date], SuppInv UNION ALL SELECT tf_date, tf_invoice, 'MOTOR VEHICLE FUEL' x, tf_amount-(tf_vatamts/0.08)-tf_vatamts Vatable, sp_name, sp_pin FROM TrucksFuel INNER JOIN Suppliers ON tf_supplier=sp_idnt WHERE YEAR(tf_date)=@year AND MONTH(tf_date)=@mnth UNION ALL SELECT [Date], SuppInv, 'L.P.G PURCHASES' xDesc, SUM((qty*price)) Vatable, ISNULL(sp_name,'CASH PURCHASE') Supplier, ISNULL(sp_pin,'N/A') Pin FROM Suppliers INNER JOIN SuppliersMap ON sp_idnt=sm_mapp RIGHT OUTER JOIN vPurchasesAll ON sm_station=Stns AND sm_code=Supp WHERE tax=0 AND YEAR(Date)=@year AND MONTH(Date)=@mnth GROUP BY sp_pin, sp_name, [Date], SuppInv, Category) As Foo ORDER BY xDesc, [Date], SuppInv");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    entries.Add(new VatDownloadEntries {
+                        Date = Convert.ToDateTime(dr[0]).ToString("dd/MM/yyyy"),
+                        Invoice = dr[1].ToString(),
+                        Description = dr[2].ToString(),
+                        Amount = Convert.ToDouble(dr[3]),
+                        Supplier = new Suppliers {
+                            Name = dr[4].ToString(),
+                            Pin = dr[5].ToString()
+                        },
+                    });
+                }
+            }
+
+            return entries;
+        }
+
+        public List<VatDownloadEntries> GetPurchases08PercEntries(int month, int year) {
+            List<VatDownloadEntries> entries = new List<VatDownloadEntries>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("DECLARE @year INT=" + year + ", @mnth INT=" + month + "; SELECT * FROM (SELECT [Date], SuppInv, 'FUEL PURCHASE' xDesc, SUM(CAST(tax_amount As FLOAT)/0.08) Vatable, ISNULL(sp_name,'CASH PURCHASE') Supplier, ISNULL(sp_pin,'N/A') Pin FROM Suppliers INNER JOIN SuppliersMap ON sp_idnt=sm_mapp RIGHT OUTER JOIN vPurchasesAll ON sm_station=Stns AND sm_code=Supp WHERE tax=8 AND YEAR(Date)=@year AND MONTH(Date)=@mnth GROUP BY sp_pin, sp_name, [Date], SuppInv UNION ALL SELECT tf_date, tf_invoice, 'MOTOR VEHICLE FUEL' x, (tf_vatamts/0.08)Vatable, sp_name, sp_pin FROM TrucksFuel INNER JOIN Suppliers ON tf_supplier=sp_idnt WHERE YEAR(tf_date)=@year AND MONTH(tf_date)=@mnth) As Foo ORDER BY xDesc, [Date], SuppInv");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    entries.Add(new VatDownloadEntries {
+                        Date = Convert.ToDateTime(dr[0]).ToString("dd/MM/yyyy"),
+                        Invoice = dr[1].ToString(),
+                        Description = dr[2].ToString(),
+                        Amount = Convert.ToDouble(dr[3]),
+                        Supplier = new Suppliers {
+                            Name = dr[4].ToString(),
+                            Pin = dr[5].ToString()
+                        },
+                    });
+                }
+            }
+
+            return entries;
+        }
+
+        public List<VatDownloadEntries> GetPurchases16PercEntries(int month, int year) {
+            List<VatDownloadEntries> entries = new List<VatDownloadEntries>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("DECLARE @year INT=" + year + ", @mnth INT=" + month + "; SELECT * FROM (SELECT [Date], SuppInv, CASE WHEN Category='GAS' THEN 'L.P.G' WHEN Category='SODA' THEN 'DRINKS' ELSE Category END +' PURCHASES' xDesc, SUM((qty*price)-((qty*price)*(16.0/116.0))) Vatable, ISNULL(sp_name,'CASH PURCHASE') Supplier, ISNULL(sp_pin,'N/A') Pin FROM Suppliers INNER JOIN SuppliersMap ON sp_idnt=sm_mapp RIGHT OUTER JOIN vPurchasesAll ON sm_station=Stns AND sm_code=Supp WHERE tax=16 AND YEAR(Date)=@year AND MONTH(Date)=@mnth AND NOT (Category='LUBES' AND Stns IN (2,3,6,9)) GROUP BY sp_pin, sp_name, [Date], SuppInv, Category UNION ALL SELECT xp_date, xp_invoice, ec_category, xp_amount-xp_vat_amts xp_vatable, sp_name, ISNULL(NULLIF(sp_pin,''),'N/A') FROM Expenses INNER JOIN ExpensesCategory ON xp_category=ec_idnt INNER JOIN Suppliers ON sp_idnt=xp_supplier WHERE YEAR(xp_date)=@year AND MONTH(xp_date)=@mnth AND xp_vat_amts<>0 ) As Foo ORDER BY [Date], SuppInv");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    entries.Add(new VatDownloadEntries {
+                        Date = Convert.ToDateTime(dr[0]).ToString("dd/MM/yyyy"),
+                        Invoice = dr[1].ToString(),
+                        Description = dr[2].ToString(),
+                        Amount = Convert.ToDouble(dr[3]),
+                        Supplier = new Suppliers {
+                            Name = dr[4].ToString(),
+                            Pin = dr[5].ToString()
+                        },
+                    });
+                }
+            }
+
+            return entries;
+        }
+
+
         public List<PurchasesVat> GetLatestPurchasesVat()
         {
             List<PurchasesVat> Entries = new List<PurchasesVat>();

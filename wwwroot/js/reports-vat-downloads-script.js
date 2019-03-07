@@ -1,57 +1,21 @@
 jq(function() {
-    jq('div.purchases').click(function(){
-        var perc = jq(this).data('rate');
-        GetVatDownloadPurchaseEntries(perc);
+    jq('a.export').on('click', function(event){
+
+        var table = jq(this).data('table');
+        var title = jq(this).data('title');
+
+        Materialize.toast('<span>' + title + ' will start downloading shortly</span><a class="btn-flat yellow-text" href="#!">Close<a>', 3000);
+
+        var args = [$('#'+table), title];
+        ExportTableToCSV.apply(this, args);
     });
-
-    function GetVatDownloadPurchaseEntries(perc){
-        jq.ajax({
-            dataType: "json",
-            url: '/Reports/GetVatDownloadPurchaseEntries',
-            data: {
-                "rate": perc,
-                "year": year,
-                "mnth": mnth
-            },
-            beforeSend: function() {
-                jq('body').removeClass('loaded');
-            },
-            success: function(results) {
-                jq('#purchase-table tbody').empty();
-
-                jq.each(results, function(i, entry) {
-                    var row = "<tr>";
-                    row += "<td>LOCAL</td>";
-                    row += "<td>" + entry.supplier.pin + "</td>";
-                    row += "<td>" + entry.supplier.name + "</td>";
-                    row += "<td>" + entry.date + "</td>";
-                    row += "<td>" + entry.invoice + "</td>";
-                    row += "<td>" + entry.description + "</td>";
-                    row += "<td></td>";
-                    row += "<td>" + entry.amount + "</td>";
-                    row += "</tr>";
-
-                    jq('#purchase-table tbody').append(row);
-                })
-            },
-            error: function(xhr, ajaxOptions, thrownError) {
-                console.log(xhr.status);
-                console.log(thrownError);
-            },
-            complete: function() {
-                jq('body').addClass('loaded');
-                var doc = perc + '%-Purchase.csv';
-                ExportTableToCSV(jq('#purchase-table'), doc);
-                Materialize.toast('<span>' + doc + ' will start downloading shortly</span><a class="btn-flat yellow-text" href="#!">Close<a>', 3000);
-            }
-        });
-    }
 
     function ExportTableToCSV($table, filename) {
         var $rows = $table.find('tr:has(td)'),
           tmpColDelim = String.fromCharCode(11), // vertical tab character
           tmpRowDelim = String.fromCharCode(0), // null character
 
+          // actual delimiter characters for CSV format
           colDelim = '","',
           rowDelim = '"\r\n"',
 
@@ -72,16 +36,21 @@ jq(function() {
           .split(tmpRowDelim).join(rowDelim)
           .split(tmpColDelim).join(colDelim) + '"';
 
-        console.log(csv);
         // Deliberate 'false', see comment below
         if (false && window.navigator.msSaveBlob) {
           var blob = new Blob([decodeURIComponent(csv)], {
             type: 'text/csv;charset=utf8'
           });
 
+          // Crashes in IE 10, IE 11 and Microsoft Edge
+          // See MS Edge Issue #10396033
+          // Hence, the deliberate 'false'
+          // This is here just for completeness
+          // Remove the 'false' at your own risk
           window.navigator.msSaveBlob(blob, filename);
 
         } else if (window.Blob && window.URL) {
+          // HTML5 Blob        
           var blob = new Blob([csv], {
             type: 'text/csv;charset=utf-8'
           });
@@ -93,6 +62,7 @@ jq(function() {
               'href': csvUrl
             });
         } else {
+          // Data URI
           var csvData = 'data:application/csv;charset=utf-8,' + encodeURIComponent(csv);
 
           $(this)

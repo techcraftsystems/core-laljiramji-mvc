@@ -57,10 +57,14 @@ namespace Core.Controllers
         }
 
         [Route("reports/vat/downloads/{month}/{year}")]
-        public IActionResult VATFilesDownloads(int month, int year, VatFilesDownloadViewModel model, StationsService service) {
+        public IActionResult VATFilesDownloads(int month, int year, VatFilesDownloadViewModel model, PurchasesService Service) {
             model.Month = month;
             model.Year = year;
             model.Date = new DateTime(year, month, 1);
+
+            model.Purchases00Perc = Service.GetPurchases00PercEntries(month, year);
+            model.Purchases08Perc = Service.GetPurchases08PercEntries(month, year);
+            model.Purchases16Perc = Service.GetPurchases16PercEntries(month, year);
 
             return View(model);
         }
@@ -95,12 +99,6 @@ namespace Core.Controllers
         public IActionResult TrucksFuelVat(int month, int year) {
             List<TrucksFuelExpense> model = new List<TrucksFuelExpense>(new CoreService().GetTrucksFuelExpense(month, year));
             return View(model);
-        }
-
-        public JsonResult GetVatDownloadPurchaseEntries(int rate, int year, int mnth, StationsService service) {
-            if (rate.Equals(8))
-                return Json(service.GetFuelPurchasesEntries(mnth, year));
-            return null;
         }
     }
 }

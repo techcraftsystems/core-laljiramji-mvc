@@ -733,28 +733,7 @@ namespace Core.Services
             return sheets;
         }
 
-        public List<VatDownloadEntries> GetFuelPurchasesEntries(int month, int year) {
-            List<VatDownloadEntries> entries = new List<VatDownloadEntries>();
 
-            SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("DECLARE @year INT=" + year + ", @mnth INT=" + month + "; SELECT * FROM (SELECT [Date], SuppInv, 'FUEL PURCHASE' xDesc, SUM(CAST(tax_amount As FLOAT)/0.08) Vatable, ISNULL(sp_name,'CASH PURCHASE') Supplier, ISNULL(sp_pin,'N/A') Pin FROM Suppliers INNER JOIN SuppliersMap ON sp_idnt=sm_mapp RIGHT OUTER JOIN vPurchasesAll ON sm_station=Stns AND sm_code=Supp WHERE tax=8 AND YEAR(Date)=@year AND MONTH(Date)=@mnth GROUP BY sp_pin, sp_name, [Date], SuppInv UNION ALL SELECT tf_date, tf_invoice, 'MOTOR VEHICLE FUEL' x, (tf_vatamts/0.08)Vatable, sp_name, sp_pin FROM TrucksFuel INNER JOIN Suppliers ON tf_supplier=sp_idnt WHERE YEAR(tf_date)=@year AND MONTH(tf_date)=@mnth) As Foo ORDER BY xDesc, [Date], SuppInv");
-            if (dr.HasRows) {
-                while (dr.Read()) {
-                    entries.Add(new VatDownloadEntries { 
-                        Date = Convert.ToDateTime(dr[0]).ToString("dd/MM/yyyy"),
-                        Invoice = dr[1].ToString(),
-                        Description = dr[2].ToString(),
-                        Amount = Convert.ToDouble(dr[3]),
-                        Supplier = new Suppliers {
-                            Name = dr[4].ToString(),
-                            Pin = dr[5].ToString()
-                        },
-                    });
-                }
-            }
-
-            return entries;
-        }
 
         public List<MonthsModel> InitializeMonthsModel()
         {

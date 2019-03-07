@@ -5,10 +5,11 @@ namespace Core.Models
 {
     public class Stations
     {
-        public Int64 Id { get; set; }
-        public String Name { get; set; }
-        public String Code { get; set; }
-        public String Prefix { get; set; }
+        public long Id { get; set; }
+        public string Code { get; set; }
+        public string Name { get; set; }
+        public string Synonym { get; set; }
+        public string Prefix { get; set; }
         public DateTime Push { get; set; }
         public Boolean Updated { get; set; }
 
@@ -18,11 +19,11 @@ namespace Core.Models
         public Double FuelSales { get; set; }
         public Double LubeSales { get; set; }
 
-        public Stations()
-        {
+        public Stations() {
             Id = 0;
             Code = "";
             Name = "";
+            Synonym = "";
             Prefix = "";
             Updated = false;
             Push = new DateTime();
