@@ -30,8 +30,15 @@ jq(function() {
 
     jq('ul .purch').click(function(){
         if(jq("#purchase-table").data('loaded') == 0){
-            GetPurchasesLedger();
+            GetPurchasesOthers();
             jq("#purchase-table").data('loaded', 1);
+        }
+    });
+
+    jq('ul .other').click(function(){
+        if(jq("#other-table").data('loaded') == 0){
+            GetPurchasesOthers();
+            jq("#other-table").data('loaded', 1);
         }
     });
 
@@ -57,6 +64,10 @@ jq(function() {
 
     jq('.get-purchases a').click(function(){
         GetPurchasesLedger();
+    });
+
+    jq('.get-others a').click(function(){
+        GetPurchasesOthers();
     });
 
     jq('.get-payments a').click(function(){
@@ -249,6 +260,72 @@ function GetExpenditure(){
     });
 }
 
+function GetPurchasesOthers(){
+    if (DateValidated(jq('#otherStartDate').val()) == false || DateValidated(jq('#otherStopsDate').val()) == false){
+        Materialize.toast('<span>Invalid date format for Filter Date(s)</span><a class="btn-flat yellow-text" href="#!">Close<a>', 3000);
+        return;
+    }
+
+    jq.ajax({
+        dataType: "json",
+        url: '/Stations/GetPurchasesOthers',
+        data: {
+            "stid":     xIdnt,
+            "start":    jq('#otherStartDate').val(),
+            "stop":     jq('#otherStopsDate').val(),
+            "filter":   jq('#otherFilter').val()
+        },
+        beforeSend: function() {
+            jq('body').removeClass('loaded');
+        },
+        success: function(results) {
+            jq('#other-table tbody').empty();
+            jq('#other-table tfoot').empty();
+
+            var taxx = 0.0;
+            var summ = 0.0;
+
+            jq.each(results, function(i, ledger) {
+                summ += ledger.total;
+                taxx += ledger.taxable;
+
+                var row = "<tr data-idnt='" + ledger.id + "'>";
+                row += "<td>" + ledger.date + "</td>";
+                row += "<td>" + ledger.type + "</td>";
+                row += "<td>" + ledger.supplier.name + "</td>";
+                row += "<td>" + ledger.invoice + "</td>";
+                row += "<td>" + ledger.lpo + "</td>";
+                row += "<td>N/A</td>";
+                row += "<td class='right-text'>" + ledger.total.toString().toAccounting() + "</td>";
+                row += "<td class='right-text'>" + ledger.taxable.toString().toAccounting() + "</td>";
+                row += "<td>&nbsp;</td>";
+                row += "</tr>";
+
+                jq('#other-table tbody').append(row);
+            });
+
+            if (results.length == 0){
+                jq('#other-table tbody').append("<tr><td colspan='9'>NO RECORDS FOUND</td></tr>");
+            }
+
+            var footr = "<tr>";
+            footr += "<td class='bold-text' colspan='6'>&nbsp;PURCHASES SUMMARY</td>";
+            footr += "<td class='bold-text right-text'>" + summ.toString().toAccounting() + "</td>";
+            footr += "<td class='bold-text right-text'>" + taxx.toString().toAccounting() + "</td>";
+            footr += "</tr>";
+
+            jq('#other-table tfoot').append(footr);
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            console.log(xhr.status);
+            console.log(thrownError);
+        },
+        complete: function() {
+            $('body').addClass('loaded');
+        }
+    });
+}
+
 function GetPurchasesLedger(){
     jq.ajax({
         dataType: "json",
@@ -402,4 +479,13 @@ function GetCustomerPayments() {
             $('body').addClass('loaded');
         }
     }); 
+}
+
+function DateValidated(date){
+    if (date.length != 10){
+        return false;
+    }
+
+    var dateRegex = /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$/;
+    return dateRegex.test(date);
 }

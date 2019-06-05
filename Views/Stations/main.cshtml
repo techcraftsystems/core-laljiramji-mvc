@@ -63,6 +63,7 @@
         padding-left: 10px;
     }
     #purchase-table td,
+    #other-table td,
     #reconcile-table td,
     #ledger-table td {
         padding: 5px;
@@ -106,6 +107,9 @@
     }
     a.material-icons:hover {
         color: #2196F3 !important;
+    }
+    .picker {
+        z-index:1000000;
     }
 </style>
 
@@ -178,8 +182,9 @@
                 <li class="tab"><a href="#customer">Customers</a></li>
                 <li class="tab ledgr"><a href="#ledger">Invoices</a></li>
                 <li class="tab expns"><a href="#expenses">Expenses</a></li>
-                <li class="tab pymts"><a href="#payments">Payments</a></li>
-                <li class="tab purch"><a href="#purchases">Purchases</a></li>
+                <li class="tab pymts"><a href="#payments">PYMT</a></li>
+                <li class="tab purch"><a href="#fuel">Fuel</a></li>
+                <li class="tab other"><a href="#purchases">Purchases</a></li>
                 <li class="tab recon"><a href="#reconcile">Reconcile</a></li>
             </ul>
 
@@ -605,7 +610,7 @@
 
                     <div class="input-field col-md-5">
                         <i class="material-icons prefix">filter_list</i>
-                        <input id="paymentFilter" type="text" placeholder="Filter Expenses" />
+                        <input id="paymentFilter" type="text" placeholder="Filter Payments" />
                     </div>
 
                     <div class="col-md-1 get-payments">
@@ -632,7 +637,7 @@
             </div>
 
             <!--PURCHASES TAB-->
-            <div id="purchases" class="body">
+            <div id="fuel" class="body">
                 <div class="row" style="margin-top: 10px;">
                     <div class="input-field col-md-3">
                         <i class="material-icons prefix">date_range</i>
@@ -646,7 +651,7 @@
 
                     <div class="input-field col-md-5">
                         <i class="material-icons prefix">filter_list</i>
-                        <input id="purchaseFilter" type="text" placeholder="Filter Expenses"  />
+                        <input id="purchaseFilter" type="text" placeholder="Filter Purchases"  />
                     </div>
 
                     <div class="col-md-1 get-purchases">
@@ -731,6 +736,52 @@
                         </table>
                     </div>
                 </div>
+            </div>
+
+            <!--PURCHASES TAB-->
+            <div id="purchases" class="body">
+                <div class="row" style="margin-top: 10px;">
+                    <div class="input-field col-md-3">
+                        <i class="material-icons prefix">date_range</i>
+                        <input id="otherStartDate" type="text" placeholder="DD/MM/YYYY" value="@DateTime.Now.AddDays(-1).ToString("dd/MM/yyyy")">
+                    </div>
+
+                    <div class="input-field col-md-3">
+                        <i class="material-icons prefix">date_range</i>
+                        <input id="otherStopsDate" type="text" placeholder="DD/MM/YYYY" value="@DateTime.Now.AddDays(-1).ToString("dd/MM/yyyy")">
+                    </div>
+
+                    <div class="input-field col-md-5">
+                        <i class="material-icons prefix">filter_list</i>
+                        <input id="otherFilter" type="text" placeholder="Filter Purchases" />
+                    </div>
+
+                    <div class="col-md-1 get-others">
+                        <a class="btn btn-floating pulse btn gradient-45deg-amber-amber right"><i class="material-icons" style="line-height: 42px">search</i></a>
+                    </div>
+                </div>
+
+                <table id="other-table" class="bordered" data-loaded="0" style="margin-top: -20px">
+                    <thead>
+                        <tr>
+                            <th>DATE</th>
+                            <th>LX</th>
+                            <th>SUPPLIER</th>
+                            <th>INVOICE</th>
+                            <th>LPO</th>
+                            <th>NOTES</th>
+                            <th class="right-text">AMOUNT</th>
+                            <th class="right-text">TAXABLE</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                    </tbody>
+
+                    <tfoot>
+                    </tfoot>
+                </table>
             </div>
 
             <!--RECONCILE TAB-->

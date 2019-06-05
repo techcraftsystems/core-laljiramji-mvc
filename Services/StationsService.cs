@@ -462,8 +462,39 @@ namespace Core.Services
             return expenses;
         }
 
+        public List<PurchasesOthers> GetPurchasesOthers(long stid, DateTime start, DateTime stop, String filter)
+        {
+            List<PurchasesOthers> ledgers = new List<PurchasesOthers>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("DECLARE @st INT=" + stid + ", @dt1 DATE='" + start.Date + "', @dt2 DATE='" + stop.Date + "'; SELECT PurNo, Date, Category, Lpo, SuppInv, TaxRate, Total, Taxable, Supp, ISNULL(Names,'CASH'), Address, City, Telephone FROM vPurchasesOthers LEFT OUTER JOIN vSuppliers ON Stns=Stn AND Supp=Suppid " + conn.GetQueryString(filter, "Category+'-'+SuppInv+'-'+LpoNo+'-'+ISNULL(Names,'CASH')+'-'+CAST(Total AS NVARCHAR)+'-'+CAST(PurNo AS NVARCHAR)", "Stns=@st and Date BETWEEN @dt1 AND @dt2") + " ORDER BY [Date], SuppInv, PurNo");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    ledgers.Add(new PurchasesOthers {
+                        Id = Convert.ToInt64(dr[0]),
+                        Date = Convert.ToDateTime(dr[1]).ToString("dd/MM/yyyy"),
+                        Type = dr[2].ToString(),
+                        Lpo = dr[3].ToString(),
+                        Invoice = dr[4].ToString(),
+                        Rate = Convert.ToDouble(dr[5]),
+                        Total = Convert.ToDouble(dr[6]),
+                        Taxable = Convert.ToDouble(dr[7]),
+                        Supplier = new Suppliers {
+                            Id = Convert.ToInt64(dr[8]),
+                            Name = dr[9].ToString(),
+                            Address = dr[10].ToString(),
+                            City = dr[11].ToString(),
+                            Telephone = dr[12].ToString()
+                        }
+                    });
+                }
+            }
+
+            return ledgers;
+        }
+
         public List<PurchasesLedger> GetPurchasesLedger(Int64 stid, DateTime start, DateTime stop, String filter)
-        { 
+        {
             List<PurchasesLedger> ledgers = new List<PurchasesLedger>();
 
             SqlServerConnection conn = new SqlServerConnection();

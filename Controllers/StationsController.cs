@@ -5,6 +5,7 @@ using Core.Models;
 using Core.ViewModel;
 using Core.Services;
 using Microsoft.AspNetCore.Authorization;
+using System.Globalization;
 
 namespace Core.Controllers
 {
@@ -115,7 +116,17 @@ namespace Core.Controllers
             return Json(expenses);
         }
 
-        public JsonResult GetPurchasesLedger(Int64 stid, string start, string stop, string filter, StationsService svc)
+        public JsonResult GetPurchasesOthers(long stid, string start, string stop, string filter, StationsService svc) {
+            DateTime date1 = DateTime.ParseExact(start, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+            DateTime date2 = DateTime.ParseExact(stop, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+
+            if (string.IsNullOrWhiteSpace(filter))
+                filter = "";
+
+            return Json(svc.GetPurchasesOthers(stid, date1, date2, filter));
+        }
+
+        public JsonResult GetPurchasesLedger(long stid, string start, string stop, string filter, StationsService svc)
         {
             if (string.IsNullOrWhiteSpace(filter))
                 filter = "";
