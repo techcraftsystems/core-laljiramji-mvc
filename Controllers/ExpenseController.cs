@@ -58,8 +58,7 @@ namespace Core.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddStationExpense()
-        {
+        public IActionResult AddStationExpense() {
             StationsExpenses expense = ExpenseModel.StationExpense;
             expense.Date = DateTime.Parse(expense.DateString);
             expense.Save(HttpContext);
@@ -74,14 +73,17 @@ namespace Core.Controllers
             return Json(core.GetExpensesCore(DateTime.Parse(start), DateTime.Parse(stop), filter));
         }
 
-        public JsonResult GetStationsExpenses(string start, string stop, CoreService core, string stations = "", string filter = "")
-        {
+        public JsonResult GetStationsExpenses(string start, string stop, CoreService core, string stations = "", string filter = "") {
             if (string.IsNullOrWhiteSpace(filter))
                 filter = "";
             if (string.IsNullOrWhiteSpace(stations))
                 stations = "";
 
             return Json(core.GetStationsExpenses(DateTime.Parse(start), DateTime.Parse(stop), stations, filter));
+        }
+
+        public JsonResult GetTrucksFuelExpense(int idnt, CoreService core) {
+            return Json(core.GetTrucksFuelExpense(idnt));
         }
     }
 }

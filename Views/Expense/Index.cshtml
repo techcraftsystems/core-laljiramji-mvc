@@ -47,14 +47,14 @@
         <li class="collection-item">
             <div class="">
                 <div class="col s12">
-                    <i class="material-icons left blue-text">store</i><a class="blue-text modal-trigger" data-target="station-expense-modal">Add Expenses</a>
+                    <i class="material-icons left blue-text">store</i><a class="blue-text modal-trigger expense-modal" data-target="station-expense-modal">Add Expenses</a>
                 </div>
             </div>
         </li>
         <li class="collection-item">
             <div class="">
                 <div class="col s12">
-                    <i class="material-icons left blue-text">local_shipping</i><a class="blue-text modal-trigger" data-target="truck-fuel-modal">Add Trucks Fuel</a>
+                    <i class="material-icons left blue-text">local_shipping</i><a class="blue-text modal-trigger fuel-modal" data-target="truck-fuel-modal">Add Trucks Fuel</a>
                 </div>
             </div>
         </li>
@@ -147,7 +147,7 @@
                                 <td>@expense.Description</td>
                                 <td class="right-align">@string.Format("{0:N0}", expense.Price)</td>
                                 <td class="right-align">@string.Format("{0:N}", expense.Amount)</td>
-                                <td><a class="material-icons tiny-box grey-text">border_color</a></td>
+                                <td><a class="material-icons tiny-box grey-text @(expense.Source == 1 ? "link-fuel" : "link-exps")" data-idnt="@expense.Id">border_color</a></td>
                             </tr>
                         }
                     </tbody>
@@ -195,10 +195,12 @@
                         <td class="width-100px">@Html.TextBoxFor(model => model.TrucksExpenses.Quantity, new { @class = "qnty" })</td>
                         <td class="width-60px">@Html.TextBoxFor(model => model.TrucksExpenses.Price, new { @class = "price right-align" })</td>
                         <td class="width-120px"><input type="text" class="amts right-align" value="0" readonly></td>
-                        <td class="width-90px">@Html.TextBoxFor(model => model.TrucksExpenses.VatAmount, new { @class = "price right-align" })</td>
+                        <td class="width-90px">@Html.TextBoxFor(model => model.TrucksExpenses.VatAmount, new { @class = "vats right-align" })</td>
                     </tr>
                 </tbody>
             </table>
+
+            @Html.HiddenFor(model => model.TrucksExpenses.Id)
         }
 
         <a class="btn-truck-fuel-row btn-floating waves-effect waves-light gradient-45deg-light-blue-cyan">

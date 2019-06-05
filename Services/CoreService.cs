@@ -212,6 +212,33 @@ namespace Core.Services
             return report;
         }
 
+        public TrucksFuelExpense GetTrucksFuelExpense(int idnt) {
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("SELECT tf_idnt, tf_date, tf_truck, tr_registration, tf_supplier, sp_name, tf_invoice, tf_qnty, tf_price, tf_amount, tf_vatamts, tf_zerorated FROM TrucksFuel INNER JOIN Trucks ON tr_idnt=tf_truck INNER JOIN Suppliers ON sp_idnt=tf_supplier WHERE tf_idnt=" + idnt);
+            if (dr.Read())
+            {
+                TrucksFuelExpense xp = new TrucksFuelExpense
+                {
+                    Id = Convert.ToInt64(dr[0]),
+                    Date = Convert.ToDateTime(dr[1]),
+                    Truck = new Trucks(Convert.ToInt64(dr[2]), dr[3].ToString()),
+                    Supplier = new Suppliers(Convert.ToInt64(dr[4]), dr[5].ToString()),
+                    Invoice = dr[6].ToString(),
+                    Quantity = Convert.ToDouble(dr[7]),
+                    Price = Convert.ToDouble(dr[8]),
+                    Amount = Convert.ToDouble(dr[9]),
+                    VatAmount = Convert.ToDouble(dr[10])
+                };
+                
+                xp.Exclussive = (xp.VatAmount / 0.08);
+                xp.Zerorated = xp.Amount - xp.VatAmount - xp.Exclussive;
+                
+                return xp;
+            }
+
+            return new TrucksFuelExpense();
+        }
+
         public List<TrucksFuelExpense> GetTrucksFuelExpense(int month, int year)
         {
             List<TrucksFuelExpense> report = new List<TrucksFuelExpense>();

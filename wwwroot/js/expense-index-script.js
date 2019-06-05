@@ -1,6 +1,14 @@
 $(function() {
     $('.modal').modal();
 
+    jq('a.fuel-modal').click(function(){
+        jq('#TrucksExpenses_Id').val(0);
+    });
+
+    jq('#expense-table').on('click', 'a.link-fuel', function(){
+        GetTrucksFuelExpense(jq(this).data('idnt'));
+    });
+
     jq('#truck-fuel-modal .modal-footer .modal-post').click(function() {
         if (jq('#TrucksExpenses_DateString').val().trim() == ''){
             Materialize.toast('<span>Specify a valid Date</span><a class="btn-flat yellow-text right" href="#!">Close<a>', 3000);
@@ -56,9 +64,9 @@ $(function() {
         window.location.href = "/reports/trucks/fuel-vat/" + mnths + "/" + jq("#fuel-vat-modal .modal-year").val(); 
     });
 
-    jq('#truck-fuel-table tbody input.qnty').change(function(){
+    jq('#truck-fuel-table tbody input.qnty, #truck-fuel-table tbody input.price').change(function(){
         var row = jq(this).closest('tr');
-        var qty = jq(this).val();
+        var qty = row.find('input.qnty').val();
         var prc = row.find('input.price').val();
         var amt = qty * prc;
 
@@ -80,6 +88,35 @@ String.prototype.toAccounting = function() {
         return str;
     }
 };
+
+function GetTrucksFuelExpense(idnt){
+    jq.ajax({
+        dataType: "json",
+        url: '/Expense/GetTrucksFuelExpense',
+        data: {
+            "idnt": idnt
+        },
+        success: function(expense) {
+            jq('#TrucksExpenses_Id').val(expense.id);
+            jq('#TrucksExpenses_Invoice').val(expense.invoice);
+            jq('#TrucksExpenses_Quantity').val(expense.quantity);
+            jq('#TrucksExpenses_Price').val(expense.price);
+
+            jq('#TrucksExpenses_Price').change();
+
+            jq('#TrucksExpenses_VatAmount').val(expense.vatAmount);
+
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            console.log(xhr.status);
+            console.log(thrownError);
+        },
+        complete: function() {
+            $('#truck-fuel-modal').modal('open');
+        }
+    }); 
+
+}
 
 function GetExpensesCore() {
     jq.ajax({

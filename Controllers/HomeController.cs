@@ -16,34 +16,31 @@ namespace Core.Controllers
         public IActionResult Index(StationsService svc)
         {
 
-            IndexViewModel model = new IndexViewModel();
-            model.Pending = new List<Stations>(svc.GetPendingPush());
-            model.Updated = new List<Stations>(svc.GetUpdatedPush());
+            IndexViewModel model = new IndexViewModel {
+                Pending = new List<Stations>(svc.GetPendingPush()),
+                Updated = new List<Stations>(svc.GetUpdatedPush())
+            };
 
             return View(model);
         }
 
-        public IActionResult Placeholder()
-        {
+        public IActionResult Placeholder() {
             ViewData["Message"] = "Your application description page.";
             return View();
         }
 
-        public IActionResult Contact()
-        {
+        public IActionResult Contact() {
             ViewData["Message"] = "Your contact page.";
 
             return View();
         }
 
-        public IActionResult Privacy()
-        {
+        public IActionResult Privacy() {
             return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
+        public IActionResult Error() {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 

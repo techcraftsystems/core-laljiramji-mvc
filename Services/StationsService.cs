@@ -12,18 +12,17 @@ namespace Core.Services
     public class StationsService
     {
         
-        public List<Stations> GetPendingPush()
-        {
+        public List<Stations> GetPendingPush() {
             List<Stations> stations = new List<Stations>();
 
             SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("SELECT st_code, st_name, push_date FROM vLastPush INNER JOIN Stations ON push_station=st_idnt WHERE push_date<CAST(DATEADD(DAY, -1, GETDATE())AS DATE) ORDER BY push_date DESC, st_order, st_name");
+            SqlDataReader dr = conn.SqlServerConnect("SELECT st_code, st_name, push_date FROM vLastPush INNER JOIN Stations ON push_station=st_idnt WHERE st_void=0 AND push_date<CAST(DATEADD(DAY, -1, GETDATE())AS DATE) ORDER BY push_date DESC, st_order, st_name");
             if (dr.HasRows) {
                 while (dr.Read()) {
                     stations.Add(new Stations {
                         Code = dr[0].ToString(),
                         Name = dr[1].ToString(),
-                        Push = Convert.ToDateTime(dr[2])
+                        Push = Convert.ToDateTime(dr[2]).AddDays(1)
                     });
                 }
             }
@@ -31,21 +30,17 @@ namespace Core.Services
             return stations;
         }
 
-        public List<Stations> GetUpdatedPush()
-        {
+        public List<Stations> GetUpdatedPush() {
             List<Stations> stations = new List<Stations>();
 
             SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("SELECT st_code, st_name FROM vLastPush INNER JOIN Stations ON push_station=st_idnt WHERE push_date>=CAST(DATEADD(DAY, -1, GETDATE())AS DATE) ORDER BY push_date DESC, st_order, st_name");
-            if (dr.HasRows)
-            {
-                while (dr.Read())
-                {
-                    Stations station = new Stations();
-                    station.Code = dr[0].ToString();
-                    station.Name = dr[1].ToString();
-
-                    stations.Add(station);
+            SqlDataReader dr = conn.SqlServerConnect("SELECT st_code, st_name FROM vLastPush INNER JOIN Stations ON push_station=st_idnt WHERE st_void=0 AND push_date>=CAST(DATEADD(DAY, -1, GETDATE())AS DATE) ORDER BY push_date DESC, st_order, st_name");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    stations.Add(new Stations {
+                        Code = dr[0].ToString(),
+                        Name = dr[1].ToString()
+                    });
                 }
             }
 
@@ -53,20 +48,19 @@ namespace Core.Services
         }
 
         public Stations GetStation(string code){
-            Stations station = new Stations();
-
             SqlServerConnection conn = new SqlServerConnection();
             SqlDataReader dr = conn.SqlServerConnect("SELECT st_idnt, st_code, st_name, st_database, push_date FROM Stations INNER JOIN vLastPush ON push_station=st_idnt WHERE st_code='" + code + "'");
-            if (dr.Read())
-            {
-                station.Id = Convert.ToInt64(dr[0]);
-                station.Code = dr[1].ToString();
-                station.Name = dr[2].ToString();
-                station.Prefix = dr[3].ToString();
-                station.Push = Convert.ToDateTime(dr[4]);
+            if (dr.Read()) {
+                return new Stations {
+                    Id = Convert.ToInt64(dr[0]),
+                    Code = dr[1].ToString(),
+                    Name = dr[2].ToString(),
+                    Prefix = dr[3].ToString(),
+                    Push = Convert.ToDateTime(dr[4])
+                };
             }
 
-            return station;
+            return null;
         }
 
         public List<Stations> GetStations(){
@@ -74,37 +68,32 @@ namespace Core.Services
 
             SqlServerConnection conn = new SqlServerConnection();
             SqlDataReader dr = conn.SqlServerConnect("SELECT st_idnt, st_code, st_name, sb_idnt, sb_brand, push_date, pcol_ltrs, pcol_amts FROM vLastPush INNER JOIN Stations ON push_station=st_idnt INNER JOIN StationsBrand ON st_brand=sb_idnt INNER JOIN vDailySales ON push_station=pcol_station AND push_date=pcol_date ORDER BY push_date DESC, st_order");
-            if (dr.HasRows)
-            {
-                while (dr.Read())
-                {
-                    Stations station = new Stations();
-                    station.Id = Convert.ToInt64(dr[0]);
-                    station.Code = dr[1].ToString();
-                    station.Name = dr[2].ToString();
-
-                    station.Brand.Id = Convert.ToInt64(dr[3]);
-                    station.Brand.Name = dr[4].ToString();
-
-                    station.Push = Convert.ToDateTime(dr[5]);
-                    station.FuelLtrs = Convert.ToDouble(dr[6]);
-                    station.FuelSales = Convert.ToDouble(dr[7]);
-
-                    stations.Add(station);
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    stations.Add(new Stations {
+                        Id = Convert.ToInt64(dr[0]),
+                        Code = dr[1].ToString(),
+                        Name = dr[2].ToString(),
+                        Brand = new StationsBrand {
+                            Id = Convert.ToInt64(dr[3]),
+                            Name = dr[4].ToString()
+                        },
+                        Push = Convert.ToDateTime(dr[5]),
+                        FuelLtrs = Convert.ToDouble(dr[6]),
+                        FuelSales = Convert.ToDouble(dr[7])
+                    });
                 }
             }
 
             return stations;
         }
 
-        public List<Stations> GetStationsNames()
-        {
+        public List<Stations> GetStationsNames() {
             List<Stations> stations = new List<Stations>();
 
             SqlServerConnection conn = new SqlServerConnection();
             SqlDataReader dr = conn.SqlServerConnect("SELECT st_idnt, st_code, st_name, st_database FROM Stations ORDER BY st_name");
-            if (dr.HasRows)
-            {
+            if (dr.HasRows) {
                 while (dr.Read()) {
                     stations.Add(new Stations {
                         Id = Convert.ToInt64(dr[0]),
