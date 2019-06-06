@@ -1759,7 +1759,7 @@ if (jQuery) {
             hideDropdown();
             $(document).off('click.' + activates.attr('id'));
           });
-        }, 0);
+        }, 100);
       }
 
       function hideDropdown() {
@@ -6525,7 +6525,9 @@ if (jQuery) {
           P.$root.eq(0).focus();
 
           // Bind the document events.
-          $document.on('click.' + STATE.id + ' focusin.' + STATE.id, function (event) {
+          setTimeout(function(){
+            $document.on('click.' + STATE.id + ' focusin.' + STATE.id, function (event) {
+          }, 500);
 
             var target = event.target;
 
