@@ -6526,8 +6526,8 @@ if (jQuery) {
 
           // Bind the document events.
           setTimeout(function(){
-            $document.on('click.' + STATE.id + ' focusin.' + STATE.id, function (event) {
           }, 500);
+            $document.on('click.' + STATE.id + ' focusin.' + STATE.id, function (event) {
 
             var target = event.target;
 
