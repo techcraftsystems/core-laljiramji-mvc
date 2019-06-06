@@ -261,11 +261,6 @@ function GetExpenditure(){
 }
 
 function GetPurchasesOthers(){
-    if (DateValidated(jq('#otherStartDate').val()) == false || DateValidated(jq('#otherStopsDate').val()) == false){
-        Materialize.toast('<span>Invalid date format for Filter Date(s)</span><a class="btn-flat yellow-text" href="#!">Close<a>', 3000);
-        return;
-    }
-
     jq.ajax({
         dataType: "json",
         url: '/Stations/GetPurchasesOthers',

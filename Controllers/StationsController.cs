@@ -117,17 +117,13 @@ namespace Core.Controllers
         }
 
         public JsonResult GetPurchasesOthers(long stid, string start, string stop, string filter, StationsService svc) {
-            DateTime date1 = DateTime.ParseExact(start, "dd/MM/yyyy", CultureInfo.InvariantCulture);
-            DateTime date2 = DateTime.ParseExact(stop, "dd/MM/yyyy", CultureInfo.InvariantCulture);
-
             if (string.IsNullOrWhiteSpace(filter))
                 filter = "";
 
-            return Json(svc.GetPurchasesOthers(stid, date1, date2, filter));
+            return Json(svc.GetPurchasesOthers(stid, DateTime.Parse(start), DateTime.Parse(stop), filter));
         }
 
-        public JsonResult GetPurchasesLedger(long stid, string start, string stop, string filter, StationsService svc)
-        {
+        public JsonResult GetPurchasesLedger(long stid, string start, string stop, string filter, StationsService svc) {
             if (string.IsNullOrWhiteSpace(filter))
                 filter = "";
 

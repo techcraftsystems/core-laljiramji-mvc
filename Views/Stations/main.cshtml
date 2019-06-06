@@ -182,7 +182,7 @@
                 <li class="tab"><a href="#customer">Customers</a></li>
                 <li class="tab ledgr"><a href="#ledger">Invoices</a></li>
                 <li class="tab expns"><a href="#expenses">Expenses</a></li>
-                <li class="tab pymts"><a href="#payments">PYMT</a></li>
+                <li class="tab pymts"><a href="#payments">Payment</a></li>
                 <li class="tab purch"><a href="#fuel">Fuel</a></li>
                 <li class="tab other"><a href="#purchases">Purchases</a></li>
                 <li class="tab recon"><a href="#reconcile">Reconcile</a></li>
@@ -213,8 +213,7 @@
                             </thead>
 
                             <tbody>
-                                @foreach (var reading in Model.Readings)
-                                {
+                                @foreach (var reading in Model.Readings) {
                                     <tr>
                                         <td>@reading.Pump.Name</td>
                                         <td>@reading.Opening</td>
@@ -267,8 +266,7 @@
                             </thead>
 
                             <tbody>
-                                @foreach (var summary in Model.Summaries)
-                                {
+                                @foreach (var summary in Model.Summaries) {
                                     <tr>
                                         <td>@summary.Tank.Name</td>
                                         <td>@string.Format("{0:N}", summary.Opening)</td>
@@ -345,8 +343,7 @@
                                 </thead>
 
                                 <tbody>
-                                    @foreach (var ledger in Model.Ledgers)
-                                    {
+                                    @foreach (var ledger in Model.Ledgers) {
                                         <tr>
                                             <td>@ledger.Customer.Name</td>
                                             <td>@string.Format("{0:N}", ledger.FuelSales)</td>
@@ -743,12 +740,12 @@
                 <div class="row" style="margin-top: 10px;">
                     <div class="input-field col-md-3">
                         <i class="material-icons prefix">date_range</i>
-                        <input id="otherStartDate" type="text" placeholder="DD/MM/YYYY" value="@DateTime.Now.AddDays(-1).ToString("dd/MM/yyyy")">
+                        <input id="otherStartDate" type="text" class="datepicker" value="@DateTime.Now.AddDays(-1).ToString("d MMMM, yyyy")">
                     </div>
 
                     <div class="input-field col-md-3">
                         <i class="material-icons prefix">date_range</i>
-                        <input id="otherStopsDate" type="text" placeholder="DD/MM/YYYY" value="@DateTime.Now.AddDays(-1).ToString("dd/MM/yyyy")">
+                        <input id="otherStopsDate" type="text" class="datepicker" value="@DateTime.Now.AddDays(-1).ToString("d MMMM, yyyy")">
                     </div>
 
                     <div class="input-field col-md-5">
