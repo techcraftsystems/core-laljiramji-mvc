@@ -48,4 +48,16 @@ $(function() {
         window.location.href = route + station + "/" + month + "/" + year; 
     });
 
+    jq('#modal61 .modal-footer .modal-post').click(function() {
+        var station =   jq('#modal61 .modal-station :selected').val();
+        var month =     jq('#modal61 .modal-months :selected').val();
+        var year =      jq('#modal61 .modal-year').val();
+        var type =      jq('#modal61 .modal-type :selected').val();
+        var catg =      jq('#modal61 .modal-catg :selected').val();
+
+        month = eval(month)+1;
+
+        window.location.href = route + type + "/" + station + "/" + catg + "/" + month + "/" + year; 
+    });
+
 });

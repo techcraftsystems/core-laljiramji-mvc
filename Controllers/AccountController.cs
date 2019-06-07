@@ -22,8 +22,7 @@ namespace Core.Controllers
         [TempData]
         public string ErrorMessage { get; set; }
 
-        public async Task<IActionResult> Login(LoginModel model, string ReturnUrl = "/")
-        {
+        public async Task<IActionResult> Login(LoginModel model, string ReturnUrl = "/") {
             await HttpContext.SignOutAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme);
             model.ReturnUrl = ReturnUrl;

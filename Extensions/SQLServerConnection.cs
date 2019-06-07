@@ -65,7 +65,7 @@ namespace Core.Extensions
             if (query != "")
                 query += ")";
 
-            if (sAdditionalString != "")
+            if (sAdditionalString != "") 
             {
                 if (query == "")
                     query = " WHERE " + sAdditionalString;

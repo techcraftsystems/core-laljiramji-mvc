@@ -6,12 +6,31 @@ using Core.Extensions;
 using Core.ViewModel;
 using Core.ReportModel;
 using Core.DataModel;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Core.Services
 {
     public class StationsService
     {
-        
+        private readonly CoreService Core = new CoreService();
+
+        public Stations GetStation(string code) {
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("SELECT st_idnt, st_void, st_code, st_name, st_database, push_date FROM Stations INNER JOIN vLastPush ON push_station=st_idnt WHERE st_code='" + code + "'");
+            if (dr.Read()) {
+                return new Stations {
+                    Id = Convert.ToInt64(dr[0]),
+                    Void = Convert.ToBoolean(dr[1]),
+                    Code = dr[2].ToString(),
+                    Name = dr[3].ToString(),
+                    Prefix = dr[4].ToString(),
+                    Push = Convert.ToDateTime(dr[5])
+                };
+            }
+
+            return null;
+        }
+
         public List<Stations> GetPendingPush() {
             List<Stations> stations = new List<Stations>();
 
@@ -45,22 +64,6 @@ namespace Core.Services
             }
 
             return stations;
-        }
-
-        public Stations GetStation(string code){
-            SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("SELECT st_idnt, st_code, st_name, st_database, push_date FROM Stations INNER JOIN vLastPush ON push_station=st_idnt WHERE st_code='" + code + "'");
-            if (dr.Read()) {
-                return new Stations {
-                    Id = Convert.ToInt64(dr[0]),
-                    Code = dr[1].ToString(),
-                    Name = dr[2].ToString(),
-                    Prefix = dr[3].ToString(),
-                    Push = Convert.ToDateTime(dr[4])
-                };
-            }
-
-            return null;
         }
 
         public List<Stations> GetStations(){
@@ -105,6 +108,14 @@ namespace Core.Services
             }
 
             return stations;
+        }
+
+        public List<SelectListItem> GetStationIdntsIEnumerable() {
+            return Core.GetIEnumerable("SELECT st_idnt, st_name FROM Stations ORDER BY st_void, st_name");
+        }
+
+        public List<SelectListItem> GetStationCodesIEnumerable() {
+            return Core.GetIEnumerable("SELECT st_code, st_name FROM Stations ORDER BY st_void, st_name");
         }
 
         public List<PumpReadings> GetMetreReadings(Stations st, DateTime date) {
@@ -751,6 +762,61 @@ namespace Core.Services
             }
 
             return sheets;
+        }
+
+        public List<ProductsSales> GetProductsSales(Stations station, DateTime start, DateTime stop, string category) {
+            List<ProductsSales> sales = new List<ProductsSales>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("USE " + station.Prefix.Replace(".dbo.", "") + "; DECLARE @start DATE='" + start.Date + "', @stop DATE='" + stop.Date + "', @catg NVARCHAR(250)='" + category + "'; SELECT id_, Items, uPrice sp, ISNULL(pQnty,0) inn, ISNULL(sQnty,0) sl, ISNULL(tQnty,0)tr, uAvailable-ISNULL(aQnty,0) cl, ISNULL(sAmts,0) amts FROM pProducts LEFT OUTER JOIN (SELECT item_idnt aIdnt, SUM(CASE WHEN pm_direction=1 THEN qnty ELSE 0-qnty END) As aQnty FROM ProductsMovement INNER JOIN ProductsMovementSources ON srcs_idnt=pm_idnt WHERE date_>@stop GROUP BY item_idnt) As aFoo ON id_=aIdnt LEFT OUTER JOIN (SELECT item_ sIdnt, SUM(qty) sQnty, SUM(qty*price) sAmts FROM SalesDetails INNER JOIN Sales ON RcptNo_=RcptNo WHERE date_ BETWEEN @start AND @stop GROUP BY item_) As sFoo ON id_=sIdnt LEFT OUTER JOIN (SELECT item_id pIdnt, SUM(qty) pQnty FROM PurchasesDetails INNER JOIN Purchases ON PurNum=PurNo WHERE date_ BETWEEN @start AND @stop GROUP BY item_id ) As pFoo On id_=pIdnt LEFT OUTER JOIN (SELECT tr_item, SUM(tr_qt1+tr_qt2+tr_qt3+tr_qt4+tr_qt5+tr_qt6) tQnty FROM ProductsTransfer WHERE tr_date BETWEEN @start AND @stop GROUP BY tr_item) As tFoo On id_=tr_item WHERE id_>=10 AND Category=@catg ORDER BY Category, itemName, Items");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    ProductsSales sale = new ProductsSales {
+                        Product = new Products {
+                            Id = Convert.ToInt64(dr[0]),
+                            Name = dr[1].ToString(),
+                            Sp = Convert.ToDouble(dr[2])
+                        },
+                        Inns = Convert.ToDouble(dr[3]),
+                        Sales = Convert.ToDouble(dr[4]),
+                        Transfer = Convert.ToDouble(dr[5]),
+                        Closing = Convert.ToDouble(dr[6]),
+                        Amounts = Convert.ToDouble(dr[7]),
+                    };
+                    sale.Opening = sale.Closing + sale.Sales + sale.Transfer - sale.Inns;
+                    sales.Add(sale);
+                }
+            }
+
+            return sales;
+        }
+
+        public ProductsBanking GetProductsBanking(Stations station, DateTime start, DateTime stop, string category) {
+            ProductsBanking banking = new ProductsBanking();
+            int item = 99;
+
+            SqlDataReader dr = new SqlServerConnection().SqlServerConnect("USE " + station.Prefix.Replace(".dbo.", "") + "; SELECT ISNULL(SUM(bk_lubes),0)x, ISNULL(SUM(bk_gas),0)x, ISNULL(SUM(bk_other_1),0)x, ISNULL(SUM(bk_soda),0)x FROM Banking WHERE bk_date BETWEEN '" + start + "' AND '" + stop + "'");
+            if (dr.Read()) {
+                if (category.Equals("lubes")) {
+                    item = -1;
+                    banking.Banked = Convert.ToDouble(dr[0]);
+                }
+                else if (category.Equals("lubes")) {
+                    item = -5;
+                    banking.Banked = Convert.ToDouble(dr[1]);
+                    banking.Exempt = Convert.ToDouble(dr[2]);
+                }
+                else if (category.Equals("lubes")) {
+                    banking.Banked = Convert.ToDouble(dr[3]);
+                }
+            }
+
+            dr = new SqlServerConnection().SqlServerConnect("USE " + station.Prefix.Replace(".dbo.", "") + "; SELECT ISNULL(SUM(cd_disc),0)xDisc FROM Discounts WHERE cd_item=" + item + " AND cd_date BETWEEN '" + start + "' AND '" + stop + "'");
+            if (dr.Read()) {
+                banking.Discount = Convert.ToDouble(dr[0]);
+            }
+
+            return banking;
         }
 
 

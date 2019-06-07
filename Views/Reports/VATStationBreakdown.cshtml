@@ -134,7 +134,7 @@
             <tbody>
                 @foreach (var rpt in Model.report) {
                     <tr>
-                        <td class="blue-text">@string.Format("{0:N}", rpt.dx_lesses)</td>
+                        <td class="blue-text">@string.Format("{0:N}", rpt.dx_lesses + rpt.tt_discs)</td>
                         <td class="blue-text">@string.Format("{0:N}", rpt.tt_discs)</td>
                         <td class="blue-text">@string.Format("{0:N}", rpt.dx_transp)</td>
                         <td class="blue-text">@string.Format("{0:N}", rpt.dx_cashes)</td>

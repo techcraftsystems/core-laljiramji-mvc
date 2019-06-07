@@ -293,7 +293,7 @@ function GetPurchasesOthers(){
                 row += "<td>N/A</td>";
                 row += "<td class='right-text'>" + ledger.total.toString().toAccounting() + "</td>";
                 row += "<td class='right-text'>" + ledger.taxable.toString().toAccounting() + "</td>";
-                row += "<td>&nbsp;</td>";
+                row += "<td><a class='material-icons tiny-box grey-text link-fuel' data-idnt='" + ledger.id + "' style='margin-top:-5px'>border_color</a></td>";
                 row += "</tr>";
 
                 jq('#other-table tbody').append(row);

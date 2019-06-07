@@ -15,9 +15,11 @@ namespace Core.Controllers
     {
         // GET: /<controller>/
         [Route("reports")]
-        public IActionResult Index(ReportsIndexViewModel model, StationsService svc)
-        {
-            model.Stations = new List<Models.Stations>(svc.GetStationsNames());
+        public IActionResult Index(ReportIndexViewModel model, StationsService service) {
+            model.Stations = new List<Stations>(service.GetStationsNames());
+            model.StationIdnts = service.GetStationIdntsIEnumerable();
+            model.StationCodes = service.GetStationCodesIEnumerable();
+
             return View(model);
         }
 
@@ -99,6 +101,26 @@ namespace Core.Controllers
         public IActionResult TrucksFuelVat(int month, int year) {
             List<TrucksFuelExpense> model = new List<TrucksFuelExpense>(new CoreService().GetTrucksFuelExpense(month, year));
             return View(model);
+        }
+
+        [Route("reports/stocks/quantity/{code}/{catg}/{month}/{year}")]
+        public IActionResult StocksQuantity(string code, string catg, int month, int year, ReportProductSales model, StationsService service) {
+            model.Date = new DateTime(year, month, 1);
+            model.Station = service.GetStation(code);
+            model.Banking = service.GetProductsBanking(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1), catg);
+            model.Sales = service.GetProductsSales(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1), catg);
+            model.StationCodes = service.GetStationCodesIEnumerable();
+
+            return View(model);
+        }
+
+        [Route("reports/stocks/amount/{code}/{catg}/{month}/{year}")]
+        public IActionResult StocksAmount(string code, string catg, int month, int year, ReportsEtrSheetViewModel model, StationsService svc) {
+            model.Date = new DateTime(year, month, 1);
+            model.Station = svc.GetStation(code);
+            model.Report = svc.GetEtrSheet(model.Station, month, year);
+
+            return View();
         }
     }
 }

@@ -1,0 +1,176 @@
+﻿@model Core.ViewModel.ReportProductSales;
+@{
+    ViewData["Title"] = "Stock Summary";
+    int ix = 0;
+    var summ = new Core.Models.ProductsSales();
+    var StartDate = new DateTime(Model.Date.Year, 1, 1);
+}
+
+<script>
+    var route = "/reports/stocks/";
+</script>
+<script src="~/js/reports-index-script.js"></script>
+
+<style>
+    #breadcrumbs-wrapper {
+        position: absolute;
+        top: 48px;
+        left: 0;
+        right: 0;
+    }
+
+        #breadcrumbs-wrapper .breadcrumbs {
+            padding: 0;
+            margin: 15px 0;
+            list-style: none;
+        }
+
+            #breadcrumbs-wrapper .breadcrumbs > li + li:before {
+                padding: 0;
+            }
+
+        #breadcrumbs-wrapper .breadcrumbs-btn {
+            top: 10px;
+        }
+</style>
+
+<div id="breadcrumbs-wrapper">
+    <div class="container">
+        <div class="row zero-margin">
+            <div class="col s10 m6 l6">
+                <ol class="breadcrumbs">
+                    <li><a href="/reports">Reports</a></li>
+                    <li><a href="#">@Model.Station.Name</a></li>
+                    <li class="active">@Model.Date.ToString("MMMM yyyy")</li>
+                </ol>
+            </div>
+            <div class="col s2 m6 l6">
+                <a class="btn dropdown-settings waves-effect waves-light breadcrumbs-btn right gradient-45deg-light-blue-cyan gradient-shadow pointer modal-trigger" data-target="modal61">
+                    <i class="material-icons hide-on-med-and-up">settings</i>
+                    <span class="hide-on-small-onl">CHANGE</span>
+                    <i class="material-icons right">arrow_drop_down</i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="clear:both; margin-top:55px;"></div>
+<div class="card zero-margin">
+    <div class="card-content deep-orange accent-2 white-text table-card" style="border-radius: 0">
+        <h5 class="card-stats-number"><i class="material-icons left">add_shopping_cart</i>Quantity Report</h5>
+        <p class="card-stats-compare right" style="font-size: 0.9em; margin-top: -15px; text-align: right">&nbsp;Banking: @string.Format("{0:N}", Model.Banking.Banked)<br />Discount: @string.Format("{0:N}", Model.Banking.Discount)
+    </div>
+
+    <table id="ledger-table" class="custom bordered" data-loaded="0" style="margin-top:-20px">
+        <thead class="deep-orange accent-2">
+            <tr>
+                <th>&nbsp;</th>
+                <th>DESCRIPTION</th>
+                <th class="center-text">OPENING</th>
+                <th class="center-text">INNS</th>
+                <th class="center-text">SALES</th>
+                <th class="center-text">TRANSFER</th>
+                <th class="center-text">CLOSING</th>
+                <th class="right-text">SELLING</th>
+                <th class="right-text">AMOUNT</th>
+            </tr>
+        </thead>
+        <tbody style="">
+            @foreach (var sl in Model.Sales)
+            {
+                ix += 1;
+
+                summ.Opening += sl.Opening;
+                summ.Inns += sl.Inns;
+                summ.Sales += sl.Sales;
+                summ.Transfer += sl.Transfer;
+                summ.Closing += sl.Closing;
+                summ.Amounts += sl.Amounts;
+
+                <tr>
+                    <td>@(ix)</td>
+                    <td><a class="blue-text pointer">@sl.Product.Name</a></td>
+                    <td class="center-text">@sl.Opening</td>
+                    <td class="center-text">@sl.Inns</td>
+                    <td class="center-text">@sl.Sales</td>
+                    <td class="center-text">@sl.Transfer</td>
+                    <td class="center-text">@sl.Closing</td>
+                    <td class="right-text bold-text blue-text">@string.Format("{0:N}", sl.Product.Sp)</td>
+                    <td class="right-text bold-text blue-text">@string.Format("{0:N}", sl.Amounts)</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot class="deep-orange accent-2 white-text">
+            <tr>
+                <th></th>
+                <th>SUMMARY</th>
+                <th class="center-text">@string.Format("{0:N2}", summ.Opening)</th>
+                <th class="center-text">@string.Format("{0:N2}", summ.Inns)</th>
+                <th class="center-text">@string.Format("{0:N2}", summ.Sales)</th>
+                <th class="center-text">@string.Format("{0:N2}", summ.Transfer)</th>
+                <th class="center-text">@string.Format("{0:N2}", summ.Closing)</th>
+                <th>&nbsp;</th>
+                <th class="right-text">@string.Format("{0:N2}", summ.Amounts)</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<div id="modal61" class="modal modal-fixed-footer" style="width: 500px">
+    <div class="modal-content">
+        <h4>Stock Report</h4>
+        <p>Specify the below Parameters to generate Stock Report</p>
+        <div class="row">
+            <div class="input-field col s12">
+                <i class="material-icons prefix">local_gas_station</i>
+                @Html.DropDownListFor(model => model.Station.Code, Model.StationCodes, new { @class = "modal-station" })
+                <label>Select Station</label>
+            </div>
+
+            <div class="input-field col m6 s12">
+                <i class="material-icons prefix">playlist_add_check</i>
+                <select class="modal-catg">
+                    <option value="lubes">Lubes</option>
+                    <option value="gas">Gas</option>
+                    <option value="soda">Soda</option>
+                </select>
+                <label>Category</label>
+            </div>
+
+            <div class="input-field col m6 s12">
+                <i class="material-icons prefix">playlist_add_check</i>
+                <select class="modal-type">
+                    <option value="quantity">By Quantity</option>
+                    <option value="amount">By Amount</option>
+                </select>
+                <label>Report Type</label>
+            </div>
+
+            <div class="input-field col m6 s12">
+                <i class="material-icons prefix">date_range</i>
+                <select class="modal-months">
+                    @for (ix = 0; ix < 12; ix++) {
+                        @if (ix == (Model.Date.Month - 1)) {
+                            <option selected value="@(ix)">@StartDate.AddMonths(ix).ToString("MMMM")</option>
+                        }
+                        else {
+                            <option value="@(ix)">@StartDate.AddMonths(ix).ToString("MMMM")</option>
+                        }
+                    }
+                </select>
+                <label>Select Station</label>
+            </div>
+
+            <div class="input-field col m6 s12">
+                <i class="material-icons prefix">event_note</i>
+                <input class="modal-year validate" type="number" value="@Model.Date.Year" />
+                <label>Specify Year</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
+        <a class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
+    </div>
+</div>

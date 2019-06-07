@@ -6,6 +6,7 @@ namespace Core.Models
     public class Stations
     {
         public long Id { get; set; }
+        public Boolean Void { get; set; }
         public string Code { get; set; }
         public string Name { get; set; }
         public string Synonym { get; set; }
@@ -25,6 +26,7 @@ namespace Core.Models
             Name = "";
             Synonym = "";
             Prefix = "";
+            Void = false;
             Updated = false;
             Push = new DateTime();
             FuelLtrs = 0;

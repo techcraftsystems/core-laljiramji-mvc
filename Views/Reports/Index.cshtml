@@ -1,4 +1,4 @@
-﻿@model Core.ViewModel.ReportsIndexViewModel;
+﻿@model Core.ViewModel.ReportIndexViewModel;
 
 @{
     ViewData["Title"] = "Reports";
@@ -8,32 +8,40 @@
     ul.report-icons li {
         margin-top: 20px;
     }
-    ul.report-icons li:first-child {
-        margin-top: 0px;
-    }
-    ul.report-icons li div {
-        cursor: pointer;
-        text-align: center;
-    }
-    ul.report-icons li p {
-        font-weight: 500;
-        line-height: 1em;
-    }
+
+        ul.report-icons li:first-child {
+            margin-top: 0px;
+        }
+
+        ul.report-icons li div {
+            cursor: pointer;
+            text-align: center;
+        }
+
+        ul.report-icons li p {
+            font-weight: 500;
+            line-height: 1em;
+        }
+
     .modal h4 {
         border-bottom: 3px solid #ff5722;
         margin-bottom: 10px;
         padding-bottom: 10px;
     }
+
     .modal p {
         margin-bottom: 30px;
     }
+
     .modal .select-dropdown li img {
         height: 34px;
         width: 34px;
     }
-    .input-field .material-icons.prefix{
-        padding-top: 10px;
+
+    .input-field .material-icons.prefix {
+        adding-top: 10px;
     }
+
     i.medium {
         font-size: 3.1rem;
     }
@@ -56,7 +64,6 @@
                     <p>Product Sales</p>
                 </div>
             </li>
-
         </ul>
     </div>
 
@@ -143,187 +150,320 @@
             </li>
         </ul>
     </div>
+
+    <!--Column 6-->
+    <div class="col-md-1">
+        <ul class="report-icons">
+            <li class="light-blue-text">
+                <div class="waves-effect waves-light modal-trigger multiple-trigger" data-target="modal61" data-trigger="/reports/stocks/">
+                    <i class="material-icons medium icon-demo">shopping_basket</i>
+                    <p>Monthly Stock</p>
+                </div>
+            </li>
+
+            <li class="light-blue-text">
+                <div class="waves-effect waves-light modal-trigger multiple-trigger" data-target="modal62" data-trigger="/reports/fuel/">
+                    <i class="material-icons medium icon-demo">local_gas_station</i>
+                    <p>Monthly Fuel</p>
+                </div>
+            </li>
+        </ul>
+    </div>
 </div>
 
-    <!--Column 1 Modals-->
-    <div id="modal11" class="modal modal-fixed-footer" style="width: 500px">
-        <div class="modal-content">
-            <h4>Sales Per Product</h4>
-            <p>Specify the below Parameters to generate the Summary</p>
-            <div>
-                <div class="input-field">
-                    <i class="material-icons prefix">mode_edit</i>
+<!--Column 1 Modals-->
+<div id="modal11" class="modal modal-fixed-footer" style="width: 500px">
+    <div class="modal-content">
+        <h4>Sales Per Product</h4>
+        <p>Specify the below Parameters to generate the Summary</p>
+        <div>
+            <div class="input-field">
+                <i class="material-icons prefix">mode_edit</i>
 
-                    <label>Start Date</label>
-                </div>
+                <label>Start Date</label>
+            </div>
 
-                <div class="input-field">
-                    <i class="material-icons prefix">mode_edit</i>
-                    <input class="modal-year validate" type="number" value="@DateTime.Now.Year" />
-                    <label>End Date</label>
-                </div>
+            <div class="input-field">
+                <i class="material-icons prefix">mode_edit</i>
+                <input class="modal-year validate" type="number" value="@DateTime.Now.Year" />
+                <label>End Date</label>
             </div>
         </div>
-        <div class="modal-footer">
-            <a href="#!" class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
-            <a href="#!" class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
+        <a href="#!" class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
+    </div>
+</div>
+
+
+<!--Column 2 Modals-->
+<div id="modal21" class="modal modal-fixed-footer" style="width:500px">
+    <div class="modal-content">
+        <h4>Customer Balances</h4>
+        <p>Specify the below Parameters to generate the Summary</p>
+        <div>
+            <div class="input-field">
+                <i class="material-icons prefix">local_gas_station</i>
+                <select class="icons modal-station">
+                    @foreach (var st in Model.Stations)
+                    {
+                        <option value="@st.Code.ToLower()" data-icon="~/../../images/logos/@(st.Brand.Name.ToLower()).png" class="circle">@st.Name</option>
+                    }
+                </select>
+                <label>Select Station</label>
+            </div>
+
+            <div class="input-field">
+                <i class="material-icons prefix">event_note</i>
+                <input class="modal-year validate" type="number" value="@DateTime.Now.Year" />
+                <label>Specify Year</label>
+            </div>
+
+            <div class="input-field">
+                <i class="material-icons prefix">local_gas_station</i>
+                <select class="modal-types">
+                    <option value="all">All Transactions</option>
+                    <option value="invoices">Sales / Invoices</option>
+                    <option value="payments">Customer Payments</option>
+                    <option value="creditnote">Credit Memo</option>
+                </select>
+                <label>Transaction Type</label>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
+        <a href="#!" class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
+    </div>
+</div>
+
+<div id="modal22" class="modal modal-fixed-footer" style="width: 500px">
+    <div class="modal-content">
+        <h4>Customer Balances</h4>
+        <p>Specify the below Parameters to generate the Summary</p>
+        <div>
+            <div class="input-field">
+                <i class="material-icons prefix">local_gas_station</i>
+                <select class="icons modal-station">
+                    @foreach (var st in Model.Stations)
+                    {
+                        <option value="@st.Code.ToLower()" data-icon="~/../../images/logos/@(st.Brand.Name.ToLower()).png" class="circle">@st.Name</option>
+                    }
+                </select>
+                <label>Select Station</label>
+            </div>
+
+            <div class="input-field">
+                <i class="material-icons prefix">event_note</i>
+                <input class="modal-year validate" type="number" value="@DateTime.Now.Year" />
+                <label>Specify Year</label>
+            </div>
         </div>
     </div>
 
+    <div class="modal-footer">
+        <a href="#!" class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
+        <a href="#!" class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
+    </div>
+</div>
 
-    <!--Column 2 Modals-->
-    <div id="modal21" class="modal modal-fixed-footer" style="width:500px">
-        <div class="modal-content">
-            <h4>Customer Balances</h4>
-            <p>Specify the below Parameters to generate the Summary</p>
-            <div>
-                <div class="input-field">
-                    <i class="material-icons prefix">local_gas_station</i>
-                    <select class="icons modal-station">
-                        @foreach (var st in Model.Stations)
+<!--Column 3 Modals-->
+<div id="modal31" class="modal modal-fixed-footer" style="width: 500px">
+    <div class="modal-content">
+        <h4>VAT Report</h4>
+        <p>Specify the below Parameters to generate the Summary </p>
+        <div>
+            <div class="input-field">
+                <i class="material-icons prefix">class</i>
+                <select class="modal-months">
+                    @for (int ix = 0; ix < 12; ix++)
+                    {
+                        @if (ix == (DateTime.Now.Month - 1))
                         {
-                            <option value="@st.Code.ToLower()" data-icon="~/../../images/logos/@(st.Brand.Name.ToLower()).png" class="circle">@st.Name</option>
+                            <option selected value="@(ix)">@Model.StartDate.AddMonths(ix).ToString("MMMM")</option>
                         }
-                    </select>
-                    <label>Select Station</label>
-                </div>
-
-                <div class="input-field">
-                    <i class="material-icons prefix">event_note</i>
-                    <input class="modal-year validate" type="number" value="@DateTime.Now.Year" />
-                    <label>Specify Year</label>
-                </div>
-
-                <div class="input-field">
-                    <i class="material-icons prefix">local_gas_station</i>
-                    <select class="modal-types">
-                        <option value="all">All Transactions</option>
-                        <option value="invoices">Sales / Invoices</option>
-                        <option value="payments">Customer Payments</option>
-                        <option value="creditnote">Credit Memo</option>
-                    </select>
-                    <label>Transaction Type</label>
-                </div>
+                        else
+                        {
+                            <option value="@(ix)">@Model.StartDate.AddMonths(ix).ToString("MMMM")</option>
+                        }
+                    }
+                </select>
+                <label>Select Station</label>
             </div>
-        </div>
-        <div class="modal-footer">
-            <a href="#!" class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
-            <a href="#!" class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
+
+            <div class="input-field">
+                <i class="material-icons prefix">event_note</i>
+                <input class="modal-year validate" type="number" value="@DateTime.Now.Year" />
+                <label>Specify Year</label>
+            </div>
         </div>
     </div>
 
-    <div id="modal22" class="modal modal-fixed-footer" style="width: 500px">
-        <div class="modal-content">
-            <h4>Customer Balances</h4>
-            <p>Specify the below Parameters to generate the Summary</p>
-            <div>
-                <div class="input-field">
-                    <i class="material-icons prefix">local_gas_station</i>
-                    <select class="icons modal-station">
-                        @foreach (var st in Model.Stations)
-                        {
-                            <option value="@st.Code.ToLower()" data-icon="~/../../images/logos/@(st.Brand.Name.ToLower()).png" class="circle">@st.Name</option>
-                        }
-                    </select>
-                    <label>Select Station</label>
-                </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
+        <a href="#!" class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
+    </div>
+</div>
 
-                <div class="input-field">
-                    <i class="material-icons prefix">event_note</i>
-                    <input class="modal-year validate" type="number" value="@DateTime.Now.Year" />
-                    <label>Specify Year</label>
-                </div>
+<div id="modal32" class="modal modal-fixed-footer" style="width: 500px">
+    <div class="modal-content">
+        <h4>VAT Station Breakdown</h4>
+        <p>Specify the below Parameters to generate the ETR Breakdown </p>
+        <div>
+            <div class="input-field">
+                <i class="material-icons prefix">local_gas_station</i>
+                <select class="icons modal-station">
+                    @foreach (var st in Model.Stations)
+                    {
+                        <option value="@st.Code.ToLower()" data-icon="~/../../images/logos/@(st.Brand.Name.ToLower()).png" class="circle">@st.Name</option>
+                    }
+                </select>
+                <label>Select Station</label>
             </div>
-        </div>
 
-        <div class="modal-footer">
-            <a href="#!" class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
-            <a href="#!" class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
+            <div class="input-field">
+                <i class="material-icons prefix">class</i>
+                <select class="modal-months">
+                    @for (int ix = 0; ix < 12; ix++)
+                    {
+                        @if (ix == (DateTime.Now.Month - 1))
+                        {
+                            <option selected value="@(ix)">@Model.StartDate.AddMonths(ix).ToString("MMMM")</option>
+                        }
+                        else
+                        {
+                            <option value="@(ix)">@Model.StartDate.AddMonths(ix).ToString("MMMM")</option>
+                        }
+                    }
+                </select>
+                <label>Select Station</label>
+            </div>
+
+            <div class="input-field">
+                <i class="material-icons prefix">event_note</i>
+                <input class="modal-year validate" type="number" value="@DateTime.Now.Year" />
+                <label>Specify Year</label>
+            </div>
         </div>
     </div>
 
-    <!--Column 3 Modals-->
-    <div id="modal31" class="modal modal-fixed-footer" style="width: 500px">
-        <div class="modal-content">
-            <h4>VAT Report</h4>
-            <p>Specify the below Parameters to generate the Summary </p>
-            <div>
-                <div class="input-field">
-                    <i class="material-icons prefix">class</i>
-                    <select class="modal-months">
-                        @for (int ix = 0; ix < 12; ix++)
-                        {
-                            @if (ix == (DateTime.Now.Month - 1))
-                            {
-                                <option selected value="@(ix)">@Model.StartDate.AddMonths(ix).ToString("MMMM")</option>
-                            }
-                            else
-                            {
-                                <option value="@(ix)">@Model.StartDate.AddMonths(ix).ToString("MMMM")</option>
-                            }
-                        }
-                    </select>
-                    <label>Select Station</label>
-                </div>
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
+        <a class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
+    </div>
+</div>
 
-                <div class="input-field">
-                    <i class="material-icons prefix">event_note</i>
-                    <input class="modal-year validate" type="number" value="@DateTime.Now.Year" />
-                    <label>Specify Year</label>
-                </div>
+<!--Column 6 Modals-->
+<div id="modal61" class="modal modal-fixed-footer" style="width: 500px">
+    <div class="modal-content">
+        <h4>Stock Report</h4>
+        <p>Specify the below Parameters to generate Stock Report</p>
+        <div class="row">
+            <div class="input-field col s12">
+                <i class="material-icons prefix">local_gas_station</i>
+                @Html.DropDownListFor(model => model.Station.Code, Model.StationCodes, new { @class = "modal-station" })
+                <label>Select Station</label>
             </div>
-        </div>
 
-        <div class="modal-footer">
-            <a href="#!" class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
-            <a href="#!" class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
+            <div class="input-field col m6 s12">
+                <i class="material-icons prefix">playlist_add_check</i>
+                <select class="modal-catg">
+                    <option value="lubes">Lubes</option>
+                    <option value="gas">Gas</option>
+                    <option value="soda">Soda</option>
+                </select>
+                <label>Category</label>
+            </div>
+
+            <div class="input-field col m6 s12">
+                <i class="material-icons prefix">playlist_add_check</i>
+                <select class="modal-type">
+                    <option value="quantity">By Quantity</option>
+                    <option value="amount">By Amount</option>
+                </select>
+                <label>Report Type</label>
+            </div>
+
+            <div class="input-field col m6 s12">
+                <i class="material-icons prefix">date_range</i>
+                <select class="modal-months">
+                    @for (int ix = 0; ix < 12; ix++)
+                    {
+                        @if (ix == (DateTime.Now.Month - 1)) {
+                            <option selected value="@(ix)">@Model.StartDate.AddMonths(ix).ToString("MMMM")</option>
+                        }
+                        else {
+                            <option value="@(ix)">@Model.StartDate.AddMonths(ix).ToString("MMMM")</option>
+                        }
+                    }
+                </select>
+                <label>Select Station</label>
+            </div>
+
+            <div class="input-field col m6 s12">
+                <i class="material-icons prefix">event_note</i>
+                <input class="modal-year validate" type="number" value="@DateTime.Now.Year" />
+                <label>Specify Year</label>
+            </div>
         </div>
     </div>
 
-    <div id="modal32" class="modal modal-fixed-footer" style="width: 500px">
-        <div class="modal-content">
-            <h4>VAT Station Breakdown</h4>
-            <p>Specify the below Parameters to generate the ETR Breakdown </p>
-            <div>
-                <div class="input-field">
-                    <i class="material-icons prefix">local_gas_station</i>
-                    <select class="icons modal-station">
-                        @foreach (var st in Model.Stations)
-                        {
-                            <option value="@st.Code.ToLower()" data-icon="~/../../images/logos/@(st.Brand.Name.ToLower()).png" class="circle">@st.Name</option>
-                        }
-                    </select>
-                    <label>Select Station</label>
-                </div>
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
+        <a class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
+    </div>
+</div>
 
-                <div class="input-field">
-                    <i class="material-icons prefix">class</i>
-                    <select class="modal-months">
-                        @for (int ix = 0; ix < 12; ix++)
-                        {
-                            @if (ix == (DateTime.Now.Month - 1))
-                            {
-                                <option selected value="@(ix)">@Model.StartDate.AddMonths(ix).ToString("MMMM")</option>
-                            }
-                            else
-                            {
-                                <option value="@(ix)">@Model.StartDate.AddMonths(ix).ToString("MMMM")</option>
-                            }
-                        }
-                    </select>
-                    <label>Select Station</label>
-                </div>
+<div id="modal62" class="modal modal-fixed-footer" style="width: 500px">
+    <div class="modal-content">
+        <h4>Stock Report</h4>
+        <p>Specify the below Parameters to generate Stock Report</p>
+        <div class="row">
+            <div class="input-field col s12">
+                <i class="material-icons prefix">local_gas_station</i>
+                @Html.DropDownListFor(model => model.Station.Code, Model.StationCodes, new { @class = "modal-station" })
+                <label>Select Station</label>
+            </div>
 
-                <div class="input-field">
-                    <i class="material-icons prefix">event_note</i>
-                    <input class="modal-year validate" type="number" value="@DateTime.Now.Year" />
-                    <label>Specify Year</label>
-                </div>
+
+            <div class="input-field col m7 s12">
+                <i class="material-icons prefix">date_range</i>
+                <select class="modal-months">
+                    @for (int ix = 0; ix < 12; ix++)
+                    {
+                        @if (ix == (DateTime.Now.Month - 1))
+                        {
+                            <option selected value="@(ix)">@Model.StartDate.AddMonths(ix).ToString("MMMM")</option>
+                        }
+                        else
+                        {
+                            <option value="@(ix)">@Model.StartDate.AddMonths(ix).ToString("MMMM")</option>
+                        }
+                    }
+                </select>
+                <label>Month</label>
+            </div>
+
+            <div class="input-field col m5 s12">
+                <i class="material-icons prefix">event_note</i>
+                <input class="modal-year validate" type="number" value="@DateTime.Now.Year" />
+                <label>Year</label>
+            </div>
+
+            <div class="input-field col s12">
+                <i class="material-icons prefix">playlist_add_check</i>
+                <select class="modal-type">
+                    <option value="quantity">By Litres</option>
+                    <option value="amount">By Amount</option>
+                </select>
+                <label>Report Type</label>
             </div>
         </div>
-
-        <div class="modal-footer">
-            <a href="#!" class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
-            <a href="#!" class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
-        </div>
     </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
+        <a class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
+    </div>
+</div>
