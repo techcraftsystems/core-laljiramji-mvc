@@ -108,19 +108,21 @@ namespace Core.Controllers
             model.Date = new DateTime(year, month, 1);
             model.Station = service.GetStation(code);
             model.Banking = service.GetProductsBanking(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1), catg);
-            model.Sales = service.GetProductsSales(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1), catg);
+            model.Sales = service.GetProductsSalesQuantity(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1), catg);
             model.StationCodes = service.GetStationCodesIEnumerable();
 
             return View(model);
         }
 
         [Route("reports/stocks/amount/{code}/{catg}/{month}/{year}")]
-        public IActionResult StocksAmount(string code, string catg, int month, int year, ReportsEtrSheetViewModel model, StationsService svc) {
+        public IActionResult StocksAmount(string code, string catg, int month, int year, ReportProductSales model, StationsService service) {
             model.Date = new DateTime(year, month, 1);
-            model.Station = svc.GetStation(code);
-            model.Report = svc.GetEtrSheet(model.Station, month, year);
+            model.Station = service.GetStation(code);
+            model.Banking = service.GetProductsBanking(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1), catg);
+            model.Sales = service.GetProductsSalesAmounts(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1), catg);
+            model.StationCodes = service.GetStationCodesIEnumerable();
 
-            return View();
+            return View(model);
         }
     }
 }

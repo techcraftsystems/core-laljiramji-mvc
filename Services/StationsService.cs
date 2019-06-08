@@ -764,7 +764,7 @@ namespace Core.Services
             return sheets;
         }
 
-        public List<ProductsSales> GetProductsSales(Stations station, DateTime start, DateTime stop, string category) {
+        public List<ProductsSales> GetProductsSalesQuantity(Stations station, DateTime start, DateTime stop, string category) {
             List<ProductsSales> sales = new List<ProductsSales>();
 
             SqlServerConnection conn = new SqlServerConnection();
@@ -790,6 +790,36 @@ namespace Core.Services
 
             return sales;
         }
+
+        public List<ProductsSales> GetProductsSalesAmounts(Stations station, DateTime start, DateTime stop, string category) {
+            List<ProductsSales> sales = new List<ProductsSales>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("USE " + station.Prefix.Replace(".dbo.", "") + "; DECLARE @start DATE='" + start.Date + "', @stop DATE='" + stop.Date + "', @catg NVARCHAR(250)='" + category + "'; SELECT id_, Items, uPrice sp, ISNULL(costx,0) bp, ISNULL(pQnty,0) inn, ISNULL(sQnty,0) sl, ISNULL(tQnty,0)tr, uAvailable-ISNULL(aQnty,0) cl, ISNULL(pAmts,0) amts, ISNULL(sAmts,0)income FROM pProducts LEFT OUTER JOIN ( SELECT item_idnt aIdnt, SUM(CASE WHEN pm_direction=1 THEN qnty ELSE 0-qnty END) As aQnty FROM ProductsMovement INNER JOIN ProductsMovementSources ON srcs_idnt=pm_idnt WHERE date_>@stop GROUP BY item_idnt ) As aFoo ON id_=aIdnt LEFT OUTER JOIN ( SELECT item_ sIdnt, SUM(qty) sQnty, SUM(qty*price) sAmts FROM SalesDetails INNER JOIN Sales ON RcptNo_=RcptNo WHERE date_ BETWEEN @start AND @stop GROUP BY item_ ) As sFoo ON id_=sIdnt LEFT OUTER JOIN ( SELECT item_id pIdnt, SUM(qty) pQnty, SUM(qty*price) pAmts FROM PurchasesDetails INNER JOIN Purchases ON PurNum=PurNo WHERE date_ BETWEEN @start AND @stop GROUP BY item_id ) As pFoo On id_=pIdnt LEFT OUTER JOIN ( SELECT tr_item, SUM(tr_qt1+tr_qt2+tr_qt3+tr_qt4+tr_qt5+tr_qt6) tQnty FROM ProductsTransfer WHERE tr_date BETWEEN @start AND @stop GROUP BY tr_item ) As tFoo On id_=tr_item LEFT OUTER JOIN (SELECT item_id itmx, price costx FROM PurchasesDetails INNER JOIN Purchases ON PurNum=PurNo INNER JOIN (SELECT MAX(CAST(date_ AS NVARCHAR)+'-'+CAST(PurNum AS NVARCHAR)) pd, item_id itm FROM PurchasesDetails INNER JOIN Purchases ON PurNum = PurNo WHERE date_<=@stop GROUP BY item_id) As Foo ON pd=CAST(date_ AS NVARCHAR)+'-'+CAST(PurNum AS NVARCHAR) AND item_id=itm) As cFoo ON id_=itmx WHERE id_>=10 AND Category=@catg ORDER BY Category, itemName, Items");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    ProductsSales sale = new ProductsSales {
+                        Product = new Products {
+                            Id = Convert.ToInt64(dr[0]),
+                            Name = dr[1].ToString(),
+                            Sp = Convert.ToDouble(dr[2]),
+                            Bp = Convert.ToDouble(dr[3]),
+                        },
+                        Inns = Convert.ToDouble(dr[4]),
+                        Sales = Convert.ToDouble(dr[5]),
+                        Transfer = Convert.ToDouble(dr[6]),
+                        Closing = Convert.ToDouble(dr[7]),
+                        Amounts = Convert.ToDouble(dr[8]),
+                    };
+
+                    sale.Opening = sale.Closing + sale.Sales + sale.Transfer - sale.Inns;
+                    sales.Add(sale);
+                }
+            }
+
+            return sales;
+        }
+
 
         public ProductsBanking GetProductsBanking(Stations station, DateTime start, DateTime stop, string category) {
             ProductsBanking banking = new ProductsBanking();
