@@ -87,18 +87,18 @@
                 summ.Closing += sl.Closing * sl.Product.Bp;
                 summ.Amounts += sl.Amounts;
 
-                <tr>
-                    <td>@(ix)</td>
-                    <td><a class="blue-text pointer">@sl.Product.Name</a></td>
-                    <td class="right-text">@string.Format("{0:N}", sl.Product.Bp)</td>
-                    <td class="right-text">@string.Format("{0:N}", sl.Product.Sp)</td>
-                    <td class="right-text bold-text">@string.Format("{0:N}", sl.Product.Bp * sl.Opening)</td>
-                    <td class="right-text">@string.Format("{0:N}", sl.Product.Bp * sl.Inns)</td>
-                    <td class="right-text">@string.Format("{0:N}", sl.Product.Bp * sl.Sales)</td>
-                    <td class="right-text">@string.Format("{0:N}", sl.Product.Bp * sl.Transfer)</td>
-                    <td class="right-text bold-text">@string.Format("{0:N}", sl.Product.Bp * sl.Closing)</td>
-                    <td class="right-text bold-text blue-text">@string.Format("{0:N}", sl.Amounts - (sl.Sales * sl.Product.Bp))</td>
-                </tr>
+            <tr>
+                <td>@(ix)</td>
+                <td><a class="blue-text pointer">@sl.Product.Name</a></td>
+                <td class="right-text">@string.Format("{0:N}", sl.Product.Bp)</td>
+                <td class="right-text">@string.Format("{0:N}", sl.Product.Sp)</td>
+                <td class="right-text bold-text">@string.Format("{0:N}", sl.Product.Bp * sl.Opening)</td>
+                <td class="right-text">@string.Format("{0:N}", sl.Product.Bp * sl.Inns)</td>
+                <td class="right-text">@string.Format("{0:N}", sl.Product.Bp * sl.Sales)</td>
+                <td class="right-text">@string.Format("{0:N}", sl.Product.Bp * sl.Transfer)</td>
+                <td class="right-text bold-text">@string.Format("{0:N}", sl.Product.Bp * sl.Closing)</td>
+                <td class="right-text bold-text blue-text">@string.Format("{0:N}", sl.Amounts - (sl.Sales * sl.Product.Bp))</td>
+            </tr>
             }
         </tbody>
         <tfoot class="deep-orange accent-2 white-text">
