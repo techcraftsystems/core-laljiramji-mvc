@@ -108,7 +108,7 @@ namespace Core.Controllers
             model.Date = new DateTime(year, month, 1);
             model.Station = service.GetStation(code);
             model.Banking = service.GetProductsBanking(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1), catg);
-            model.Sales = service.GetProductsSalesQuantity(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1), catg);
+            model.Sales = service.GetProductsSales(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1), catg);
             model.StationCodes = service.GetStationCodesIEnumerable();
 
             return View(model);
@@ -119,7 +119,7 @@ namespace Core.Controllers
             model.Date = new DateTime(year, month, 1);
             model.Station = service.GetStation(code);
             model.Banking = service.GetProductsBanking(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1), catg);
-            model.Sales = service.GetProductsSalesAmounts(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1), catg);
+            model.Sales = service.GetProductsSales(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1), catg);
             model.StationCodes = service.GetStationCodesIEnumerable();
 
             return View(model);
