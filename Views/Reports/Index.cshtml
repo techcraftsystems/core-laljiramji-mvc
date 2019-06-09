@@ -2,48 +2,48 @@
 
 @{
     ViewData["Title"] = "Reports";
+    int month = DateTime.Now.Month - 1;
+    var months = new List<SelectListItem>();
+    for (int ix = 0; ix < 12; ix++) {
+        months.Add(new SelectListItem {
+            Value = ix.ToString(),
+            Text = Model.StartDate.AddMonths(ix).ToString("MMMM")
+        });
+    }
 }
 
 <style>
     ul.report-icons li {
-        margin-top: 20px;
+        margin-top: 20px
     }
-
-        ul.report-icons li:first-child {
-            margin-top: 0px;
-        }
-
-        ul.report-icons li div {
-            cursor: pointer;
-            text-align: center;
-        }
-
-        ul.report-icons li p {
-            font-weight: 500;
-            line-height: 1em;
-        }
-
+    ul.report-icons li:first-child {
+        margin-top: 0px
+    }
+    ul.report-icons li div {
+        cursor: pointer;
+        text-align: center
+    }
+    ul.report-icons li p {
+        font-weight: 500;
+        line-height: 1em
+    }
     .modal h4 {
         border-bottom: 3px solid #ff5722;
         margin-bottom: 10px;
-        padding-bottom: 10px;
+        padding-bottom: 10px
     }
-
     .modal p {
-        margin-bottom: 30px;
+        margin-bottom: 30px
     }
-
     .modal .select-dropdown li img {
         height: 34px;
-        width: 34px;
+        width: 34px
     }
-
     .input-field .material-icons.prefix {
-        adding-top: 10px;
+        padding-top: 10px
     }
-
     i.medium {
-        font-size: 3.1rem;
+        font-size: 3.1rem
     }
 </style>
 
@@ -136,6 +136,13 @@
                     <p>Purchase Summary</p>
                 </div>
             </li>
+
+            <li class="deep-orange-text">
+                <div class="waves-effect waves-light modal-trigger multiple-trigger" data-target="modal32" data-trigger="/reports/purchases/variance/">
+                    <i class="material-icons medium icon-demo">swap_horiz</i>
+                    <p>Purchase Variance</p>
+                </div>
+            </li>
         </ul>
     </div>
 
@@ -162,7 +169,19 @@
             </li>
 
             <li class="light-blue-text">
-                <div class="waves-effect waves-light modal-trigger multiple-trigger" data-target="modal62" data-trigger="/reports/fuel/">
+                <div class="waves-effect waves-light modal-trigger multiple-trigger" data-target="modal32" data-trigger="/reports/stocks/variance/">
+                    <i class="material-icons medium icon-demo">playlist_play</i>
+                    <p>Stock Ledger</p>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <!--Column 7-->
+    <div class="col-md-1">
+        <ul class="report-icons">
+            <li class="light-blue-text">
+                <div class="waves-effect waves-light modal-trigger multiple-trigger" data-target="modal71" data-trigger="/reports/fuel/">
                     <i class="material-icons medium icon-demo">local_gas_station</i>
                     <p>Monthly Fuel</p>
                 </div>
@@ -205,12 +224,7 @@
         <div>
             <div class="input-field">
                 <i class="material-icons prefix">local_gas_station</i>
-                <select class="icons modal-station">
-                    @foreach (var st in Model.Stations)
-                    {
-                        <option value="@st.Code.ToLower()" data-icon="~/../../images/logos/@(st.Brand.Name.ToLower()).png" class="circle">@st.Name</option>
-                    }
-                </select>
+                @Html.DropDownListFor(model => model.Station.Code, Model.StationCodes, new { @class = "modal-station" })
                 <label>Select Station</label>
             </div>
 
@@ -245,12 +259,7 @@
         <div>
             <div class="input-field">
                 <i class="material-icons prefix">local_gas_station</i>
-                <select class="icons modal-station">
-                    @foreach (var st in Model.Stations)
-                    {
-                        <option value="@st.Code.ToLower()" data-icon="~/../../images/logos/@(st.Brand.Name.ToLower()).png" class="circle">@st.Name</option>
-                    }
-                </select>
+                @Html.DropDownListFor(model => model.Station.Code, Model.StationCodes, new { @class = "modal-station" })
                 <label>Select Station</label>
             </div>
 
@@ -276,19 +285,7 @@
         <div>
             <div class="input-field">
                 <i class="material-icons prefix">class</i>
-                <select class="modal-months">
-                    @for (int ix = 0; ix < 12; ix++)
-                    {
-                        @if (ix == (DateTime.Now.Month - 1))
-                        {
-                            <option selected value="@(ix)">@Model.StartDate.AddMonths(ix).ToString("MMMM")</option>
-                        }
-                        else
-                        {
-                            <option value="@(ix)">@Model.StartDate.AddMonths(ix).ToString("MMMM")</option>
-                        }
-                    }
-                </select>
+                @Html.DropDownListFor(model => month, months, new { @class = "modal-months" })
                 <label>Select Station</label>
             </div>
 
@@ -308,39 +305,22 @@
 
 <div id="modal32" class="modal modal-fixed-footer" style="width: 500px">
     <div class="modal-content">
-        <h4>VAT Station Breakdown</h4>
-        <p>Specify the below Parameters to generate the ETR Breakdown </p>
-        <div>
-            <div class="input-field">
+        <h4>Report Details</h4>
+        <p>Specify the below Parameters to generate the Report</p>
+        <div class="row">
+            <div class="input-field col s12">
                 <i class="material-icons prefix">local_gas_station</i>
-                <select class="icons modal-station">
-                    @foreach (var st in Model.Stations)
-                    {
-                        <option value="@st.Code.ToLower()" data-icon="~/../../images/logos/@(st.Brand.Name.ToLower()).png" class="circle">@st.Name</option>
-                    }
-                </select>
+                @Html.DropDownListFor(model => model.Station.Code, Model.StationCodes, new { @class = "modal-station" })
                 <label>Select Station</label>
             </div>
 
-            <div class="input-field">
+            <div class="input-field col s12 m7">
                 <i class="material-icons prefix">class</i>
-                <select class="modal-months">
-                    @for (int ix = 0; ix < 12; ix++)
-                    {
-                        @if (ix == (DateTime.Now.Month - 1))
-                        {
-                            <option selected value="@(ix)">@Model.StartDate.AddMonths(ix).ToString("MMMM")</option>
-                        }
-                        else
-                        {
-                            <option value="@(ix)">@Model.StartDate.AddMonths(ix).ToString("MMMM")</option>
-                        }
-                    }
-                </select>
+                @Html.DropDownListFor(model => month, months, new { @class = "modal-months" })
                 <label>Select Station</label>
             </div>
 
-            <div class="input-field">
+            <div class="input-field col s12 m5">
                 <i class="material-icons prefix">event_note</i>
                 <input class="modal-year validate" type="number" value="@DateTime.Now.Year" />
                 <label>Specify Year</label>
@@ -387,17 +367,7 @@
 
             <div class="input-field col m6 s12">
                 <i class="material-icons prefix">date_range</i>
-                <select class="modal-months">
-                    @for (int ix = 0; ix < 12; ix++)
-                    {
-                        @if (ix == (DateTime.Now.Month - 1)) {
-                            <option selected value="@(ix)">@Model.StartDate.AddMonths(ix).ToString("MMMM")</option>
-                        }
-                        else {
-                            <option value="@(ix)">@Model.StartDate.AddMonths(ix).ToString("MMMM")</option>
-                        }
-                    }
-                </select>
+                @Html.DropDownListFor(model => month, months, new { @class = "modal-months" })
                 <label>Select Station</label>
             </div>
 
@@ -415,7 +385,8 @@
     </div>
 </div>
 
-<div id="modal62" class="modal modal-fixed-footer" style="width: 500px">
+<!--Column 7 Modals-->
+<div id="modal71" class="modal modal-fixed-footer" style="width: 500px">
     <div class="modal-content">
         <h4>Stock Report</h4>
         <p>Specify the below Parameters to generate Stock Report</p>
@@ -429,19 +400,7 @@
 
             <div class="input-field col m7 s12">
                 <i class="material-icons prefix">date_range</i>
-                <select class="modal-months">
-                    @for (int ix = 0; ix < 12; ix++)
-                    {
-                        @if (ix == (DateTime.Now.Month - 1))
-                        {
-                            <option selected value="@(ix)">@Model.StartDate.AddMonths(ix).ToString("MMMM")</option>
-                        }
-                        else
-                        {
-                            <option value="@(ix)">@Model.StartDate.AddMonths(ix).ToString("MMMM")</option>
-                        }
-                    }
-                </select>
+                @Html.DropDownListFor(model => month, months, new { @class = "modal-months" })
                 <label>Month</label>
             </div>
 

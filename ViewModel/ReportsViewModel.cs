@@ -80,4 +80,21 @@ namespace Core.ViewModel
             StationCodes = new List<SelectListItem>();
         }
     }
+
+    public class ReportPurchaseVariance {
+        public List<ProductsLedger> Diesel { get; set; }
+        public List<ProductsLedger> Super { get; set; }
+        public List<ProductsLedger> Vpower { get; set; }
+        public List<ProductsLedger> Kerosene { get; set; }
+
+        public DateTime Date { get; set; }
+        public Stations Station { get; set; }
+        public IEnumerable<SelectListItem> Stations { get; set; }
+
+        public ReportPurchaseVariance() {
+            Date = DateTime.Now;
+            Station = new Stations();
+            Stations = new List<SelectListItem>();
+        }
+    }
 }

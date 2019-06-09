@@ -822,6 +822,29 @@ namespace Core.Services
             return banking;
         }
 
+        public List<ProductsLedger> GetProductsVariance(Stations station, DateTime start, DateTime stop) {
+            List<ProductsLedger> variance = new List<ProductsLedger>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("USE " + station.Prefix.Replace(".dbo.", "") + "; DECLARE @date1 DATE='" + start.Date + "', @date2 DATE='" + stop.Date + "'; SELECT vat_item, itemName, vat_date, SUM(ISNULL(purc,0)) PURC, SUM(ISNULL(delv,0)) DELV, SUM(ISNULL(ovp,0)) OVP FROM core_system.dbo.VatReports INNER JOIN Products ON id_=vat_item LEFT OUTER JOIN (SELECT date_ dts, item_id itm, qty purc, 0 delv, 0 ovp FROM PurchasesDetails INNER JOIN Purchases ON PurNum = PurNo WHERE item_id BETWEEN 1 AND 10 AND date_ BETWEEN @date1 AND @date2 UNION ALL SELECT fr_date, fr_fuel, 0, fr_quantity, 0 FROM FuelReceipts WHERE fr_date BETWEEN @date1 AND @date2 UNION ALL SELECT sr_date, sr_fuel, 0,0,sr_qnty FROM Receipts WHERE sr_overpump=1) As foo ON dts=vat_date AND vat_item=itm WHERE vat_date BETWEEN @date1 AND @date2 GROUP BY vat_date, vat_item, itemName ORDER BY vat_date, vat_item");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    variance.Add(new ProductsLedger {
+                        Product = new Products {
+                            Id = Convert.ToInt64(dr[0]),
+                            Name = dr[1].ToString()
+                        },
+                        Date = Convert.ToDateTime(dr[2]),
+                        Purchase = Convert.ToDouble(dr[3]),
+                        Delivery = Convert.ToDouble(dr[4]),
+                        Overpump = Convert.ToDouble(dr[5]),
+                    });
+                }
+            }
+
+            return variance;
+        }
+
 
 
         public List<MonthsModel> InitializeMonthsModel()

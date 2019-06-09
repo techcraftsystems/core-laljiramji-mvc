@@ -39,4 +39,20 @@ namespace Core.Models
             Amounts = 0;
         }
     }
+
+    public class ProductsLedger {
+        public DateTime Date { get; set; }
+        public double Purchase { get; set; }
+        public double Delivery { get; set; }
+        public double Overpump { get; set; }
+        public Products Product { get; set; }
+
+        public ProductsLedger() {
+            Date = DateTime.Now;
+            Purchase = 0;
+            Delivery = 0;
+            Overpump = 0;
+            Product = new Products();
+        }
+    }
 }

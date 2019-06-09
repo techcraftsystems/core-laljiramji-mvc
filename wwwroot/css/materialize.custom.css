@@ -103,6 +103,7 @@ table.custom tbody tr td:first-child {
     padding-left: 20px;
 }
 table.custom thead tr th:last-child,
+table.custom tfoot tr th:last-child,
 table.custom tfoot tr td:last-child,
 table.custom tbody tr td:last-child {
     padding-right: 20px;

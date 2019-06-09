@@ -7,6 +7,7 @@ using Core.Services;
 using Core.DataModel;
 using Core.Models;
 using Core.ReportModel;
+using System.Linq;
 
 namespace Core.Controllers
 {
@@ -121,6 +122,21 @@ namespace Core.Controllers
             model.Banking = service.GetProductsBanking(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1), catg);
             model.Sales = service.GetProductsSales(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1), catg);
             model.StationCodes = service.GetStationCodesIEnumerable();
+
+            return View(model);
+        }
+
+        [Route("reports/purchases/variance/{code}/{month}/{year}")]
+        public IActionResult StocksVariance(string code, int month, int year, ReportPurchaseVariance model, StationsService service) {
+            model.Date = new DateTime(year, month, 1);
+            model.Station = service.GetStation(code);
+            model.Stations = service.GetStationCodesIEnumerable();
+
+            IEnumerable<ProductsLedger> variance = service.GetProductsVariance(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1));
+            model.Diesel = variance.Where(prod => prod.Product.Id == 1).ToList();
+            model.Super = variance.Where(prod => prod.Product.Id == 2).ToList();
+            model.Vpower = variance.Where(prod => prod.Product.Id == 3).ToList();
+            model.Kerosene = variance.Where(prod => prod.Product.Id == 4).ToList();
 
             return View(model);
         }
