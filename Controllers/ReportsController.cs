@@ -140,5 +140,13 @@ namespace Core.Controllers
 
             return View(model);
         }
+
+        [Route("reports/stocks/ledger")]
+        public IActionResult StocksLedger(string st, PurchaseLedgerViewModel model, StationsService service) {
+            model.Stations = service.GetStationCodesIEnumerable();
+            if (!string.IsNullOrEmpty(st))
+                model.Code = st;
+            return View(model);
+        }
     }
 }

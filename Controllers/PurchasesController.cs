@@ -24,8 +24,8 @@ namespace Core.Controllers
         }
 
         [Route("purchases/ledger")]
-        public IActionResult FuelLedger(String station, FuelPurchaseLedgerViewModel model, StationsService svc){
-            model.Stations = new List<Stations>(svc.GetStationsNames());
+        public IActionResult FuelLedger(string station, PurchaseLedgerViewModel model, StationsService svc){
+            model.Stations = svc.GetStationIdntsIEnumerable();
             if (!string.IsNullOrEmpty(station))
                 model.Code = station;
 

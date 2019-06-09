@@ -1,5 +1,4 @@
-﻿@model Core.ViewModel.FuelPurchaseLedgerViewModel;
-
+﻿@model Core.ViewModel.PurchaseLedgerViewModel;
 @{
     ViewData["Title"] = "Purchases Ledger";
 
@@ -12,12 +11,15 @@
         width: 5%;
         padding-top: 10px;
     }
+
     .row .input-field.col-md-2 {
         width: 20%;
     }
+
     .row .input-field.col-md-5 {
         width: 35%;
     }
+
     input:not([type]), input[type=text]:not(.browser-default), input[type=password]:not(.browser-default), input[type=email]:not(.browser-default), input[type=url]:not(.browser-default), input[type=time]:not(.browser-default), input[type=date]:not(.browser-default), input[type=datetime]:not(.browser-default), input[type=datetime-local]:not(.browser-default), input[type=tel]:not(.browser-default), input[type=number]:not(.browser-default), input[type=search]:not(.browser-default), textarea.materialize-textarea {
         margin-bottom: 5px;
         margin-top: -10px;
@@ -50,7 +52,7 @@
                 dataType: "json",
                 url: '/Purchases/GetFuelPurchasesLedgerOpenning',
                 data: {
-                    "stid": jq('#station :selected').val(),
+                    "stid": jq('#Code :selected').val(),
                     "date": jq('#start').val()
                 },
                 success: function(result) {
@@ -63,7 +65,7 @@
                         dataType: "json",
                         url: '/Purchases/GetFuelPurchasesLedgers',
                         data: {
-                            "stid": jq('#station :selected').val(),
+                            "stid": jq('#Code :selected').val(),
                             "start": jq('#start').val(),
                             "stop": jq('#stops').val(),
                             "filter": jq('#filter').val()
@@ -141,18 +143,7 @@
 <div class="row" style="margin-top: 10px; margin-bottom: 0px;">
     <div class="input-field col-md-2">
         <i class="material-icons prefix">date_range</i>
-        <select id="station">
-            @foreach (var st in Model.Stations)
-            {
-                if (st.Code.ToLower().Equals(Model.Code.ToLower()))
-                {
-                    <option value="@st.Id" selected>@st.Name</option>
-                }
-                else { 
-                    <option value="@st.Id">@st.Name</option>
-                }
-            }
-        </select>
+        @Html.DropDownListFor(model => model.Code, Model.Stations, new { @class = "modal-station" })
     </div>
     <div class="input-field col-md-2">
         <i class="material-icons prefix">date_range</i>

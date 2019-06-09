@@ -1,0 +1,52 @@
+﻿@model Core.ViewModel.PurchaseLedgerViewModel;
+@{
+    ViewData["Title"] = "Purchases Ledger";
+
+    DateTime start = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+    DateTime stop = start.AddMonths(1).AddDays(-1);
+}
+
+<style>
+    .row .col-md-1.get-ledger {
+        width: 5%;
+        padding-top: 10px;
+    }
+
+    .row .input-field.col-md-2 {
+        width: 20%;
+    }
+
+    .row .input-field.col-md-5 {
+        width: 35%;
+    }
+
+    input:not([type]), input[type=text]:not(.browser-default), input[type=password]:not(.browser-default), input[type=email]:not(.browser-default), input[type=url]:not(.browser-default), input[type=time]:not(.browser-default), input[type=date]:not(.browser-default), i[type=datetime]:not(.browser-default), input[type=datetime-local]:not(.browser-default), input[type=tel]:not(.browser-default), input[type=number]:not(.browser-default), input[type=search]:not(.browser-default), textarea.materialize-textarea {
+        margin-bottom: 5px;
+        margin-top: -10px;
+    }
+</style>
+
+<div class="row" style="margin-top: 10px; margin-bottom: 0px;">
+    <div class="input-field col-md-2">
+        <i class="material-icons prefix">date_range</i>
+        <select id="station"></select>
+    </div>
+    <div class="input-field col-md-2">
+        <i class="material-icons prefix">date_range</i>
+        <input id="start" type="text" class="datepicker" value="@start.ToString("d MMMM, yyyy")">
+    </div>
+
+    <div class="input-field col-md-2">
+        <i class="material-icons prefix">date_range</i>
+        <input id="stops" type="text" class="datepicker" value="@stop.ToString("d MMMM, yyyy")">
+    </div>
+
+    <div class="input-field col-md-5">
+        <i class="material-icons prefix">filter_list</i>
+        <input id="filter" type="text" placeholder="Filter Ledger" />
+    </div>
+
+    <div class="col-md-1 get-ledger">
+        <a class="btn btn-floating pulse btn gradient-45deg-amber-amber right"><i class="material-icons" style="line-height: 42px">search</i></a>
+    </div>
+</div>
