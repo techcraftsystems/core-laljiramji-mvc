@@ -146,6 +146,13 @@ namespace Core.Controllers
             model.Stations = service.GetStationCodesIEnumerable();
             if (!string.IsNullOrEmpty(st))
                 model.Code = st;
+            else
+                model.Code = model.Stations.FirstOrDefault().Value;
+
+            DateTime date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            model.Station = service.GetStation(model.Code);
+            model.Ledger = new PurchasesService().GetStocksPurchasesLedgers(model.Station, date, date.AddMonths(1).AddDays(-1), "");
+
             return View(model);
         }
     }

@@ -123,22 +123,20 @@ namespace Core.Services
 
             SqlServerConnection conn = new SqlServerConnection();
             SqlDataReader dr = conn.SqlServerConnect("SELECT pcol_idnt, pcol_pump, pmp_name, pcol_price, pcol_op, pcol_adjust, pcol_test, pcol_cl FROM vPumps LEFT OUTER JOIN vReadings ON pmp_st=pcol_st AND pmp_idnt=pcol_pump WHERE pmp_st=" + st.Id + " AND pcol_date='" + date.Date + "'");
-            if (dr.HasRows)
-            {
-                while (dr.Read())
-                {
-                    PumpReadings reading = new PumpReadings();
-                    reading.Id = Convert.ToInt64(dr[0]);
-                    reading.Pump.Id = Convert.ToInt64(dr[1]);
-                    reading.Pump.Name = dr[2].ToString();
-
-                    reading.Price = Convert.ToDouble(dr[3]);
-                    reading.Opening = Convert.ToDouble(dr[4]);
-                    reading.Adjustment = Convert.ToDouble(dr[5]);
-                    reading.Tests = Convert.ToDouble(dr[6]);
-                    reading.Closing = Convert.ToDouble(dr[7]);
-
-                    readings.Add(reading);
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    readings.Add(new PumpReadings {
+                        Id = Convert.ToInt64(dr[0]),
+                        Pump = new Pump {
+                            Id = Convert.ToInt64(dr[1]),
+                            Name = dr[2].ToString()
+                        },
+                        Price = Convert.ToDouble(dr[3]),
+                        Opening = Convert.ToDouble(dr[4]),
+                        Adjustment = Convert.ToDouble(dr[5]),
+                        Tests = Convert.ToDouble(dr[6]),
+                        Closing = Convert.ToDouble(dr[7])
+                    });
                 }
             }
 
@@ -847,15 +845,12 @@ namespace Core.Services
 
 
 
-        public List<MonthsModel> InitializeMonthsModel()
-        {
+        public List<MonthsModel> InitializeMonthsModel() {
             DateTime date = new DateTime(DateTime.Now.Year, 1, 1);
             List<MonthsModel> months = new List<MonthsModel>();
 
-            for (int i = 1; i < 13; i++)
-            {
-                MonthsModel month = new MonthsModel
-                {
+            for (int i = 1; i < 13; i++) {
+                MonthsModel month = new MonthsModel {
                     Value = date.Month,
                     Name = date.ToString("MMMM")
                 };

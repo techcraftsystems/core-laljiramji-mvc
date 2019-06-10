@@ -179,7 +179,7 @@ namespace Core.Services
         }
 
         public List<FuelPurchasesLedger> GetFuelPurchasesLedgers(long stid, DateTime start, DateTime stop, string filter){
-            List<FuelPurchasesLedger> ledgers = new List<FuelPurchasesLedger>();
+            var ledgers = new List<FuelPurchasesLedger>();
 
             SqlServerConnection conn = new SqlServerConnection();
             SqlDataReader dr = conn.SqlServerConnect("SELECT id, dt, qty, price, descr, invs, total, tax_amount, pdo1, pdo2, pdon, st_name, sb_brand FROM vPurchasesLedger INNER JOIN Stations ON st_idnt=st INNER JOIN StationsBrand ON sb_idnt=st_brand " + conn.GetQueryString(filter, "CAST(qty AS NVARCHAR)+'-'+descr+'-'+invs+'-'+CAST(total AS NVARCHAR)+'-'+CAST(pdo1 AS NVARCHAR)+'-'+CAST(pdo2 AS NVARCHAR)", "st=" + stid + " AND dt BETWEEN '" + start.Date + "' AND '" + stop.Date + "'") + " ORDER BY dt, descr, id");
@@ -221,7 +221,7 @@ namespace Core.Services
 
         public List<FuelLedgerSummary> GetFuelPurchasesLedgersSummary(DateTime start, DateTime stop, string filter)
         {
-            List<FuelLedgerSummary> ledger = new List<FuelLedgerSummary>();
+            var ledger = new List<FuelLedgerSummary>();
 
             SqlServerConnection conn = new SqlServerConnection();
             SqlDataReader dr = conn.SqlServerConnect("SELECT st_name, SUM(CASE WHEN item_id=1 THEN total ELSE 0 END)DX, SUM(CASE WHEN item_id=2 THEN total ELSE 0 END)uX, SUM(CASE WHEN item_id=3 THEN total ELSE 0 END)vP, SUM(CASE WHEN item_id=4 THEN total ELSE 0 END)IK, SUM(total) TOTAL, SUM(tax_amount) TAX, SUM((tax_amount/0.08))ex_vat, SUM(total-tax_amount-(tax_amount/0.08)) zero_amount FROM vPurchasesLedger INNER JOIN Stations ON st_idnt=st INNER JOIN StationsBrand ON sb_idnt=st_brand " + conn.GetQueryString(filter, "st_name", "dt BETWEEN '" + start.Date + "' AND '" + stop.Date + "'") + " GROUP BY st_name, st_order ORDER BY st_order");
@@ -238,6 +238,46 @@ namespace Core.Services
                         Excl = Convert.ToDouble(dr[7]),
                         Zero = Convert.ToDouble(dr[8]),
                     });
+                }
+            }
+
+            return ledger;
+        }
+
+        public List<FuelPurchasesLedger> GetStocksPurchasesLedgers(Stations station, DateTime start, DateTime stop, string filter) {
+            var ledger = new List<FuelPurchasesLedger>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("USE " + station.Prefix.Replace(".dbo.", "") + "; DECLARE @start DATE='" + start.Date + "', @stop DATE='" + stop.Date + "';SELECT id, date_, qty, price, tax, Category, Items, SuppInv, Supp, ISNULL(Names,'CASH')Names FROM PurchasesDetails INNER JOIN pProducts ON id_=item_id INNER JOIN Purchases ON PurNum=PurNo LEFT OUTER JOIN Suppliers ON Supp=Suppid " + conn.GetQueryString(filter, "CAST(qty*price AS NVARCHAR)+'-'+Category+'-'+Items+'-'+SuppInv+'-'+ISNULL(Names,'CASH')", "id_>10 AND date_ BETWEEN @start AND @stop") + " ORDER BY date_, SuppInv, Items");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    FuelPurchasesLedger item = new FuelPurchasesLedger {
+                        Station = station,
+
+                        Id = Convert.ToInt64(dr[0]),
+                        Date = Convert.ToDateTime(dr[1]).ToString("dd-MMM"),
+                        Ltrs = Convert.ToDouble(dr[2]),
+                        Price = Convert.ToDouble(dr[3]),
+                        Rate = Convert.ToDouble(dr[4]),
+                        Category = dr[5].ToString(),
+                        Description = dr[6].ToString(),
+                        Invoice = dr[7].ToString(),
+
+                        Supplier = new Suppliers {
+                            Id = Convert.ToInt64(dr[8]),
+                            Name = dr[9].ToString()
+                        }
+                    };
+
+                    item.Total = item.Ltrs * item.Price;
+
+                    if (item.Rate.Equals(0))
+                        item.Zero = item.Total;
+                    else
+                        item.Vats = (item.Rate / (item.Rate * 100)) * item.Total;
+
+                    item.Excl = item.Total - item.Vats - item.Zero;
+                    ledger.Add(item);
                 }
             }
 

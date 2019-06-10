@@ -92,6 +92,12 @@ namespace Core.Controllers
             return Json(new PurchasesService().GetFuelPurchasesLedgers(stid, DateTime.Parse(start), DateTime.Parse(stop), filter));
         }
 
+        public JsonResult GetStocksPurchasesLedgers(string code, string start, string stop, string filter, StationsService service) {
+            if (string.IsNullOrWhiteSpace(filter))
+                filter = "";
+            return Json(new PurchasesService().GetStocksPurchasesLedgers(service.GetStation(code), DateTime.Parse(start), DateTime.Parse(stop), filter));
+        }
+
         public JsonResult GetFuelPurchasesLedgersSummary(string start, string stop, string filter = "") {
             if (string.IsNullOrWhiteSpace(filter))
                 filter = "";

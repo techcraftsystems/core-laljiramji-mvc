@@ -7,8 +7,10 @@ namespace Core.Models
         public long Id { get; set; }
         public string Date { get; set; }
         public string Invoice { get; set; }
+        public string Category { get; set; }
         public string Description { get; set; }
 
+        public double Rate { get; set; }
         public double Ltrs { get; set; }
         public double Price { get; set; }
         public double Total { get; set; }
@@ -20,13 +22,15 @@ namespace Core.Models
         public double PayCard { get; set; }
         public double PayAmts { get; set; }
 
-        public FuelPurchasesLedger()
-        {
+        public Suppliers Supplier { get; set; }
+
+        public FuelPurchasesLedger() {
             Station = new Stations();
             Id = 0;
 
             Date = DateTime.Now.ToString("dd-MMM");
             Invoice = "";
+            Category = "";
             Description = "";
 
             Ltrs = 0;
@@ -40,6 +44,8 @@ namespace Core.Models
             PayDate = "";
             PayCard = 0;
             PayAmts = 0;
+
+            Supplier = new Suppliers();
         }
     }
 }
