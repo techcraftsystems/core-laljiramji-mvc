@@ -48,8 +48,8 @@ function GetStocksPurchasesLedgers(){
 
                 var row = "<tr data-idnt='" + item.id + "'>";
                 row += "<td>" + item.date + "</td>";
-                row += "<td>" + item.ltrs.toString().toAccounting() + "</td>";
-                row += "<td>" + item.price.toString().toAccounting() + "</td>";
+                row += "<td class='right-text'>" + item.ltrs.toString().toAccounting() + "</td>";
+                row += "<td class='right-text'>" + item.price.toString().toAccounting() + "</td>";
                 row += "<td>" + item.category + "</td>";
                 row += "<td>" + item.description + "</td>";
                 row += "<td>" + item.invoice + "</td>";
@@ -67,17 +67,16 @@ function GetStocksPurchasesLedgers(){
             if (results.length == 0) {
                 jq('#ledger-table tbody').append("<tr><td colspan=12>No Records Found</td></tr>");
             }
-            else {
-                var footr = "<tr><th>&nbsp;</th><th colspan=6 class='bold-text white-text'>LEDGER SUMMARY</th>";
-                footr += "<th class='right-text'>" + cumm.toString().toAccounting() + "</th>";
-                footr += "<th class='right-text'>" + cumm.toString().toAccounting() + "</th>";
-                footr += "<th class='right-text'>" + excl.toString().toAccounting() + "</th>";
-                footr += "<th class='right-text'>" + vats.toString().toAccounting() + "</th>";
-                footr += "<th class='right-text'>" + zero.toString().toAccounting() + "</th>";
-                footr += "</tr>";
 
-                jq('#ledger-table tfoot').append(footr);
-            }
+            var footr = "<tr><th>&nbsp;</th><th colspan=6 class='bold-text white-text'>LEDGER SUMMARY</th>";
+            footr += "<th class='right-text'>" + cumm.toString().toAccounting() + "</th>";
+            footr += "<th class='right-text'>" + cumm.toString().toAccounting() + "</th>";
+            footr += "<th class='right-text'>" + excl.toString().toAccounting() + "</th>";
+            footr += "<th class='right-text'>" + vats.toString().toAccounting() + "</th>";
+            footr += "<th class='right-text'>" + zero.toString().toAccounting() + "</th>";
+            footr += "</tr>";
+
+            jq('#ledger-table tfoot').append(footr);
         },
         error: function(xhr, ajaxOptions, thrownError) {
             console.log(xhr.status);

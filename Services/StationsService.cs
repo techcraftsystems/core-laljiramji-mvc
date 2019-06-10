@@ -869,5 +869,10 @@ namespace Core.Services
             SqlServerConnection conn = new SqlServerConnection();
             conn.SqlServerUpdate("UPDATE " + station.Prefix + "Products SET tax=" + change.Taxx + ", bPriceW=" + change.Zero + " WHERE id_=" + change.Fuel.Id);
         }
+
+        public void UpdateProductsAvailable(Stations station) {
+            SqlServerConnection conn = new SqlServerConnection();
+            conn.SqlServerUpdate("USE " + station.Prefix.Replace(".dbo.", "") + "; UPDATE Products SET uAvailable=ISNULL(qnty,0) FROM Products LEFT OUTER JOIN pProductsAvailable ON id_=item WHERE id_>=10");
+        }
     }
 }

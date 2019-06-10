@@ -108,6 +108,8 @@ namespace Core.Controllers
         public IActionResult StocksQuantity(string code, string catg, int month, int year, ReportProductSales model, StationsService service) {
             model.Date = new DateTime(year, month, 1);
             model.Station = service.GetStation(code);
+            service.UpdateProductsAvailable(model.Station);
+
             model.Banking = service.GetProductsBanking(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1), catg);
             model.Sales = service.GetProductsSales(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1), catg);
             model.StationCodes = service.GetStationCodesIEnumerable();
@@ -119,6 +121,8 @@ namespace Core.Controllers
         public IActionResult StocksAmount(string code, string catg, int month, int year, ReportProductSales model, StationsService service) {
             model.Date = new DateTime(year, month, 1);
             model.Station = service.GetStation(code);
+            service.UpdateProductsAvailable(model.Station);
+
             model.Banking = service.GetProductsBanking(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1), catg);
             model.Sales = service.GetProductsSales(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1), catg);
             model.StationCodes = service.GetStationCodesIEnumerable();
