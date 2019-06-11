@@ -30,6 +30,9 @@ namespace Core.Models
         public double Closing { get; set; }
         public double Amounts { get; set; }
 
+        public DateTime From { get; set; }
+        public DateTime To { get; set; }
+
         public ProductsSales() {
             Opening = 0;
             Inns = 0;

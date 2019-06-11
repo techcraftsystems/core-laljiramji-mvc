@@ -791,6 +791,30 @@ namespace Core.Services
             return sales;
         }
 
+        public List<ProductsSales> GetFuelSales(Stations station, DateTime start, DateTime stop) {
+            List<ProductsSales> sales = new List<ProductsSales>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("USE " + station.Prefix.Replace(".dbo.", "") + "; DECLARE @start DATE='" + start.Date + "', @stop DATE='" + stop.Date + "'; SELECT pcol_fuel, pcol_item, (SELECT TOP(1) price FROM PurchasesDetails INNER JOIN Purchases ON PurNo=PurNum WHERE item_id=pcol_fuel AND date_<pcol_to ORDER BY date_ DESC) pcol_bp, pcol_sp, pcol_from, pcol_to, pcol_open, pcol_sales FROM (SELECT pcol_fuel, ItemName pcol_item, pcol_price pcol_sp, MIN(pcol_date)pcol_from, MAX(pcol_date)pcol_to, SUM(pcol_electronic_cl-pcol_electronic_op-pcol_electronic_test-pcol_electronic_adjust) pcol_sales FROM PumpsCollections INNER JOIN Products ON id_=pcol_fuel WHERE pcol_date BETWEEN @start AND @stop group by pcol_fuel, pcol_price, ItemName) As Foo LEFT OUTER JOIN (SELECT td_fuel, td_date, SUM(td_reading)pcol_open FROM TanksDips WHERE td_date BETWEEN DATEADD(DAY,-1, @start) AND @stop GROUP BY td_fuel, td_date) As Op ON td_date=DATEADD(DAY,-1, pcol_from) AND pcol_fuel=td_fuel ORDER BY pcol_fuel, pcol_from");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    sales.Add(new ProductsSales {
+                        Product = new Products {
+                            Id = Convert.ToInt64(dr[0]),
+                            Name = dr[1].ToString(),
+                            Bp = Convert.ToDouble(dr[2]),
+                            Sp = Convert.ToDouble(dr[3]),
+                        },
+                        From = Convert.ToDateTime(dr[4]),
+                        To = Convert.ToDateTime(dr[5]),
+                        Opening = Convert.ToDouble(dr[6]),
+                        Sales = Convert.ToDouble(dr[7])
+                    });
+                }
+            }
+
+            return sales;
+        }
 
         public ProductsBanking GetProductsBanking(Stations station, DateTime start, DateTime stop, string category) {
             ProductsBanking banking = new ProductsBanking();

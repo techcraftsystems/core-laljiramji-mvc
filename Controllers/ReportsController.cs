@@ -159,5 +159,15 @@ namespace Core.Controllers
 
             return View(model);
         }
+
+        [Route("reports/fuel/{code}/{month}/{year}")]
+        public IActionResult StocksFuel(string code, int month, int year, ReportProductSales model, StationsService service) {
+            model.Date = new DateTime(year, month, 1);
+            model.Station = service.GetStation(code);
+            model.Sales = service.GetFuelSales(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1));
+            model.StationCodes = service.GetStationCodesIEnumerable();
+
+            return View(model);
+        }
     }
 }

@@ -1,0 +1,151 @@
+﻿@model Core.ViewModel.ReportProductSales;
+@{
+    ViewData["Title"] = "Fuel Summary";
+    var summ = new Core.Models.ProductsSales();
+    var StartDate = new DateTime(Model.Date.Year, 1, 1);
+    var months = new List<SelectListItem>();
+    for (int ix = 0; ix < 12; ix++) {
+        months.Add(new SelectListItem
+        {
+            Value = ix.ToString(),
+            Text = StartDate.AddMonths(ix).ToString("MMMM")
+        });
+    }
+}
+
+<script>var route = "/reports/fuel/";</script>
+<script src="~/js/reports-index-script.js"></script>
+
+<style>
+    #breadcrumbs-wrapper {
+        position: absolute;
+        top: 48px;
+        left: 0;
+        right: 0
+    }
+
+        #breadcrumbs-wrapper .breadcrumbs {
+            padding: 0;
+            margin: 15px 0;
+            list-style: none
+        }
+
+        #breadcrumbs-wrapper .breadcrumbs-btn {
+            top: 10px
+        }
+
+        #breadcrumbs-wrapper .breadcrumbs > li + li:before {
+            padding: 0
+        }
+</style>
+
+<div id="breadcrumbs-wrapper">
+    <div class="container">
+        <div class="row zero-margin">
+            <div class="col s10 m6 l6">
+                <ol class="breadcrumbs">
+                    <li><a href="/reports">Fuel Reports</a></li>
+                    <li><a href="#">@Model.Station.Name</a></li>
+                    <li class="active">@Model.Date.ToString("MMMM yyyy")</li>
+                </ol>
+            </div>
+            <div class="col s2 m6 l6">
+                <a class="btn dropdown-settings waves-effect waves-light breadcrumbs-btn right gradient-45deg-light-blue-cyan gradient-shadow pointer modal-trigger multiple-trigger" data-target="modal32" data-trigger="/reports/fuel/">
+                    <i class="material-icons hide-on-med-and-up">settings</i>
+                    <span class="hide-on-small-onl">CHANGE</span>
+                    <i class="material-icons right">arrow_drop_down</i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="clear:both; margin-top:55px;"></div>
+<div class="card zero-margin">
+    <div class="card-content deep-orange accent-2 white-text table-card" style="border-radius: 0">
+        <h5 class="card-stats-number"><i class="material-icons left">add_shopping_cart</i>Quantity Report</h5>
+        <p class="card-stats-compare right">
+            <i class="material-icons left">history</i>
+            <span class="deep-orange-text text-lighten-5 opening-balance">Fuel Movement</span>
+        </p>
+    </div>
+
+    <table id="ledger-table" class="custom bordered" data-loaded="0" style="margin-top:-20px">
+        <thead class="deep-orange accent-2">
+            <tr>
+                <th>DATE</th>
+                <th>DESCRIPTION</th>
+                <th class="right-text">BUYING</th>
+                <th class="right-text">SELLING</th>
+                <th class="right-text">OPENING</th>
+                <th class="right-text">LTS SOLD</th>
+                <th class="right-text">AMOUNT</th>
+                <th class="right-text">COSTING</th>
+                <th class="right-text">PROFIT</th>
+            </tr>
+        </thead>
+        <tbody style="">
+            @foreach (var sl in Model.Sales)
+            {
+                summ.Opening += sl.Opening;
+                summ.Sales += sl.Sales;
+                summ.Amounts += sl.Sales * sl.Product.Sp;
+                summ.Closing += sl.Sales * sl.Product.Bp;
+
+                <tr>
+                    <td>@sl.From.ToString("dd")&mdash;@sl.To.ToString("dd MMM").ToUpper()</td>
+                    <td><a class="blue-text pointer">@sl.Product.Name LTS</a></td>
+                    <td class="right-text">@string.Format("{0:N}", sl.Product.Bp)</td>
+                    <td class="right-text">@string.Format("{0:N}", sl.Product.Sp)</td>
+                    <td class="right-text">@string.Format("{0:N}", sl.Opening)</td>
+                    <td class="right-text">@string.Format("{0:N}", sl.Sales)</td>
+                    <td class="right-text bold-text blue-text">@string.Format("{0:N}", sl.Sales * sl.Product.Sp)</td>
+                    <td class="right-text bold-text black-text">@string.Format("{0:N}", sl.Sales * sl.Product.Bp)</td>
+                    <td class="right-text blue-text">@string.Format("{0:N}", (sl.Sales * sl.Product.Sp) - (sl.Sales * sl.Product.Bp))</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot class="deep-orange accent-2 white-text">
+            <tr>
+                <th colspan="2">&nbsp; &nbsp; SALES SUMMARY</th>
+                <th class="right-text">&mdash;&nbsp;</th>
+                <th class="right-text">&mdash;&nbsp;</th>
+                <th class="right-text">@string.Format("{0:N2}", summ.Opening)</th>
+                <th class="right-text">@string.Format("{0:N2}", summ.Sales)</th>
+                <th class="right-text">@string.Format("{0:N2}", summ.Amounts)</th>
+                <th class="right-text">@string.Format("{0:N2}", summ.Closing)</th>
+                <th class="right-text">@string.Format("{0:N2}", summ.Amounts - summ.Closing)</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<div id="modal32" class="modal modal-fixed-footer" style="width: 500px">
+    <div class="modal-content">
+        <h4>Report Details</h4>
+        <p>Specify the below Parameters to generate the Report</p>
+        <div class="row">
+            <div class="input-field col s12">
+                <i class="material-icons prefix">local_gas_station</i>
+                @Html.DropDownListFor(model => model.Station.Code, Model.StationCodes, new { @class = "modal-station" })
+                <label>Select Station</label>
+            </div>
+
+            <div class="input-field col s12 m7">
+                <i class="material-icons prefix">class</i>
+                @Html.DropDownListFor(model => Model.Date.Month, months, new { @class = "modal-months" })
+                <label>Select Station</label>
+            </div>
+
+            <div class="input-field col s12 m5">
+                <i class="material-icons prefix">event_note</i>
+                <input class="modal-year validate" type="number" value="@DateTime.Now.Year" />
+                <label>Specify Year</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
+        <a class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
+    </div>
+</div>
