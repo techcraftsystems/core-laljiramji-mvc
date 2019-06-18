@@ -1,6 +1,65 @@
-﻿@{
+﻿@model Core.ViewModel.UsersViewModel;
+@{
     ViewData["Title"] = "Users";
 }
+
+<link rel="stylesheet" href="~/lib/data-tables/css/jquery.dataTables.min.css" />
+<style>
+    #queue-table_length {
+        display: none;
+    }
+
+    #queue-table_filter {
+        text-align: left;
+        margin-top: 10px;
+    }
+
+        #queue-table_filter i {
+            cursor: pointer;
+            margin: 13px 30px 0;
+            float: right;
+        }
+
+        #queue-table_filter label input {
+            padding: 0px;
+            height: 1.9rem;
+            margin: 0;
+        }
+
+    #queue-table,
+    #queue-table th,
+    #queue-table td {
+        border-radius: 0px;
+    }
+
+        #queue-table tbody tr {
+            cursor: pointer;
+        }
+
+    #queue-title {
+        display: inline-block;
+        margin-bottom: -60px;
+        float: left;
+        margin-top: 15px;
+    }
+
+    i.medium {
+        font-size: 2.5rem;
+        z-index: 1000;
+    }
+
+    #queue-table_filter label {
+        float: right;
+    }
+</style>
+
+<script>
+    var uuid = "";
+    var name = "";
+    var message = "";
+</script>
+<script src="~/lib/data-tables/js/jquery.dataTables.min.js"></script>
+<script src="~/js/accounts-users-script.js"></script>
 
 <div id="breadcrumbs-wrapper">
     <div class="container">
@@ -15,3 +74,74 @@
     </div>
 </div>
 <div style="clear:both; margin-top:55px;"></div>
+
+<div class="col s12">
+    <div id="queue-title">
+        <h4 class="zero-margin deep-orange-text">USER MANAGER</h4>
+    </div>
+    <table id="queue-table" class="responsive-table display stripped" cellspacing="0">
+        <thead class="deep-orange white-text">
+            <tr>
+                <th>#</th>
+                <th>NAME</th>
+                <th>USERNAME</th>
+                <th>EMAIL</th>
+                <th>ENABLED</th>
+                <th>TOCHANGE</th>
+                <th>ROLE</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </tfoot>
+        <tbody>
+            @foreach (var user in Model.Users) {
+                <tr>
+                    <td>@user.Id</td>
+                    <td><a class="blue-text" href="/accounts/users/@user.Uuid">@user.Name</a></td>
+                    <td>@user.Username</td>
+                    <td>@user.Email</td>
+                    <td>@user.Enabled</td>
+                    <td>@user.ToChange</td>
+                    <td>@user.Notes</td>
+                    <td>
+                        <i class="material-icons blue-text" data-idnt="@user.Uuid">border_color</i>
+                        <i class="material-icons black-text" data-idnt="@user.Uuid">lock_open</i>
+                        <i class="material-icons red-text">delete_forever</i>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+<!--Navigation Column-->
+<div id="reset-pw-modal" class="modal modal-fixed-footer" style="width: 500px">
+    <div class="modal-content">
+        <h4>Reset Password</h4>
+        <p>Confirm reset password for the Account</p>
+        <hr />
+        <div class="row">
+            <div class="input-field col s12">
+                <i class="material-icons prefix">account_circle</i>
+                <input id="user-name" value="" />
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat ">Cancel</a>
+        <a class="modal-action modal-post waves-effect waves-green btn-flat ">Confirm</a>
+    </div>
+</div>

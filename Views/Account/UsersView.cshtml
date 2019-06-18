@@ -1,6 +1,9 @@
-﻿@model Core.ViewModel.UsersViewModel;
+﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor;
+@model Core.ViewModel.UsersViewModel;
 @{
     ViewData["Title"] = Model.User.Name;
+    string login = HttpContextAccessor.HttpContext.User.FindFirst(System.Security.Claims.ClaimTypes.UserData).Value;
+    string usern = Model.User.Username;
 }
 
 <style>
@@ -14,8 +17,16 @@
         z-index: -1;
     }
 </style>
-<script>var message = "@(Model.Message)";</script>
+
+<script>
+    var message = "@(Model.Message)";
+    var uuid = "@(Model.User.Uuid)";
+    var name = "@(Model.User.Name)";
+    var login = "@(login)";
+    var usern = "@(usern)";
+</script>
 <script src="~/js/accounts-users-script.js"></script>
+<script src="~/lib/data-tables/js/jquery.dataTables.min.js"></script>
 
 <div id="breadcrumbs-wrapper">
     <div class="container">
@@ -37,7 +48,7 @@
     <div class="col s12 m4 l3" style="padding-right:5px;">
         <div id="profile-card" class="card">
             <div class="card-image waves-effect waves-block waves-light">
-                <img class="activator" src="~/images/gallary/11.png" alt="user bg">
+                <img class="activator" src="~/images/gallary/8.png" alt="user bg">
             </div>
 
             <div class="card-content">
@@ -69,7 +80,12 @@
             <li class="collection-item">
                 <div class="row" style="margin-bottom: 0px;">
                     <div class="col s12 blue-text">
-                        <i class="material-icons left">lock_open</i><a class="blue-text modal-trigger reset-password pointer" data-target="change-pw-modal">Change Password</a>
+                        @if(login.Equals(usern)){
+                            <i class="material-icons left">lock_open</i><a class="blue-text modal-trigger pointer" data-target="change-pw-modal">Change Password</a>
+                        }
+                        else {
+                            <i class="material-icons left">lock_open</i><a class="blue-text reset-password pointer">Reset Password</a>
+                        }
                     </div>
                 </div>
             </li>
@@ -102,8 +118,7 @@
 
 <!--Navigation Column-->
 <div id="change-pw-modal" class="modal modal-fixed-footer" style="width: 500px">
-    @using (Html.BeginForm("ChangePassword", "Account", FormMethod.Post))
-    {
+    @using (Html.BeginForm("ChangePassword", "Account", FormMethod.Post)) {
         <div class="modal-content">
             <h4>Change Password</h4>
             <p>Specify the below Parameters to change password</p>

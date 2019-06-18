@@ -13,6 +13,7 @@ namespace Core.Models
         public string Password { get; set; }
         public bool Enabled { get; set; }
         public bool ToChange { get; set; }
+        public bool CoreAccess { get; set; }
         public long AdminLevel { get; set; }
         public string AccessLevel { get; set; }
         public string Notes { get; set; }
@@ -43,12 +44,20 @@ namespace Core.Models
             return new UserService().GetRoles(this);
         }
 
-        public void LogAccess() {
-            new UserService().LogAccess(this);
+        public void UpdateLastAccess() {
+            new UserService().UpdateLastAccess(this);
         }
 
         public void UpdatePassword(string password) {
             new UserService().UpdatePassword(this, password);
+        }
+
+        public void ResetPassword() {
+            new UserService().ResetPassword(this);
+        }
+
+        public void EnableAccount(bool opts) {
+            new UserService().EnableAccount(this, opts);
         }
     }
 

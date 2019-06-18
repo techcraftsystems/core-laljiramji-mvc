@@ -154,7 +154,7 @@
                     <!-- Profile-Dropdown -->
                     <ul id="profile-dropdown" class="dropdown-content">
                         <li>
-                            <a href="/accounts/users/@(HttpContextAccessor.HttpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Sid).Value)" class="grey-text text-darken-1">
+                            <a href="/accounts/users/@(HttpContextAccessor.HttpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Sid).Value)" class="grey-text text-darken-1 pointer">
                                 <i class="material-icons">face</i> @HttpContextAccessor.HttpContext.User.Identity.Name
                             </a>
                         </li>

@@ -52,10 +52,6 @@ namespace Core.Controllers
                     return View(model);
                 }
 
-                if(user.ToChange){
-                    //Redirect Page to Change Password, Before Contininuing.
-                }
-
                 if (!Cryto.Decrypt(user.Password).Equals(Input.User.Password)){
                     ModelState.AddModelError(string.Empty, "Login Failed. Invalid password.");
                     model.Message = "Login Failed. Invalid password.";
@@ -69,7 +65,17 @@ namespace Core.Controllers
                     new Claim(ClaimTypes.Actor, user.Id.ToString())
                 };
 
-                foreach(var roles in user.GetRoles()) {
+                if (string.IsNullOrEmpty(model.Password)) {
+                    if (user.ToChange) {
+                        model.ToChange = 1;
+                        return View(model);
+                    }
+                }
+                else {
+                    user.UpdatePassword(Cryto.Encrypt(model.Password));
+                }
+
+                foreach (var roles in user.GetRoles()) {
                     claims.Add(new Claim(ClaimTypes.Role, roles.Role.Name));
                 }
 
@@ -90,7 +96,9 @@ namespace Core.Controllers
                 if (!string.IsNullOrEmpty(Input.ReturnUrl.Trim()))
                     return LocalRedirect(Input.ReturnUrl.Trim());
 
-                user.LogAccess();
+                user.UpdateLastAccess();
+                model.User.Password = null;
+
                 return LocalRedirect("/");
             }
 
@@ -125,7 +133,8 @@ namespace Core.Controllers
 
         [Route("/accounts/users")]
         [Authorize(Roles = "Administrator")]
-        public IActionResult Users(UsersViewModel model) {
+        public IActionResult Users(UsersViewModel model, UserService service) {
+            model.Users = service.GetUsers();
             return View(model);
         }
 
@@ -133,6 +142,8 @@ namespace Core.Controllers
         [Route("/accounts/users/{uuid}")]
         public IActionResult UsersView(string uuid, UsersViewModel model, string status = "") {
             model.User = new UserService().GetUserByUuid(uuid);
+            model.User.Password = null;
+
             if (status.Equals("403"))
                 model.Message = "Action Failed. Invalid Password";
             if (status.Equals("ok"))
@@ -155,5 +166,19 @@ namespace Core.Controllers
 
             return LocalRedirect("/accounts/users/" + user.Uuid + "?status=ok");
         }
+
+        [Authorize]
+        public string ResetPassword(string uuid) {
+            new UserService().GetUserByUuid(uuid).ResetPassword();
+            return "success";
+        }
+
+        [Authorize]
+        public string EnableAccount(string uuid, int opts) {
+            bool option = opts != 0;
+            new UserService().GetUserByUuid(uuid).EnableAccount(option);
+            return "success";
+        }
+
     }
 }
