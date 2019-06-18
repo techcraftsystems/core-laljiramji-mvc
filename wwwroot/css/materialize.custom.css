@@ -201,3 +201,23 @@ a.material-icons.tiny-red:hover {
 .width-150px {
     width: 150px !important;
 }
+
+/*Breadcrumbs*/
+/*Applicable for Stations*/
+#breadcrumbs-wrapper {
+    position: absolute;
+    top: 48px;
+    left: 0;
+    right: 0;
+}
+#breadcrumbs-wrapper .breadcrumbs {
+    padding: 0;
+    margin: 15px 0;
+    list-style: none;
+}
+#breadcrumbs-wrapper .breadcrumbs > li + li:before {
+    padding: 0;
+}
+#breadcrumbs-wrapper .breadcrumbs-btn {
+    top: 10px;
+}

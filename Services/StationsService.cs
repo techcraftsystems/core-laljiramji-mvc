@@ -615,7 +615,6 @@ namespace Core.Services
                         report.vpc_ltrs = 0;
                     if (Double.IsNaN(report.ikc_ltrs) || Double.IsInfinity(report.ikc_ltrs))
                         report.ikc_ltrs = 0;
-                    
 
                     report.ca_zeros = (report.dxc_ltrs * report.dx_zero) + (report.uxc_ltrs * report.ux_zero) + (report.vpc_ltrs * report.vp_zero) + (report.ikc_ltrs * report.ik_zero);
                     report.ca_vatab = (report.dxc_ltrs * (report.dx_price - report.dx_zero)) + (report.uxc_ltrs * (report.ux_price - report.ux_zero)) + (report.vpc_ltrs * (report.vp_price - report.vp_zero)) + (report.ikc_ltrs * (report.ik_price - report.ik_zero));

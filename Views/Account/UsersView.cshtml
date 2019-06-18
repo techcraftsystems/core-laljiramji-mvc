@@ -1,0 +1,145 @@
+﻿@model Core.ViewModel.UsersViewModel;
+@{
+    ViewData["Title"] = Model.User.Name;
+}
+
+<style>
+    #profile-card .card-content p {
+        font-size: 1rem;
+        margin: 0;
+    }
+
+    nav.navbar.nav-extended {
+        position: relative;
+        z-index: -1;
+    }
+</style>
+<script>var message = "@(Model.Message)";</script>
+<script src="~/js/accounts-users-script.js"></script>
+
+<div id="breadcrumbs-wrapper">
+    <div class="container">
+        <div class="row zero-margin">
+            <div class="col s10 m6 l6">
+                <ol class="breadcrumbs">
+                    <li><a href="/accounts">Accounts</a></li>
+                    <li><a href="/accounts/users">Users</a></li>
+                    <li class="active">@Model.User.Name</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="clear:both; margin-top:45px;"></div>
+
+<div class="row">
+    <!--Navigation Column-->
+    <div class="col s12 m4 l3" style="padding-right:5px;">
+        <div id="profile-card" class="card">
+            <div class="card-image waves-effect waves-block waves-light">
+                <img class="activator" src="~/images/gallary/11.png" alt="user bg">
+            </div>
+
+            <div class="card-content">
+                <img src="~/images/avatar/avatar-13.png" alt="" class="circle responsive-img activator card-profile-image grey lighten-3 padding-2">
+                <a href="~/accounts/users/edit/@Model.User.Uuid" class="btn-floating activator btn-move-up waves-effect waves-light red accent-2 z-depth-5 right">
+                    <i class="material-icons">edit</i>
+                </a>
+                <div class="card-title activator grey-text text-darken-4 truncate">@Model.User.Name</div>
+                <div class="activator"><a class="grey-text text-darken-1">IDX @Model.User.Uuid</a></div>
+                <hr style="margin: 10px 0;" />
+                <p class="truncate">
+                    <i class="material-icons left">assignment_ind</i>
+                    <span>@Model.User.Notes</span>
+                </p>
+
+                <p class="truncate">
+                    <i class="material-icons left">mail_outline</i>
+                    <span>@Model.User.Email</span>
+                </p>
+
+                <p>
+                    <i class="material-icons left">event</i>
+                    <span>@Model.User.LastSeen.ToString("dd/MM/yyyy HH:mm")</span>
+                </p>
+            </div>
+        </div>
+
+        <ul id="profile-page-about-details" class="collection z-depth-1" style="margin-top:-10px">
+            <li class="collection-item">
+                <div class="row" style="margin-bottom: 0px;">
+                    <div class="col s12 blue-text">
+                        <i class="material-icons left">lock_open</i><a class="blue-text modal-trigger reset-password pointer" data-target="change-pw-modal">Change Password</a>
+                    </div>
+                </div>
+            </li>
+            <li class="collection-item">
+                <div class="row" style="margin-bottom: 0px;">
+                    <div class="col s12 blue-text">
+                        <i class="material-icons left">block</i><a class="blue-text disable-account pointer">@(Model.User.Enabled ? "Disable Account" : "Enable Account")</a>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <!--Navigation Column-->
+    <div class="col s12 m8 l9">
+        <nav class="navbar nav-extended">
+            <div class="nav-content preview" style="border: 1px solid rgba(0,0,0,0.1); margin-top: -5px;">
+                <ul class="tabs">
+                    <li class="tab summ"><a href="#summary" class="active">DETAILS</a></li>
+                </ul>
+
+                <!-- SUMMARY TAB -->
+                <div id="summary" class="body">
+                    Loading...
+                </div>
+            </div>
+        </nav>
+    </div>
+</div>
+
+<!--Navigation Column-->
+<div id="change-pw-modal" class="modal modal-fixed-footer" style="width: 500px">
+    @using (Html.BeginForm("ChangePassword", "Account", FormMethod.Post))
+    {
+        <div class="modal-content">
+            <h4>Change Password</h4>
+            <p>Specify the below Parameters to change password</p>
+            <hr />
+            <div class="row">
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">account_circle</i>
+                    @Html.TextBoxFor(model => model.User.Name, new { @disabled = "true" })
+                    <label>Names</label>
+                </div>
+
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">lock</i>
+                    @Html.PasswordFor(model => model.User.Password)
+                    <label>Current Password</label>
+                </div>
+
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">lock_open</i>
+                    @Html.PasswordFor(model => model.Password)
+                    <label>New Password</label>
+                </div>
+
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">lock_open</i>
+                    @Html.PasswordFor(model => model.Confirm)
+                    <label>Confirm Password</label>
+                </div>
+            </div>
+        </div>
+
+        @Html.HiddenFor(model => model.User.Username)
+
+        <div class="modal-footer">
+            <a class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
+            <a class="modal-action modal-post waves-effect waves-green btn-flat ">Agree</a>
+        </div>
+    }
+</div>

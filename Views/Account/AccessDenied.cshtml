@@ -1,0 +1,29 @@
+﻿@model Core.ViewModel.LoginModel;
+
+@{
+    ViewData["Title"] = "Access Denied";
+}
+<style>
+    body {
+        background: #fff;
+    }
+</style>
+
+<div id="breadcrumbs-wrapper">
+    <div class="container">
+        <div class="row zero-margin">
+            <div class="col s10 m6 l6">
+                <ol class="breadcrumbs">
+                    <li><a href="/accounts">Accounts</a></li>
+                    <li><a href="/accounts/security">Security</a></li>
+                    <li class="active">Access Denied</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="clear:both; margin-top:55px;"></div>
+<div class="center">
+    <p class="left">Your access to <span class="blue-text pointer">https://www.lrstations.co.ke@(Model.ReturnUrl)</span> was denied. Please contact the administrator or <a href="/" class="blue-text">click here</a> to go back to Home</p>
+    <img src="~/images/403.gif" style="width:50%" />
+</div>

@@ -64,6 +64,10 @@
         font-weight: bold;
         font-size: 1.2em;
     }
+    li.collection-item.dismissable div {
+        padding-top: 8px;
+        min-height: 30px;
+    }
 </style>
 
 <!--dashboard Icons-->
@@ -469,9 +473,9 @@
         <h2>Overview</h2>
         <ul>
             <li><a class="blue-text" asp-area="" asp-controller="Purchases" asp-action="FuelPriceChange">Update Price/Zero</a>
-            <li><a asp-area="" asp-controller="Purchases" asp-action="FuelLedger">Purchases Ledger</a>
-            <li><a href="">Customers Ledger</a>
-            <li><a href="/core/stations/ledgers/duplicates">Duplicate Invoices</a>
+            <li><a class="blue-text" asp-area="" asp-controller="Purchases" asp-action="FuelLedger">Purchases Ledger</a>
+            <li><a class="blue-text" href="">Customers Ledger</a>
+            <li><a class="blue-text" href="/core/stations/ledgers/duplicates">Duplicate Invoices</a>
         </ul>
     </div>
 
@@ -491,14 +495,14 @@
                 <span class="task-cat deep-orange">Station Expenses</span>
             </li>
             <li class="collection-item dismissable">
-                <input type="checkbox" id="task1" />
-                <label for="task1">
-                    Fuel Deliveries (Overpump)
+                <div>
+                    <i class="material-icons left" style="margin-right:10px">playlist_add_check</i>
+                    <a class="black-text" href="/management/finance" style="font-size:1.1em">Financial Management</a>
                     <a href="#" class="secondary-content">
-                        <span class="ultra-small">Today</span>
+                        <span class="ultra-small">Core</span>
                     </a>
-                </label>
-                <span class="task-cat cyan">Shell Gitimbine</span>
+                </div>
+                <span class="task-cat cyan" style="margin:0">Administration</span>
             </li>
             <li class="collection-item dismissable">
                 <input type="checkbox" id="task2" />

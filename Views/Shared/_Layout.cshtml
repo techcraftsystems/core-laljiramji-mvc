@@ -68,8 +68,7 @@
                 </a>
             </div>
             <div class="navbar-collapse collapse">
-                @if (HttpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
-                {
+                @if (HttpContextAccessor.HttpContext.User.Identity.IsAuthenticated) {
                     <ul class="nav navbar-nav">
                         <li><a asp-area="" asp-controller="Stations" asp-action="Index">Stations</a></li>
                         <li><a asp-area="" asp-controller="Suppliers" asp-action="Index">Suppliers</a></li>
@@ -96,9 +95,9 @@
                             </a>
                         </li>
                         <li>
-                            <a href="javascript:void(0);" class="waves-effect waves-block waves-light profile-button" data-activates="profile-dropdown" style="margin-top:-5px">
+                            <a href="javascript:void(0);" class="waves-effect waves-block waves-light profile-button" data-activates="profile-dropdown">
                                 <span class="avatar-status avatar-online">
-                                    <img src="~/images/avatar/avatar-7.png" alt="avatar">
+                                    <img src="~/images/avatar/avatar-7.png" alt="avatar" style="margin-top: -10px;">
                                     <i></i>
                                 </span>
                             </a>
@@ -109,9 +108,75 @@
                             </a>
                         </li>
                     </ul>
+
+
+                    <!-- Notifications-dropdown -->
+                    <ul id="notifications-dropdown" class="dropdown-content">
+                        <li>
+                            <h6>
+                                NOTIFICATIONS
+                                <span class="new badge">5</span>
+                            </h6>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="#!" class="grey-text text-darken-2">
+                                <span class="material-icons icon-bg-circle cyan small">add_shopping_cart</span> Fuel order has been placed!
+                            </a>
+                            <time class="media-meta" datetime="2015-06-12T20:50:48+08:00">2 hours ago &mdash; Uhuru Highway</time>
+                        </li>
+                        <li>
+                            <a href="#!" class="grey-text text-darken-2">
+                                <span class="material-icons icon-bg-circle red small">stars</span> Fuel Delivered
+                            </a>
+                            <time class="media-meta" datetime="2015-06-12T20:50:48+08:00">3 days ago &mdash; Gitimbine</time>
+                        </li>
+                        <li>
+                            <a href="#!" class="grey-text text-darken-2">
+                                <span class="material-icons icon-bg-circle teal small">settings</span> New tank Configured
+                            </a>
+                            <time class="media-meta" datetime="2015-06-12T20:50:48+08:00">4 days ago &mdash; Nkubu</time>
+                        </li>
+                        <li>
+                            <a href="#!" class="grey-text text-darken-2">
+                                <span class="material-icons icon-bg-circle deep-orange small">today</span> Director meeting started
+                            </a>
+                            <time class="media-meta" datetime="2015-06-12T20:50:48+08:00">6 days ago</time>
+                        </li>
+                        <li>
+                            <a href="#!" class="grey-text text-darken-2">
+                                <span class="material-icons icon-bg-circle amber small">trending_up</span> Generate monthly report
+                            </a>
+                            <time class="media-meta" datetime="2015-06-12T20:50:48+08:00">1 week ago</time>
+                        </li>
+                    </ul>
+
+                    <!-- Profile-Dropdown -->
+                    <ul id="profile-dropdown" class="dropdown-content">
+                        <li>
+                            <a href="/accounts/users/@(HttpContextAccessor.HttpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Sid).Value)" class="grey-text text-darken-1">
+                                <i class="material-icons">face</i> @HttpContextAccessor.HttpContext.User.Identity.Name
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="grey-text text-darken-1">
+                                <i class="material-icons">settings</i> Settings
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="grey-text text-darken-1">
+                                <i class="material-icons">live_help</i> Get Help
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a asp-area="" asp-controller="Account" asp-action="Logout" class="grey-text text-darken-1">
+                                <i class="material-icons">keyboard_tab</i> Logout
+                            </a>
+                        </li>
+                    </ul>
                 }
-                else
-                {
+                else {
                     <ul class="right nav navbar-nav">
                         <li>
                             <a asp-area="" asp-controller="Account" asp-action="Login">
@@ -120,71 +185,6 @@
                         </li>
                     </ul>
                 }
-
-                <!-- Notifications-dropdown -->
-                <ul id="notifications-dropdown" class="dropdown-content">
-                    <li>
-                        <h6>NOTIFICATIONS
-                            <span class="new badge">5</span>
-                        </h6>
-                    </li>
-                    <li class="divider"></li>
-                    <li>
-                        <a href="#!" class="grey-text text-darken-2">
-                            <span class="material-icons icon-bg-circle cyan small">add_shopping_cart</span> Fuel order has been placed!
-                        </a>
-                        <time class="media-meta" datetime="2015-06-12T20:50:48+08:00">2 hours ago &mdash; Uhuru Highway</time>
-                    </li>
-                    <li>
-                        <a href="#!" class="grey-text text-darken-2">
-                            <span class="material-icons icon-bg-circle red small">stars</span> Fuel Delivered
-                        </a>
-                        <time class="media-meta" datetime="2015-06-12T20:50:48+08:00">3 days ago &mdash; Gitimbine</time>
-                    </li>
-                    <li>
-                        <a href="#!" class="grey-text text-darken-2">
-                            <span class="material-icons icon-bg-circle teal small">settings</span> New tank Configured
-                        </a>
-                        <time class="media-meta" datetime="2015-06-12T20:50:48+08:00">4 days ago &mdash; Nkubu</time>
-                    </li>
-                    <li>
-                        <a href="#!" class="grey-text text-darken-2">
-                            <span class="material-icons icon-bg-circle deep-orange small">today</span> Director meeting started
-                        </a>
-                        <time class="media-meta" datetime="2015-06-12T20:50:48+08:00">6 days ago</time>
-                    </li>
-                    <li>
-                        <a href="#!" class="grey-text text-darken-2">
-                            <span class="material-icons icon-bg-circle amber small">trending_up</span> Generate monthly report
-                        </a>
-                        <time class="media-meta" datetime="2015-06-12T20:50:48+08:00">1 week ago</time>
-                    </li>
-                </ul>
-
-                <!-- Profile-Dropdown -->
-                <ul id="profile-dropdown" class="dropdown-content">
-                    <li>
-                        <a href="#" class="grey-text text-darken-1">
-                            <i class="material-icons">face</i> My Profile
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="grey-text text-darken-1">
-                            <i class="material-icons">settings</i> Settings
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="grey-text text-darken-1">
-                            <i class="material-icons">live_help</i> Get Help
-                        </a>
-                    </li>
-                    <li class="divider"></li>
-                    <li>
-                        <a asp-area="" asp-controller="Account" asp-action="Logout" class="grey-text text-darken-1">
-                            <i class="material-icons">keyboard_tab</i> Logout
-                        </a>
-                    </li>
-                </ul>
             </div>
 
         </div>

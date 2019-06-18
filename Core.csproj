@@ -164,8 +164,10 @@
     <Folder Include="Views\Expense\" />
     <Folder Include="DataModel\" />
     <Folder Include="ReportModel\" />
+    <Folder Include="Views\Management\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Views\Reports\Test.cshtml" />
+    <Content Remove="Views\Account\UsersView.json" />
   </ItemGroup>
 </Project>

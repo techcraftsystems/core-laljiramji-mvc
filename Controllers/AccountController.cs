@@ -11,6 +11,9 @@ using Core.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using System.Net;
+using System.Linq;
 
 namespace Core.Controllers
 {
@@ -18,6 +21,9 @@ namespace Core.Controllers
     {
         [BindProperty]
         public LoginModel Input { get; set; }
+
+        [BindProperty]
+        public UsersViewModel UserView { get; set; }
 
         [TempData]
         public string ErrorMessage { get; set; }
@@ -31,12 +37,10 @@ namespace Core.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(LoginModel model, UserServices Svc, CrytoUtilsExtensions Cryto){
-            if (ModelState.IsValid)
-            {
+        public async Task<IActionResult> Login(LoginModel model, UserService Svc, CrytoUtilsExtensions Cryto){
+            if (ModelState.IsValid) {
                 Users user = Svc.GetUser(Input.User.Username); //AuthenticateUser(Input.Email, Input.Password);
-                if (user == null)
-                {
+                if (user == null) {
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                     model.Message = "Invalid login attempt.";
                     return View(model);
@@ -58,19 +62,21 @@ namespace Core.Controllers
                     return View(model);
                 }
 
-                var claims = new List<Claim>
-                {
+                var claims = new List<Claim> {
                     new Claim(ClaimTypes.Name, user.Name),
+                    new Claim(ClaimTypes.Sid, user.Uuid),
                     new Claim(ClaimTypes.UserData, user.Username),
-                    new Claim(ClaimTypes.Actor, user.Id.ToString()),
-                    new Claim(ClaimTypes.Role, "Administrator"),
+                    new Claim(ClaimTypes.Actor, user.Id.ToString())
                 };
+
+                foreach(var roles in user.GetRoles()) {
+                    claims.Add(new Claim(ClaimTypes.Role, roles.Role.Name));
+                }
 
                 var claimsIdentity = new ClaimsIdentity(
                     claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-                var authProperties = new AuthenticationProperties
-                {
+                var authProperties = new AuthenticationProperties {
                     AllowRefresh = true,
                     ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(60),
                     IsPersistent = true,
@@ -83,16 +89,71 @@ namespace Core.Controllers
 
                 if (!string.IsNullOrEmpty(Input.ReturnUrl.Trim()))
                     return LocalRedirect(Input.ReturnUrl.Trim());
+
+                user.LogAccess();
                 return LocalRedirect("/");
             }
 
             return View(model);
         }
 
-        public async Task<IActionResult> Logout()
-        {
+        public async Task<IActionResult> Logout() {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login", "Account");
+        }
+
+        [Authorize]
+        public IActionResult AccessDenied(LoginModel model, string ReturnUrl = "/") {
+            string comp = Dns.GetHostName().Split(".").ToList().First();
+            string ipaddr = Dns.GetHostAddresses(Dns.GetHostName())[0].ToString();
+
+            model.ReturnUrl = ReturnUrl;
+            return View(model);
+        }
+
+        [Route("/accounts")]
+        [Authorize(Roles = "Administrator")]
+        public IActionResult Index() {
+            return View();
+        }
+
+        [Route("/accounts/security")]
+        [Authorize(Roles = "Administrator")]
+        public IActionResult Security() {
+            return View();
+        }
+
+        [Route("/accounts/users")]
+        [Authorize(Roles = "Administrator")]
+        public IActionResult Users(UsersViewModel model) {
+            return View(model);
+        }
+
+        [Authorize]
+        [Route("/accounts/users/{uuid}")]
+        public IActionResult UsersView(string uuid, UsersViewModel model, string status = "") {
+            model.User = new UserService().GetUserByUuid(uuid);
+            if (status.Equals("403"))
+                model.Message = "Action Failed. Invalid Password";
+            if (status.Equals("ok"))
+                model.Message = "Password changed successfully";
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public IActionResult ChangePassword(UserService service, CrytoUtilsExtensions Cryto) {
+            Users user = service.GetUser(UserView.User.Username);
+            if (!Cryto.Decrypt(user.Password).Equals(UserView.User.Password)) 
+                return LocalRedirect("/accounts/users/" + user.Uuid + "?status=403");
+
+            user.UpdatePassword(Cryto.Encrypt(UserView.Password));
+
+            if (user.Id.Equals(int.Parse(HttpContext.User.FindFirst(ClaimTypes.Actor).Value)))
+                return LocalRedirect("/Account/Logout");
+
+            return LocalRedirect("/accounts/users/" + user.Uuid + "?status=ok");
         }
     }
 }
