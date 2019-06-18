@@ -14,7 +14,7 @@ jq(function() {
     });
 
     jq('#queue-table td').on('click', 'i.blue-text', function() {
-        window.location.href = "/accounts/users/edit/" + jq(this).data('idnt');
+        window.location.href = "/accounts/users/edit?u=" + jq(this).data('idnt');
     });
 
     jq('#queue-table td').on('click', 'i.black-text', function() {

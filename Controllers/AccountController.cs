@@ -152,6 +152,21 @@ namespace Core.Controllers
             return View(model);
         }
 
+        [Authorize]
+        [Route("/accounts/users/add")]
+        public IActionResult UsersAdd(UsersViewModel model) {
+            return View(model);
+        }
+
+        [Authorize]
+        [Route("/accounts/users/edit")]
+        public IActionResult UsersEdit(string u, UsersViewModel model) {
+            model.User = new UserService().GetUserByUuid(u);
+            model.User.Password = null;
+
+            return View(model);
+        }
+
         [HttpPost]
         [Authorize]
         public IActionResult ChangePassword(UserService service, CrytoUtilsExtensions Cryto) {
