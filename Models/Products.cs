@@ -6,18 +6,26 @@ namespace Core.Models
         public long Id { get; set; }
         public long Quantity { get; set; }
         public string Name { get; set; }
+        public string Measure { get; set; }
         public string Category { get; set; }
         public double Bp { get; set; }
         public double Sp { get; set; }
+        public double Tax { get; set; }
+        public double Ltrs { get; set; }
+        public Stations Station { get; set; }
 
         public Products() {
             Id = 0;
             Name = "";
+            Measure = "";
             Category = "";
 
             Quantity = 0;
             Bp = 0;
             Sp = 0;
+            Tax = 0;
+            Ltrs = 0;
+            Station = new Stations();
         }
     }
 

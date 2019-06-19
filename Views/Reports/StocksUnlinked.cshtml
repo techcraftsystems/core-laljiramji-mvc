@@ -1,0 +1,105 @@
+﻿@model Core.ViewModel.ReportProductsViewModel;
+@{
+    ViewData["Title"] = "Unlinked Lubes";
+    int count = 0;
+}
+
+<style>
+    .row .col-md-1.get-unlinked {
+        width: 5%;
+        padding-top: 10px;
+    }
+
+    .row .input-field.col-md-3 {
+        width: 30%;
+    }
+
+    .row .input-field.col-md-8 {
+        width: 65%;
+    }
+
+    input:not([type]), input[type=text]:not(.browser-default), input[type=password]:not(.browser-default), input[type=email]:not(.browser-default), input[type=url]:not(.browser-default), input[type=time]:not(.browser-default), input[type=date]:not(.browser-default), i[type=datetime]:not(.browser-default), input[type=datetime-local]:not(.browser-default), input[type=tel]:not(.browser-default), input[type=number]:not(.browser-default), input[type=search]:not(.browser-default), textarea.materialize-textarea {
+        margin-bottom: 5px;
+        margin-top: -10px;
+    }
+</style>
+<script src="~/js/reports-stock-ledger-script.js"></script>
+
+<div id="breadcrumbs-wrapper">
+    <div class="container">
+        <div class="row zero-margin">
+            <div class="col s10 m6 l6">
+                <ol class="breadcrumbs">
+                    <li><a href="/reports">Reports</a></li>
+                    <li><a href="/reports/stocks">Stocks</a></li>
+                    <li class="active">Unlinked Lubes</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="clear:both; margin-top:45px;"></div>
+
+<div class="row" style="margin-top: 10px; margin-bottom: 0px;">
+    <div class="input-field col-md-3">
+        <i class="material-icons prefix">local_gas_station</i>
+        @Html.DropDownListFor(model => model.Station, Model.Stations, "Select Station")
+    </div>
+
+    <div class="input-field col-md-8">
+        <i class="material-icons prefix">filter_list</i>
+        <input id="filter" type="text" placeholder="Filter Products" />
+    </div>
+
+    <div class="col-md-1 get-unlinked">
+        <a class="btn btn-floating pulse btn gradient-45deg-amber-amber right"><i class="material-icons" style="line-height: 42px">search</i></a>
+    </div>
+</div>
+
+<div class="card zero-margin">
+    <div class="card-content deep-orange accent-2 white-text table-card" style="border-radius: 0">
+        <h5 class="card-stats-number"><i class="material-icons left">add_shopping_cart</i>Unlinked Lubes</h5>
+        <p class="card-stats-compare right">
+            <i class="material-icons left">history</i>
+            <span class="deep-orange-text text-lighten-5 opening-balance">Products</span>
+        </p>
+    </div>
+
+    <table id="ledger-table" class="custom bordered" data-loaded="0" style="margin-top:-20px">
+        <thead class="deep-orange accent-2">
+            <tr>
+                <th>#</th>
+                <th>DESC</th>
+                <th>CATG</th>
+                <th>UOM</th>
+                <th>STATION</th>
+                <th class="right-text">PRICE</th>
+                <th class="center-text">AVAILABLE</th>
+                <th class="center-text">LTRS</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody style="font-size:1em">
+            @foreach (var prd in Model.Products) {
+                count++;
+                <tr>
+                    <td>@count</td>
+                    <td><a class="blue-text" href="/products/@(prd.Station.Code)/@(prd.Id)">@prd.Name</a></td>
+                    <td>@prd.Category</td>
+                    <td>@prd.Measure</td>
+                    <td><a class="blue-text" href="/core/stations/@(prd.Station.Code)">@prd.Station.Code.ToUpper()</a></td>
+                    <td class="right-text">@string.Format("{0:N}", prd.Sp)</td>
+                    <td class="center-text">@string.Format("{0:N0}", prd.Quantity)</td>
+                    <td class="center-text">@string.Format("{0:N0}", prd.Ltrs)</td>
+                    <td><a class="material-icons tiny-box grey-text right">link</a></td>
+                </tr>
+            }
+        </tbody>
+
+        <tfoot class="deep-orange accent-2 white-text">
+            <tr>
+                <th colspan="9">&nbsp;</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>

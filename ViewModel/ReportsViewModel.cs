@@ -29,8 +29,7 @@ namespace Core.ViewModel
         public Stations Station { get; set; }
         public List<StationsMonthlySummary> Report { get; set; }
 
-        public ReportsStationsSummaryViewModel()
-        {
+        public ReportsStationsSummaryViewModel() {
             Date = DateTime.Now;
             Station = new Stations();
             Report = new List<StationsMonthlySummary>();
@@ -42,8 +41,7 @@ namespace Core.ViewModel
         public Stations Station { get; set; }
         public List<EtrSheet> Report { get; set; }
 
-        public ReportsEtrSheetViewModel()
-        {
+        public ReportsEtrSheetViewModel() {
             Date = DateTime.Now;
             Station = new Stations();
             Report = new List<EtrSheet>();
@@ -61,6 +59,18 @@ namespace Core.ViewModel
             station = new Stations();
             year = DateTime.Now.Year;
             report = new List<ReportCustomerYearly>();
+        }
+    }
+
+    public class ReportProductsViewModel {
+        public IEnumerable<SelectListItem> Stations { get; set; }
+        public List<Products> Products { get; set; }
+        public string Station { get; set; }
+
+        public ReportProductsViewModel() {
+            Station = "";
+            Stations = new List<SelectListItem>();
+            Products = new List<Products>();
         }
     }
 

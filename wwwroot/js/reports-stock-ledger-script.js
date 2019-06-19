@@ -15,6 +15,10 @@ $(function() {
     jq('.get-ledger a').click(function() {
         GetStocksPurchasesLedgers();
     });
+
+    jq('.get-unlinked a').click(function() {
+        GetStocksUnlinked();
+    });
 });
 
 
@@ -77,6 +81,49 @@ function GetStocksPurchasesLedgers(){
             footr += "</tr>";
 
             jq('#ledger-table tfoot').append(footr);
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            console.log(xhr.status);
+            console.log(thrownError);
+        },
+        complete: function() {
+            $('body').addClass('loaded');
+        }
+    });
+}
+
+function GetStocksUnlinked(){
+    jq.ajax({
+        dataType: "json",
+        url: '/Reports/GetStocksUnlinked',
+        data: {
+            "filter":   jq('#filter').val() + ' ' + jq('#Station :selected').val()
+        },
+        beforeSend: function() {
+            jq('body').removeClass('loaded');
+        },
+        success: function(results) {
+            jq('#ledger-table tbody').empty();
+
+            jq.each(results, function(i, itm) {
+                var row = "<tr>";
+                row += "<td>" + i + "</td>";
+                row += "<td><a class='blue-text' href='/products/" + itm.station.code + "/" + itm.id + "'>" + itm.name + "</a></td>";
+                row += "<td>" + itm.category + "</td>";
+                row += "<td>" + itm.measure + "</td>";
+                row += "<td><a class='blue-text' href='/core/stations/" + itm.station.code + "'>" + itm.station.name + "</a></td>";
+                row += "<td class='right-text'>" + itm.sp.toString().toAccounting() + "</td>";
+                row += "<td class='center-text'>" + itm.quantity.toString().toAccounting() + "</td>";
+                row += "<td class='center-text'>" + itm.ltrs.toString().toAccounting() + "</td>";
+                row += "<td><a class='material-icons tiny-box grey-text right'>link</a></td>";
+                row += "</tr>";
+
+                jq('#ledger-table tbody').append(row);
+            })
+
+            if (results.length == 0) {
+                jq('#ledger-table tbody').append("<tr><td colspan=12>No Records Found</td></tr>");
+            }
         },
         error: function(xhr, ajaxOptions, thrownError) {
             console.log(xhr.status);

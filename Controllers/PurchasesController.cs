@@ -101,7 +101,7 @@ namespace Core.Controllers
         public JsonResult GetFuelPurchasesLedgersSummary(string start, string stop, string filter = "") {
             if (string.IsNullOrWhiteSpace(filter))
                 filter = "";
-            return Json(new PurchasesService().GetFuelPurchasesLedgersSummary(DateTime.Parse(start), DateTime.Parse(stop), filter)); ;
+            return Json(new PurchasesService().GetFuelPurchasesLedgersSummary(DateTime.Parse(start), DateTime.Parse(stop), filter));
         }
     }
 }

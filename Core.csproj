@@ -170,4 +170,7 @@
     <Content Remove="Views\Reports\Test.cshtml" />
     <Content Remove="Views\Account\UsersView.json" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Services\ProductsService.cs" />
+  </ItemGroup>
 </Project>

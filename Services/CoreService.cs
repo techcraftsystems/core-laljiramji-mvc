@@ -77,28 +77,26 @@ namespace Core.Services
 
             SqlServerConnection conn = new SqlServerConnection();
             SqlDataReader dr = conn.SqlServerConnect("SELECT Custid, Names, Contacts, Telephone, KRA_PIN, AccountBalance, CreditLimit, DateJoined, ISNULL(sr_last,'1990-01-01') sr_last_invs, st_idnt, st_code, CASE st_idnt WHEN 12 THEN 'Shell Uhuru Highway' ELSE st_name END FROM vCustomers INNER JOIN Stations ON Sts=st_idnt LEFT OUTER JOIN vLastInvoices ON Sts=sr_st AND Custid=sr_cust " + additionalquery + " ORDER BY st_name, Names");
-            if (dr.HasRows)
-            {
-                while (dr.Read())
-                {
-                    Customers customer = new Customers();
-                    customer.Id = Convert.ToInt64(dr[0]);
-                    customer.Name = dr[1].ToString();
-                    customer.Contacts = dr[2].ToString();
-                    customer.Telephone = dr[3].ToString();
-                    customer.KraPin = dr[4].ToString();
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    customers.Add(new Customers {
+                        Id = Convert.ToInt64(dr[0]),
+                        Name = dr[1].ToString(),
+                        Contacts = dr[2].ToString(),
+                        Telephone = dr[3].ToString(),
+                        KraPin = dr[4].ToString(),
 
-                    customer.Balance = Convert.ToDouble(dr[5]);
-                    customer.CreditLimit = Convert.ToDouble(dr[6]);
+                        Balance = Convert.ToDouble(dr[5]),
+                        CreditLimit = Convert.ToDouble(dr[6]),
 
-                    customer.DateJoined = Convert.ToDateTime(dr[7]);
-                    customer.LastInvoice = Convert.ToDateTime(dr[8]);
-
-                    customer.Station.Id = Convert.ToInt64(dr[9]);
-                    customer.Station.Code = dr[10].ToString();
-                    customer.Station.Name = dr[11].ToString();
-
-                    customers.Add(customer);
+                        DateJoined = Convert.ToDateTime(dr[7]),
+                        LastInvoice = Convert.ToDateTime(dr[8]),
+                        Station = new Stations {
+                            Id = Convert.ToInt64(dr[9]),
+                            Code = dr[10].ToString(),
+                            Name = dr[11].ToString()
+                        }
+                    });
                 }
             }
 
@@ -362,8 +360,7 @@ namespace Core.Services
             return expense;
         }
 
-        public StationsExpenses SaveStationsExpenses(StationsExpenses expense)
-        {
+        public StationsExpenses SaveStationsExpenses(StationsExpenses expense) {
             SqlServerConnection conn = new SqlServerConnection();
             expense.Id = conn.SqlServerUpdate("DECLARE @idnt INT=" + expense.Id + ", @date DATE='" + expense.Date + "', @catg INT=" + expense.Category.Id + ", @supp INT=" + expense.Supplier.Id + ", @stns INT=" + expense.Station.Id + ",  @invs NVARCHAR(MAX)='" + expense.Invoice + "', @amts FLOAT=" + expense.Amount + ", @vats FLOAT=" + expense.VatAmount + ", @zero FLOAT=" + expense.Zerorated + ", @user NVARCHAR(50)='" + Username + "', @desc NVARCHAR(MAX)='" + expense.Description + "'; IF NOT EXISTS (SELECT xp_idnt FROM Expenses WHERE xp_idnt=@idnt) BEGIN INSERT INTO Expenses (xp_date, xp_invoice, xp_category, xp_station, xp_supplier, xp_amount, xp_vat_amts, xp_zero_rated, xp_description, xp_user) output INSERTED.xp_idnt VALUES (@date, @invs, @catg, @stns, @supp, @amts, @vats, @zero, @desc, @user) END ELSE BEGIN UPDATE Expenses SET xp_date=@date, xp_invoice=@invs, xp_category=@catg, xp_station=@stns, xp_supplier=@supp, xp_amount=@amts, xp_vat_amts=@vats, xp_zero_rated=@zero, xp_description=@desc output INSERTED.xp_idnt WHERE xp_idnt=@idnt END");
 

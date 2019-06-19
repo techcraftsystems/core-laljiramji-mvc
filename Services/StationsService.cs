@@ -110,12 +110,12 @@ namespace Core.Services
             return stations;
         }
 
-        public List<SelectListItem> GetStationIdntsIEnumerable() {
-            return Core.GetIEnumerable("SELECT st_idnt, st_name FROM Stations ORDER BY st_void, st_name");
+        public List<SelectListItem> GetStationIdntsIEnumerable(string query = "") {
+            return Core.GetIEnumerable("SELECT st_idnt, st_name FROM Stations " + query + " ORDER BY st_void, st_name");
         }
 
-        public List<SelectListItem> GetStationCodesIEnumerable() {
-            return Core.GetIEnumerable("SELECT st_code, st_name FROM Stations ORDER BY st_void, st_name");
+        public List<SelectListItem> GetStationCodesIEnumerable(string query = "") {
+            return Core.GetIEnumerable("SELECT st_code, st_name FROM Stations " + query + " ORDER BY st_void, st_name");
         }
 
         public List<PumpReadings> GetMetreReadings(Stations st, DateTime date) {
@@ -864,6 +864,36 @@ namespace Core.Services
             }
 
             return variance;
+        }
+
+        public List<Products> GetProductsUnliked(string filter = "") {
+            List<Products> products = new List<Products>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            string query = conn.GetQueryString(filter, "Items+'-'+uMeasure+'-'+Category+'-'+CAST(uPrice AS NVARCHAR)+'-'+CAST(uAvailable AS NVARCHAR)+'-'+CAST(qLitres AS NVARCHAR)+'-'+st_code+'-'+st_name");
+
+            SqlDataReader dr = conn.SqlServerConnect("SELECT id_, Items, Category, uMeasure, tax, uPrice, uAvailable, qLitres, st_idnt, st_code, st_name FROM vLubesUnlinked INNER JOIN Stations ON st_idnt=st " + query + " ORDER BY st_order, Items");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    products.Add(new Products {
+                        Id = Convert.ToInt64(dr[0]),
+                        Name = dr[1].ToString(),
+                        Category = dr[2].ToString(),
+                        Measure = dr[3].ToString(),
+                        Tax = Convert.ToDouble(dr[4]),
+                        Sp = Convert.ToDouble(dr[5]),
+                        Quantity = Convert.ToInt64(dr[6]),
+                        Ltrs = Convert.ToDouble(dr[7]),
+                        Station = new Stations {
+                            Id = Convert.ToInt64(dr[8]),
+                            Code = dr[9].ToString(),
+                            Name = dr[10].ToString(),
+                        }
+                    });
+                }
+            }
+
+            return products;
         }
 
 

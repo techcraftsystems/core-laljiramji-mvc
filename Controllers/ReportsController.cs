@@ -104,6 +104,14 @@ namespace Core.Controllers
             return View(model);
         }
 
+        [Route("reports/stocks/unlinked")]
+        public IActionResult StocksUnlinked(ReportProductsViewModel model, StationsService service) {
+            model.Stations = service.GetStationCodesIEnumerable("WHERE st_idnt IN (2,3,6,9)");
+            model.Products = service.GetProductsUnliked();
+
+            return View(model);
+        }
+
         [Route("reports/stocks/quantity/{code}/{catg}/{month}/{year}")]
         public IActionResult StocksQuantity(string code, string catg, int month, int year, ReportProductSales model, StationsService service) {
             model.Date = new DateTime(year, month, 1);
@@ -168,6 +176,12 @@ namespace Core.Controllers
             model.StationCodes = service.GetStationCodesIEnumerable();
 
             return View(model);
+        }
+
+        public JsonResult GetStocksUnlinked(string filter = "") {
+            if (string.IsNullOrWhiteSpace(filter))
+                filter = "";
+            return Json(new StationsService().GetProductsUnliked(filter));
         }
     }
 }
