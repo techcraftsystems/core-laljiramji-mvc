@@ -75,6 +75,8 @@ namespace Core.Controllers
                     user.UpdatePassword(Cryto.Encrypt(model.Password));
                 }
 
+                user.UpdateLastAccess();
+
                 foreach (var roles in user.GetRoles()) {
                     claims.Add(new Claim(ClaimTypes.Role, roles.Role.Name));
                 }
@@ -96,7 +98,6 @@ namespace Core.Controllers
                 if (!string.IsNullOrEmpty(Input.ReturnUrl.Trim()))
                     return LocalRedirect(Input.ReturnUrl.Trim());
 
-                user.UpdateLastAccess();
                 model.User.Password = null;
 
                 return LocalRedirect("/");
