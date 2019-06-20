@@ -66,4 +66,22 @@ namespace Core.Models
             Product = new Products();
         }
     }
+
+    public class ProductsLinked {
+        public long Id { get; set; }
+        public Products Product { get; set; }
+        public Products Gitimbine { get; set; }
+        public Products Kaaga { get; set; }
+        public Products Nkubu { get; set; }
+        public Products Kirunga { get; set; }
+
+        public ProductsLinked() {
+            Id = 0;
+            Product = new Products();
+            Gitimbine = new Products();
+            Kaaga = new Products();
+            Nkubu = new Products();
+            Kirunga = new Products();
+        }
+    }
 }

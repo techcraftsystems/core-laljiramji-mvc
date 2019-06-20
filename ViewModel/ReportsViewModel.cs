@@ -74,6 +74,15 @@ namespace Core.ViewModel
         }
     }
 
+    public class ReportProductsLinkedViewModel {
+        public List<ProductsLinked> Products { get; set; }
+
+        public ReportProductsLinkedViewModel() {
+            Products = new List<ProductsLinked>();
+        }
+    }
+
+
     public class ReportProductSales {
         public List<ProductsSales> Sales { get; set; }
         public DateTime Date { get; set; }

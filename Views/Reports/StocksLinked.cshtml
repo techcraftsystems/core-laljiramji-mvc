@@ -1,23 +1,18 @@
-﻿@model Core.ViewModel.ReportProductsViewModel;
+﻿@model Core.ViewModel.ReportProductsLinkedViewModel;
 @{
-    ViewData["Title"] = "Unlinked Lubes";
+    ViewData["Title"] = "Linked Lubes";
     int count = 0;
 }
 
+
 <style>
-    .row .col-md-1.get-unlinked {
+    .row .col-md-1.get-linked {
         width: 5%;
         padding-top: 10px;
     }
-
-    .row .input-field.col-md-3 {
-        width: 30%;
+    .row .input-field.col-md-10 {
+        width: 95%;
     }
-
-    .row .input-field.col-md-8 {
-        width: 65%;
-    }
-
     input:not([type]), input[type=text]:not(.browser-default), input[type=password]:not(.browser-default), input[type=email]:not(.browser-default), input[type=url]:not(.browser-default), input[type=time]:not(.browser-default), input[type=date]:not(.browser-default), i[type=datetime]:not(.browser-default), input[type=datetime-local]:not(.browser-default), input[type=tel]:not(.browser-default), input[type=number]:not(.browser-default), input[type=search]:not(.browser-default), textarea.materialize-textarea {
         margin-bottom: 5px;
         margin-top: -10px;
@@ -32,13 +27,13 @@
                 <ol class="breadcrumbs">
                     <li><a href="/reports">Reports</a></li>
                     <li><a href="/reports/stocks">Stocks</a></li>
-                    <li class="active">Unlinked Lubes</li>
+                    <li class="active">Linked Lubes</li>
                 </ol>
             </div>
             <div class="col s2 m6 l6">
-                <a class="btn dropdown-settings waves-effect waves-light breadcrumbs-btn right gradient-45deg-light-blue-cyan gradient-shadow pointer" href="/reports/stocks/linked/">
+                <a class="btn dropdown-settings waves-effect waves-light breadcrumbs-btn right gradient-45deg-light-blue-cyan gradient-shadow pointer" href="/reports/stocks/unlinked/">
                     <i class="material-icons hide-on-med-and-up">settings</i>
-                    <span class="hide-on-small-onl">LINKED</span>
+                    <span class="hide-on-small-onl">UNLINKED</span>
                     <i class="material-icons right">arrow_drop_down</i>
                 </a>
             </div>
@@ -48,17 +43,12 @@
 <div style="clear:both; margin-top:45px;"></div>
 
 <div class="row" style="margin-top: 10px; margin-bottom: 0px;">
-    <div class="input-field col-md-3">
-        <i class="material-icons prefix">local_gas_station</i>
-        @Html.DropDownListFor(model => model.Station, Model.Stations, "Select Station")
-    </div>
-
-    <div class="input-field col-md-8">
+    <div class="input-field col-md-10">
         <i class="material-icons prefix">filter_list</i>
         <input id="filter" type="text" placeholder="Filter Products" />
     </div>
 
-    <div class="col-md-1 get-unlinked">
+    <div class="col-md-1 get-linked">
         <a class="btn btn-floating pulse btn gradient-45deg-amber-amber right"><i class="material-icons" style="line-height: 42px">search</i></a>
     </div>
 </div>
@@ -77,35 +67,32 @@
             <tr>
                 <th>#</th>
                 <th>DESC</th>
-                <th>CATG</th>
-                <th>UOM</th>
-                <th>STATION</th>
-                <th class="right-text">PRICE</th>
-                <th class="center-text">AVAILABLE</th>
-                <th class="center-text">LTRS</th>
+                <th>GITIMBINE</th>
+                <th>KAAGA</th>
+                <th>NKUBU</th>
+                <th>KIRUNGA</th>
                 <th>&nbsp;</th>
             </tr>
         </thead>
-        <tbody style="font-size:1em">
-            @foreach (var prd in Model.Products) {
+        <tbody style="font-size:0.8em">
+            @foreach (var prd in Model.Products)
+            {
                 count++;
                 <tr>
                     <td>@count</td>
-                    <td><a class="blue-text" href="/products/@(prd.Station.Code)/@(prd.Id)">@prd.Name</a></td>
-                    <td>@prd.Category</td>
-                    <td>@prd.Measure</td>
-                    <td><a class="blue-text" href="/core/stations/@(prd.Station.Code)">@prd.Station.Code.ToUpper()</a></td>
-                    <td class="right-text">@string.Format("{0:N}", prd.Sp)</td>
-                    <td class="center-text">@string.Format("{0:N0}", prd.Quantity)</td>
-                    <td class="center-text">@string.Format("{0:N0}", prd.Ltrs)</td>
-                    <td><a class="material-icons tiny-box grey-text right">link</a></td>
+                    <td><a class="blue-text" href="/products/kinoru/@(prd.Product.Id)">@prd.Product.Name</a></td>
+                    <td>@prd.Gitimbine.Name</td>
+                    <td>@prd.Kaaga.Name</td>
+                    <td>@prd.Nkubu.Name</td>
+                    <td>@prd.Kirunga.Name</td>
+                    <td><a class="material-icons tiny-box grey-text right">border_color</a></td>
                 </tr>
             }
         </tbody>
 
         <tfoot class="deep-orange accent-2 white-text">
             <tr>
-                <th colspan="9">&nbsp;</th>
+                <th colspan="8">&nbsp;</th>
             </tr>
         </tfoot>
     </table>

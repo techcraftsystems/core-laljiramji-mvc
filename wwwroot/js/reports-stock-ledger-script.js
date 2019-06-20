@@ -16,6 +16,10 @@ $(function() {
         GetStocksPurchasesLedgers();
     });
 
+    jq('.get-linked a').click(function() {
+        GetStocksLinked();
+    });
+
     jq('.get-unlinked a').click(function() {
         GetStocksUnlinked();
     });
@@ -92,6 +96,47 @@ function GetStocksPurchasesLedgers(){
     });
 }
 
+function GetStocksLinked(){
+    jq.ajax({
+        dataType: "json",
+        url: '/Reports/GetStocksLinked',
+        data: {
+            "filter":   jq('#filter').val()
+        },
+        beforeSend: function() {
+            jq('body').removeClass('loaded');
+        },
+        success: function(results) {
+            jq('#ledger-table tbody').empty();
+
+            jq.each(results, function(i, itm) {
+                var row = "<tr>";
+                row += "<td>" + (i+1) + "</td>";
+                row += "<td><a class='blue-text' href='/products/kinoru/" + itm.product.id + "'>" + itm.product.name + "</a></td>";
+                row += "<td>" + itm.gitimbine.name + "</td>";
+                row += "<td>" + itm.kaaga.name + "</td>";
+                row += "<td>" + itm.nkubu.name + "</td>";
+                row += "<td>" + itm.kirunga.name + "</td>";
+                row += "<td><a class='material-icons tiny-box grey-text right'>border_color</a></td>";
+                row += "</tr>";
+
+                jq('#ledger-table tbody').append(row);
+            })
+
+            if (results.length == 0) {
+                jq('#ledger-table tbody').append("<tr><td colspan=8>No Records Found</td></tr>");
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            console.log(xhr.status);
+            console.log(thrownError);
+        },
+        complete: function() {
+            $('body').addClass('loaded');
+        }
+    });
+}
+
 function GetStocksUnlinked(){
     jq.ajax({
         dataType: "json",
@@ -107,11 +152,11 @@ function GetStocksUnlinked(){
 
             jq.each(results, function(i, itm) {
                 var row = "<tr>";
-                row += "<td>" + i + "</td>";
+                row += "<td>" + (i+1) + "</td>";
                 row += "<td><a class='blue-text' href='/products/" + itm.station.code + "/" + itm.id + "'>" + itm.name + "</a></td>";
                 row += "<td>" + itm.category + "</td>";
                 row += "<td>" + itm.measure + "</td>";
-                row += "<td><a class='blue-text' href='/core/stations/" + itm.station.code + "'>" + itm.station.name + "</a></td>";
+                row += "<td><a class='blue-text' href='/core/stations/" + itm.station.code + "'>" + itm.station.code.toUpperCase() + "</a></td>";
                 row += "<td class='right-text'>" + itm.sp.toString().toAccounting() + "</td>";
                 row += "<td class='center-text'>" + itm.quantity.toString().toAccounting() + "</td>";
                 row += "<td class='center-text'>" + itm.ltrs.toString().toAccounting() + "</td>";
@@ -122,7 +167,7 @@ function GetStocksUnlinked(){
             })
 
             if (results.length == 0) {
-                jq('#ledger-table tbody').append("<tr><td colspan=12>No Records Found</td></tr>");
+                jq('#ledger-table tbody').append("<tr><td colspan=9>No Records Found</td></tr>");
             }
         },
         error: function(xhr, ajaxOptions, thrownError) {

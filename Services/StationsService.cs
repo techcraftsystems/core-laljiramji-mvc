@@ -866,7 +866,7 @@ namespace Core.Services
             return variance;
         }
 
-        public List<Products> GetProductsUnliked(string filter = "") {
+        public List<Products> GetProductsUnlinked(string filter = "") {
             List<Products> products = new List<Products>();
 
             SqlServerConnection conn = new SqlServerConnection();
@@ -896,6 +896,39 @@ namespace Core.Services
             return products;
         }
 
+        public List<ProductsLinked> GetProductsLinked(string filter = "") {
+            List<ProductsLinked> products = new List<ProductsLinked>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            string query = conn.GetQueryString(filter, "mk.Items+'-'+ISNULL(gt.Items,'-')+'-'+ISNULL(kg.Items,'-')+'-'+ISNULL(nk.Items,'-')+''+ISNULL(ki.Items,'-')", "mk.Category LIKE 'LUBES'");
+
+            SqlDataReader dr = conn.SqlServerConnect("SELECT ISNULL(prd_idnt,0)LinkId, mk.id_, mk.Items, ISNULL(gt.Items,'-') gitimbine, ISNULL(kg.Items,'-') kaaga, ISNULL(nk.Items,'-') nkubu, ISNULL(ki.Items,'-') kirunga FROM shell_kinoru.dbo.pProducts mk LEFT OUTER JOIN core_system.dbo.ProductsLink ON mk.id_=prd_idnt LEFT OUTER JOIN shell_gitimbine.dbo.pProducts gt ON gt.id_=prd_gitimbine AND gt.id_<>0 LEFT OUTER JOIN shell_kaaga.dbo.pProducts kg ON kg.id_=prd_kaaga AND kg.id_<>0 LEFT OUTER JOIN shell_nkubu.dbo.pProducts nk ON nk.id_=prd_nkubu AND nk.id_<>0 LEFT OUTER JOIN shell_kirunga.dbo.pProducts ki ON ki.id_=prd_kirunga AND ki.id_<>0 " + query + " ORDER BY mk.Items");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    products.Add(new ProductsLinked {
+                        Id = Convert.ToInt64(dr[0]),
+                        Product = new Products {
+                            Id = Convert.ToInt64(dr[1]),
+                            Name = dr[2].ToString(),
+                        },
+                        Gitimbine = new Products {
+                            Name = dr[3].ToString(),
+                        },
+                        Kaaga = new Products {
+                            Name = dr[4].ToString(),
+                        },
+                        Nkubu = new Products {
+                            Name = dr[5].ToString()
+                        },
+                        Kirunga = new Products {
+                            Name = dr[6].ToString()
+                        }
+                    });
+                }
+            }
+
+            return products;
+        }
 
 
         public List<MonthsModel> InitializeMonthsModel() {

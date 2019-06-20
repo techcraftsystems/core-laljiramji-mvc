@@ -107,7 +107,14 @@ namespace Core.Controllers
         [Route("reports/stocks/unlinked")]
         public IActionResult StocksUnlinked(ReportProductsViewModel model, StationsService service) {
             model.Stations = service.GetStationCodesIEnumerable("WHERE st_idnt IN (2,3,6,9)");
-            model.Products = service.GetProductsUnliked();
+            model.Products = service.GetProductsUnlinked();
+
+            return View(model);
+        }
+
+        [Route("reports/stocks/linked")]
+        public IActionResult StocksLinked(ReportProductsLinkedViewModel model, StationsService service) {
+            model.Products = service.GetProductsLinked();
 
             return View(model);
         }
@@ -181,7 +188,13 @@ namespace Core.Controllers
         public JsonResult GetStocksUnlinked(string filter = "") {
             if (string.IsNullOrWhiteSpace(filter))
                 filter = "";
-            return Json(new StationsService().GetProductsUnliked(filter));
+            return Json(new StationsService().GetProductsUnlinked(filter));
+        }
+
+        public JsonResult GetStocksLinked(string filter = "") {
+            if (string.IsNullOrWhiteSpace(filter))
+                filter = "";
+            return Json(new StationsService().GetProductsLinked(filter));
         }
     }
 }
