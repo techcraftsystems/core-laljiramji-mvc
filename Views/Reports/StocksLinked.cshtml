@@ -78,7 +78,7 @@
             @foreach (var prd in Model.Products)
             {
                 count++;
-                <tr>
+                <tr data-idnt="@(prd.Id)">
                     <td>@count</td>
                     <td><a class="blue-text" href="/products/kinoru/@(prd.Product.Id)">@prd.Product.Name</a></td>
                     <td>@prd.Gitimbine.Name</td>

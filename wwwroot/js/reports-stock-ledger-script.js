@@ -151,7 +151,7 @@ function GetStocksUnlinked(){
             jq('#ledger-table tbody').empty();
 
             jq.each(results, function(i, itm) {
-                var row = "<tr>";
+                var row = "<tr data-idnt='" + itm.id + "'>";
                 row += "<td>" + (i+1) + "</td>";
                 row += "<td><a class='blue-text' href='/products/" + itm.station.code + "/" + itm.id + "'>" + itm.name + "</a></td>";
                 row += "<td>" + itm.category + "</td>";

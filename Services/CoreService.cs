@@ -344,6 +344,44 @@ namespace Core.Services
             return change;
         }
 
+        public List<Ledger> GetManagementIncomePerStation(DateTime start, DateTime stop) {
+            List<Ledger> ledger = new List<Ledger>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("DECLARE @start DATE='" + start.Date + "', @stop DATE='" + stop.Date + "'; SELECT ts_type, tt_name, CASE WHEN ts_item IN (5,6) THEN '' ELSE tt_prefix END tt_prefix, ts_item, ti_name, SUM(CASE WHEN ts_station=1 THEN ts_amount ELSE 0 END) bypass, SUM(CASE WHEN ts_station=2 THEN ts_amount ELSE 0 END) git, SUM(CASE WHEN ts_station=3 THEN ts_amount ELSE 0 END) kaaga, SUM(CASE WHEN ts_station=4 THEN ts_amount ELSE 0 END) kenol, SUM(CASE WHEN ts_station=5 THEN ts_amount ELSE 0 END) kinoru, SUM(CASE WHEN ts_station=6 THEN ts_amount ELSE 0 END) kirunga, SUM(CASE WHEN ts_station=7 THEN ts_amount ELSE 0 END) kobil, SUM(CASE WHEN ts_station=8 THEN ts_amount ELSE 0 END) maua, SUM(CASE WHEN ts_station=9 THEN ts_amount ELSE 0 END) nkubu, SUM(CASE WHEN ts_station=10 THEN ts_amount ELSE 0 END) ojijo, SUM(CASE WHEN ts_station=11 THEN ts_amount ELSE 0 END) oryx, SUM(CASE WHEN ts_station=12 THEN ts_amount ELSE 0 END) uhuru, SUM(CASE WHEN ts_station=13 THEN ts_amount ELSE 0 END) viewpt, SUM(ts_amount) total FROM vManagementStationsIncome INNER JOIN TransactionsType ON ts_type=tt_idnt INNER JOIN TransactionsItems ON ts_item=ti_idnt WHERE ts_date BETWEEN @start AND @stop GROUP BY ts_type, tt_name, ts_item, ti_name, ti_order, tt_prefix ORDER BY ts_type, ti_order");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    ledger.Add(new Ledger {
+                        Type = new LedgerType {
+                            Id = Convert.ToInt64(dr[0]),
+                            Name = dr[1].ToString(),
+                            Prefix = dr[2].ToString()
+                        },
+                        Item = new LedgerItem {
+                            Id = Convert.ToInt64(dr[3]),
+                            Name = dr[4].ToString()
+                        },
+                        Bypass = Convert.ToDouble(dr[5]),
+                        Gitimbine = Convert.ToDouble(dr[6]),
+                        Kaaga = Convert.ToDouble(dr[7]),
+                        Kenol = Convert.ToDouble(dr[8]),
+                        Kinoru = Convert.ToDouble(dr[9]),
+                        Kirunga = Convert.ToDouble(dr[10]),
+                        Kobil = Convert.ToDouble(dr[11]),
+                        Maua = Convert.ToDouble(dr[12]),
+                        Nkubu = Convert.ToDouble(dr[13]),
+                        Ojijo = Convert.ToDouble(dr[14]),
+                        Oryx = Convert.ToDouble(dr[15]),
+                        Uhuru = Convert.ToDouble(dr[16]),
+                        Viewpt = Convert.ToDouble(dr[17]),
+                        Total = Convert.ToDouble(dr[18]),
+                    });
+                }
+            }
+
+            return ledger;
+        }
+
 
         //::Data Writters
         public FuelPriceChange SavePriceChange(FuelPriceChange change) {

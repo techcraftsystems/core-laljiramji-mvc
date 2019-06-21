@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Core.ViewModel;
+using System;
+using Core.Services;
 
 namespace Core.Controllers
 {
@@ -15,9 +14,17 @@ namespace Core.Controllers
             return View();
         }
 
-        [Route("management/finance")]
+        [Route("management/financials")]
         public IActionResult Finance() {
             return View();
         }
+
+        [Route("management/financials/station-wise/{month}/{year}")]
+        public IActionResult FinanceStationWise(int month, int year, FinanceStationwiseViewModel model, CoreService service) {
+            model.Date = new DateTime(year, month, 1);
+            model.Income = service.GetManagementIncomePerStation(model.Date, model.Date.AddMonths(1).AddDays(-1));
+            return View(model);
+        }
     }
 }
+

@@ -1,6 +1,25 @@
 ﻿@{
     ViewData["Title"] = "Financials";
+
+    var StartDate = new DateTime(DateTime.Now.Year, 1, 1);
+    int month = DateTime.Now.Month - 1;
+    var months = new List<SelectListItem>();
+    for (int ix = 0; ix < 12; ix++)
+    {
+        months.Add(new SelectListItem
+        {
+            Value = ix.ToString(),
+            Text = StartDate.AddMonths(ix).ToString("MMMM")
+        });
+    }
 }
+
+<style>
+    div.col-icons ul li {
+        text-align: center;
+    }
+</style>
+<script src="~/js/management-finance-script.js"></script>
 
 <div id="breadcrumbs-wrapper">
     <div class="container">
@@ -15,3 +34,98 @@
     </div>
 </div>
 <div style="clear:both; margin-top:45px;"></div>
+
+<div class="modules row">
+    <div class="card card-border z-depth-2 col m6 l3 zero-padding" style="width:24.25%">
+        <div class="card-image">
+            <a class="pointer"><img src="/images/modules/account.png" alt=""></a>
+        </div>
+        <div class="card-content center-align">
+            <a class="blue-text pointer">Management Accounts</a>
+        </div>
+    </div>
+
+    <div class="card card-border z-depth-2 col m6 l3 zero-padding" style="margin-left:1%; width:24.25%">
+        <div class="card-image">
+            <a class="pointer"><img src="/images/modules/p&l.png" alt=""></a>
+        </div>
+        <div class="card-content center-align">
+            <a class="blue-text pointer">Profit and Loss</a>
+        </div>
+    </div>
+
+    <div class="card card-border z-depth-2 col m6 l3 zero-padding" style="margin-left:1%;width:24.25%">
+        <div class="card-image">
+            <a class="pointer"><img src="/images/modules/mgmt.png" alt=""></a>
+        </div>
+        <div class="card-content center-align">
+            <a class="blue-text pointer">Balance Sheet</a>
+        </div>
+    </div>
+
+    <div class="card card-border z-depth-2 col m6 l3 zero-padding" style="margin-left:1%;width:24.25%">
+        <div class="card-image">
+            <a class="pointer"><img src="/images/modules/bs.png" alt=""></a>
+        </div>
+        <div class="card-content center-align">
+            <a class="blue-text pointer">Trial Balance</a>
+        </div>
+    </div>
+</div>
+
+<div class="row col-icons">
+    <!--Column 1-->
+    <div class="col s12 m6 l3">
+        <div class="col-md-6 col-1">
+            <ul class="report-icons">
+                <li class="light-blue-text">
+                    <div class="waves-effect waves-light modal-trigger multiple-trigger" data-target="modal11" data-trigger="/management/financials/station-wise/">
+                        <i class="material-icons medium icon-demo">shopping_cart</i>
+                        <p>Product Sales</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!--Column 2-->
+        <div class="col-md-6">
+            <ul class="report-icons">
+                <li class="light-blue-text">
+                    <div class="waves-effect waves-light modal-trigger" data-target="modal11">
+                        <i class="material-icons medium icon-demo">streetview</i>
+                        <p>Yearly Balances</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+
+
+<!--Modals-->
+<div id="modal11" class="modal modal-fixed-footer" style="width: 500px">
+    <div class="modal-content">
+        <h4>Finance Report</h4>
+        <p>Specify the below Parameters to generate the Report</p>
+        <hr />
+        <div class="row">
+            <div class="input-field col s12 m7">
+                <i class="material-icons prefix">class</i>
+                @Html.DropDownListFor(model => month, months, new { @class = "modal-mnth" })
+                <label>Select Period</label>
+            </div>
+
+            <div class="input-field col s12 m5">
+                <i class="material-icons prefix">event_note</i>
+                <input class="modal-year validate" type="number" value="@StartDate.Year" />
+                <label>Specify Year</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <a href="#!" class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
+        <a href="#!" class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
+    </div>
+</div>

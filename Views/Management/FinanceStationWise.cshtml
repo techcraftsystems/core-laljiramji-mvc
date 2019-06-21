@@ -1,0 +1,117 @@
+﻿@model Core.ViewModel.FinanceStationwiseViewModel;
+@{
+    ViewData["Title"] = "Financials Stationwise";
+    string type = "";
+
+    var income = new Ledger();
+}
+
+<style>
+    #ledger-table td{
+        padding: 5px;
+    }
+    #ledger-table td.border-top{
+        border-top: 1px solid;
+    }
+</style>
+<div id="breadcrumbs-wrapper">
+    <div class="container">
+        <div class="row zero-margin">
+            <div class="col s10 m6 l6">
+                <ol class="breadcrumbs">
+                    <li><a href="/management">Management</a></li>
+                    <li><a href="/management/financials">Finance</a></li>
+                    <li><a href="">Stationwise</a></li>
+                    <li class="active">@Model.Date.ToString("MMMM yyyy")</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="clear:both; margin-top:45px;"></div>
+
+<table id="ledger-table" class="highlight">
+    <thead>
+        <tr>
+            <th>&nbsp;</th>
+            <th class="right-text">BYPASS</th>
+            <th class="right-text">GITIMBINE</th>
+            <th class="right-text">KAAGA</th>
+            <th class="right-text">KENOL</th>
+            <th class="right-text">KINORU</th>
+            <th class="right-text">KIRUNGA</th>
+            <th class="right-text">KOBIL</th>
+            <th class="right-text">MAUA</th>
+            <th class="right-text">NKUBU</th>
+            <th class="right-text">OJIJO</th>
+            <th class="right-text">ORYX</th>
+            <th class="right-text">UHURU</th>
+            <th class="right-text">VIEWPT</th>
+            <th class="right-text">TOTAL</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var ldg in Model.Income) {
+            if (string.IsNullOrEmpty(type)) {
+                type = ldg.Type.Name;
+
+                <tr style="font-size:0.7em">
+              Income<td class="bold-text" colspan="15">@type</td>
+                </tr>
+            }
+
+            income.Bypass += ldg.Bypass;
+            income.Gitimbine += ldg.Gitimbine;
+            income.Kaaga += ldg.Kaaga;
+            income.Kenol += ldg.Kenol;
+            income.Kinoru += ldg.Kinoru;
+            income.Kirunga += ldg.Kirunga;
+            income.Kobil += ldg.Kobil;
+            income.Maua += ldg.Maua;
+            income.Nkubu += ldg.Nkubu;
+            income.Ojijo += ldg.Ojijo;
+            income.Oryx += ldg.Oryx;
+            income.Uhuru += ldg.Uhuru;
+            income.Viewpt += ldg.Viewpt;
+            income.Total += ldg.Total;
+
+            <tr style="font-size:0.7em">
+                <td>&nbsp;&nbsp; @ldg.Item.Name @ldg.Type.Prefix</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Bypass)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Gitimbine)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Kaaga)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Kenol)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Kinoru)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Kirunga)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Kobil)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Maua)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Nkubu)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Ojijo)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Oryx)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Uhuru)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Viewpt)</td>
+                <td class="right-text bold-text">@string.Format("{0:N}", ldg.Total)</td>
+            </tr>
+        }
+
+        <tr style="font-size:0.7em">
+            <td class="bold-text">Total @type</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Bypass)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Gitimbine)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Kaaga)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Kenol)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Kinoru)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Kirunga)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Kobil)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Maua)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Nkubu)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Ojijo)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Oryx)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Uhuru)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Viewpt)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Total)</td>
+        </tr>
+    </tbody>
+
+</table>
