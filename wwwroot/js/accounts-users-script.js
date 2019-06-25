@@ -2,7 +2,7 @@ jq(function() {
     jq('.modal').modal();
 
     if (message != '') {
-        Materialize.toast('<span>' + message + '</span><a class="btn-flat yellow-text" href="#!">Try Again<a>', 3000)
+        Materialize.toast('<span>' + message + '</span><a class="btn-flat yellow-text" href="#!">Try Again<a>', 3000);
     }
 
     jq('#queue-table').DataTable({

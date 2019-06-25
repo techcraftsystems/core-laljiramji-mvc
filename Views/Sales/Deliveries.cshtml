@@ -1,0 +1,277 @@
+﻿@model Core.ViewModel.SalesDeliveriesViewModel;
+@{
+    ViewData["Title"] = "Deliveries";
+    var delivery = new Delivery();
+}
+
+<style>
+    .row .col-md-1.get-deliveries {
+        width: 5%;
+        padding-top: 10px;
+    }
+
+    .row .input-field.col-md-2 {
+        width: 20%;
+    }
+
+    .row .input-field.col-md-5 {
+        width: 35%;
+    }
+
+    input:not([type]), input[type=text]:not(.browser-default), input[type=password]:not(.browser-default), input[type=email]:not(.browser-default), input[type=url]:not(.browser-default), input[type=time]:not(.browser-default), input[type=date]:not(.browser-default), input[type=datetime]:not(.browser-default), input[type=datetime-local]:not(.browser-default), input[type=tel]:not(.browser-default), input[type=number]:not(.browser-default), input[type=search]:not(.browser-default), textarea.materialize-textarea {
+        margin-bottom: 5px;
+        margin-top: -10px;
+    }
+    div.modal-content label {
+        padding-left:15px;
+    }
+    div.modal-content td {
+        padding: 2px;
+    }
+    div.modal-content td input {
+        padding: 0;
+        margin: 0!important;
+        height: 2rem;
+    }
+</style>
+
+<script>
+    var petty_accounts = @Html.Raw(Model.PettyAccounts);
+    var line = 0;
+    var code = "";
+</script>
+<script src="~/js/sales-script.js"></script>
+
+<div id="breadcrumbs-wrapper">
+    <div class="container">
+        <div class="row zero-margin">
+            <div class="col s10 m6 l6">
+                <ol class="breadcrumbs">
+                    <li><a href="/sales">Sales</a></li>
+                    <li class="active">Deliveries</li>
+                </ol>
+            </div>
+            <div class="col s2 m6 l6">
+                <a class="btn dropdown-settings waves-effect waves-light breadcrumbs-btn right gradient-45deg-light-blue-cyan gradient-shadow pointer modal-trigger" data-target="delivery-modal">
+                    <span class="hide-on-small-onl">ADD NEW</span>
+                    <i class="material-icons right">add</i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="clear:both; margin-top:45px;"></div>
+
+<div class="row" style="margin-top: 10px; margin-bottom: 0px;">
+    <div class="input-field col-md-2">
+        <i class="material-icons prefix">local_gas_station</i>
+        @Html.DropDownListFor(model => model.Code, Model.StationCodes, "Select Station", new { @class = "modal-station" })
+    </div>
+    <div class="input-field col-md-2">
+        <i class="material-icons prefix">date_range</i>
+        <input id="start" type="text" class="datepicker" value="@Model.Date.ToString("d MMMM, yyyy")">
+    </div>
+
+    <div class="input-field col-md-2">
+        <i class="material-icons prefix">date_range</i>
+        <input id="stops" type="text" class="datepicker" value="@DateTime.Now.ToString("d MMMM, yyyy")">
+    </div>
+
+    <div class="input-field col-md-5">
+        <i class="material-icons prefix">filter_list</i>
+        <input id="filter" type="text" placeholder="Filter Deliveries" />
+    </div>
+
+    <div class="col-md-1 get-deliveries">
+        <a class="btn btn-floating pulse btn gradient-45deg-amber-amber right"><i class="material-icons" style="line-height: 42px">search</i></a>
+    </div>
+</div>
+
+<div class="card zero-margin">
+    <div class="card-content deep-orange accent-2 white-text table-card" style="border-radius: 0">
+        <h5 class="card-stats-number"><i class="material-icons left">add_shopping_cart</i>Sales Deliveries</h5>
+        <p class="card-stats-compare right">
+            <i class="material-icons left">history</i>Opening
+            <span class="deep-orange-text text-lighten-5 opening-balance">0.00</span>
+        </p>
+    </div>
+
+    <table id="ledger-table" class="custom bordered" data-loaded="0" style="margin-top:-20px">
+        <thead class="deep-orange accent-2">
+            <tr>
+                <th>DATE</th>
+                <th>RECEIPT</th>
+                <th>TYPE</th>
+                <th>NOTES</th>
+                <th>STATION</th>
+                <th class="right-text">AMOUNT</th>
+                <th class="right-text">P/CASH</th>
+                <th class="right-text">DISCOUNT</th>
+                <th class="right-text">BANKING</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody style="font-size:0.8em">
+            @foreach(var delv in Model.Deliveries){
+                delivery.Amount += delv.Amount;
+                delivery.Expense += delv.Expense;
+                delivery.Discount += delv.Discount;
+                delivery.Banking += delv.Banking;
+
+                <tr>
+                    <td>@delv.DateString</td>
+                    <td>@delv.Receipt</td>
+                    <td>@delv.Type.Name</td>
+                    <td>@delv.Description</td>
+                    <td><a class="blue-text" href="/core/stations/@(delv.Station.Code)">@delv.Station.Code.ToUpper()</a></td>
+                    <td class="right-text">@string.Format("{0:N}", delv.Amount)</td>
+                    <td class="right-text">@string.Format("{0:N}", delv.Expense)</td>
+                    <td class="right-text">@string.Format("{0:N}", delv.Discount)</td>
+                    <td class="right-text">@string.Format("{0:N}", delv.Banking)</td>
+                    <td>&nbsp;</td>
+                </tr>
+            }
+
+            @if(Model.Deliveries.Count.Equals(0)){
+                <tr>
+                    <td colspan="10" class="center-text">NO RECORDS FOUND</td>
+                </tr>
+            }
+        </tbody>
+
+        <tfoot class="deep-orange accent-2 white-text">
+            <tr>
+                <th colspan="5">&nbsp; &nbsp; SUMMARY</th>
+                <th class="right-text">@string.Format("{0:N}", delivery.Amount)</th>
+                <th class="right-text">@string.Format("{0:N}", delivery.Expense)</th>
+                <th class="right-text">@string.Format("{0:N}", delivery.Discount)</th>
+                <th class="right-text">@string.Format("{0:N}", delivery.Banking)</th>
+                <th>&nbsp;</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+
+<div id="delivery-modal" class="modal modal-fixed-footer" style="width: 1000px">
+    <div class="modal-content">
+        @using (Html.BeginForm("PostNewDeliveries", "Sales", FormMethod.Post, new { id = "delivery-form" })) {
+            <h4>ADD DELIVERY</h4>
+            <hr style="margin: 5px 0"/>
+            <div class="row">
+                <div class="input-field col-md-3">
+                    <i class="material-icons prefix">event</i>
+                    @Html.TextBoxFor(model => model.DateX, new { @class = "datepicker" })
+                    <label>Select Date</label>
+                </div>
+
+                <div class="input-field col-md-3">
+                    <i class="material-icons prefix">local_gas_station</i>
+                    @Html.DropDownListFor(model => model.Station.Id, Model.StationIdnts)
+                    <label>Station</label>
+                </div>
+            </div>
+            <table id="delivery-table">
+                <thead>
+                    <tr>
+                        <th>&nbsp;</th>
+                        <th>DELV.NO</th>
+                        <th>TYPE</th>
+                        <th class="right-align">TOTAL</th>
+                        <th class="right-align">P/CASH</th>
+                        <th class="right-align">BANKING</th>
+                        <th>ACCOUNT</th>
+                        <th>DESCRIPTION</th>
+                        <th>&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Entries.Count; i++){
+                        <tr class="itms @(i == 0 ? "":"hide")">
+                            <td style="width:1px;">@(i+1).</td>
+                            <td class="width-90px">@Html.TextBoxFor(model => model.Entries[i].Receipt, new { @type = "number" })</td>
+                            <td class="width-150px">@Html.DropDownListFor(model => model.Entries[i].Type.Id, Model.DeliveryType)</td>
+                            <td class="width-100px">@Html.TextBoxFor(model => model.Entries[i].Amount, new { @type = "number", @class = "delv-amts right-align" })</td>
+                            <td class="width-100px">@Html.TextBoxFor(model => model.Entries[i].Expense, new { @type = "number", @class = "delv-exps right-align", @disabled = "true" })</td>
+                            <td class="width-100px">@Html.TextBoxFor(model => model.Entries[i].Discount, new { @type = "number", @class = "delv-bank right-align", @disabled = "true" })</td>
+                            <td class="width-150px">@Html.DropDownListFor(model => model.Entries[i].Bank.Id, Model.BankAccounts)</td>
+                            <td>@Html.TextBoxFor(model => model.Entries[i].Description)</td>
+                            <td>
+                                <a class="blue-text" style="font-size:0.7em" data-line="@(i)">
+                                    <i class="material-icons pointer">playlist_add</i>
+                                </a>
+                                <a class="red-text" style="font-size:0.7em" data-line="@(i)">
+                                    <i class="material-icons pointer">delete_forever</i>
+                                </a>
+                                @Html.HiddenFor(model => model.Entries[i].Id)
+                                @Html.HiddenFor(model => model.Entries[i].JSonExpense)
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+
+        <hr style="margin: 10px 0" />
+
+        <a class="add-rows btn-floating waves-effect waves-light gradient-45deg-light-blue-cyan">
+            <i class="material-icons">exposure_plus_1</i>
+        </a>
+    </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat">Disagree</a>
+        <a class="modal-action modal-post waves-effect waves-green btn-flat">Agree</a>
+    </div>
+</div>
+
+<div id="expense-modal" class="modal modal-fixed-footer" style="width:600px; margin-top:20px">
+    <div class="modal-content">
+        <h4>ADD EXPENSE</h4>
+        <hr style="margin: 5px 0" />
+        <table id="expense-table">
+            <thead>
+                <tr>
+                    <th>&nbsp;</th>
+                    <th>EXPENSE</th>
+                    <th>DESCRIPION</th>
+                    <th class="right-align">AMOUNT</th>
+                    <th>&nbsp;</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr class="exps">
+                    <td style="width:1px;">1.</td>
+                    <td class="width-120px"><input type="text" /></td>
+                    <td><input type="text" value="N/A" /></td>
+                    <td class="width-100px"><input type="number" value="0.00" class="right-text input-amts" /></td>
+                    <td>
+                        <a class="red-text" style="font-size:0.7em">
+                            <i class="material-icons pointer">delete_forever</i>
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>&nbsp;</th>
+                    <th colspan="2">SUMMARY</th>
+                    <th class="right-align" style="padding-right:12px;">0.00</th>
+                    <th>&nbsp;</th>
+                </tr>
+            </tfoot>
+        </table>
+
+        <hr style="margin: 10px 0" />
+
+        <a class="add-expense btn-floating waves-effect waves-light gradient-45deg-light-blue-cyan">
+            <i class="material-icons">exposure_plus_1</i>
+        </a>
+    </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat">Disagree</a>
+        <a class="modal-action modal-post waves-effect waves-green btn-flat">Agree</a>
+    </div>
+</div>

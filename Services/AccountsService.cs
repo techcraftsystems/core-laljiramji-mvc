@@ -4,11 +4,14 @@ using System.Data.SqlClient;
 using Core.Extensions;
 using Core.Models;
 using Core.ViewModel;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Newtonsoft.Json.Linq;
 
 namespace Core.Services
 {
-    public class AccountsService
-    {
+    public class AccountsService {
+        private readonly CoreService Core = new CoreService();
+
         public Bank GetBank(long idnt) {
             Bank bank = null;
 
@@ -139,5 +142,28 @@ namespace Core.Services
 
             return model;
         }
+
+        public List<SelectListItem> GetBankAccountsIEnumerable() {
+            return Core.GetIEnumerable("SELECT bk_idnt, bk_bank FROM BankAccounts ORDER BY bk_idnt");
+        }
+
+        public JObject GetPettyCashAccountsAutocomplete(string query = "") {
+            string accounts = "{}";
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("SELECT DISTINCT UPPER(pc_account) FROM DeliveryPettyCash");
+            if (dr.HasRows) {
+                accounts = "{";
+
+                while (dr.Read()) {
+                    accounts += "'" + dr[0].ToString().Replace("'", "`").Replace(":", "") + "': null, ";
+                }
+
+                accounts += "}";
+            }
+
+            return JObject.Parse(accounts);
+        }
+
     }
 }

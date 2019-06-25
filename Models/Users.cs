@@ -36,6 +36,10 @@ namespace Core.Models
             LastSeen = new DateTime(1990, 1, 1);
         }
 
+        public Users(long idnt) : this() {
+            Id = idnt;
+        }
+
         public Users(string username) : this() {
             Username = username;
         }

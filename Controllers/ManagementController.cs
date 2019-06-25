@@ -23,6 +23,8 @@ namespace Core.Controllers
         public IActionResult FinanceStationWise(int month, int year, FinanceStationwiseViewModel model, CoreService service) {
             model.Date = new DateTime(year, month, 1);
             model.Income = service.GetManagementIncomePerStation(model.Date, model.Date.AddMonths(1).AddDays(-1));
+            model.Costs = service.GetManagementCostsPerStation(model.Date, model.Date.AddMonths(1).AddDays(-1));
+
             return View(model);
         }
     }

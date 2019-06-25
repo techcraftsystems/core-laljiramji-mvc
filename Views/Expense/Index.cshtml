@@ -133,8 +133,7 @@
                     </thead>
 
                     <tbody style="font-size:0.9em">
-                        @foreach (var expense in Model.Expenses)
-                        {
+                        @foreach (var expense in Model.Expenses) {
                             xAmts += expense.Amount;
 
                             <tr>
@@ -249,8 +248,8 @@
             </table>
         }
 
-        <a class="btn-truck-fuel-row btn-floating waves-effect waves-light gradient-45deg-light-blue-cyan">
-            <i class="material-icons">exposure_plus_1</i>
+        <a class="btn-floating add-rows waves-effect waves-light gradient-45deg-light-blue-cyan">
+            <i class="material-icons ">exposure_plus_1</i>
         </a>
     </div>
 

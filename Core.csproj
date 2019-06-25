@@ -165,6 +165,7 @@
     <Folder Include="DataModel\" />
     <Folder Include="ReportModel\" />
     <Folder Include="Views\Management\" />
+    <Folder Include="Objects\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Views\Reports\Test.cshtml" />

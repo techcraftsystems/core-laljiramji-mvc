@@ -1,9 +1,9 @@
 ﻿@model Core.ViewModel.FinanceStationwiseViewModel;
 @{
     ViewData["Title"] = "Financials Stationwise";
-    string type = "";
 
     var income = new Ledger();
+    var costs = new Ledger();
 }
 
 <style>
@@ -13,6 +13,10 @@
     #ledger-table td.border-top{
         border-top: 1px solid;
     }
+    #ledger-table tr.padding-top td {
+        padding-top: 15px;
+    }
+
 </style>
 <div id="breadcrumbs-wrapper">
     <div class="container">
@@ -52,15 +56,11 @@
     </thead>
 
     <tbody>
+        <tr style="font-size:0.7em">
+            <td class="bold-text" colspan="15">Income</td>
+        </tr>
+
         @foreach (var ldg in Model.Income) {
-            if (string.IsNullOrEmpty(type)) {
-                type = ldg.Type.Name;
-
-                <tr style="font-size:0.7em">
-              Income<td class="bold-text" colspan="15">@type</td>
-                </tr>
-            }
-
             income.Bypass += ldg.Bypass;
             income.Gitimbine += ldg.Gitimbine;
             income.Kaaga += ldg.Kaaga;
@@ -96,7 +96,7 @@
         }
 
         <tr style="font-size:0.7em">
-            <td class="bold-text">Total @type</td>
+            <td class="bold-text">Total Income</td>
             <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Bypass)</td>
             <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Gitimbine)</td>
             <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Kaaga)</td>
@@ -111,6 +111,81 @@
             <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Uhuru)</td>
             <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Viewpt)</td>
             <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Total)</td>
+        </tr>
+
+        <tr style="font-size:0.7em">
+            <td class="bold-text" style="padding-top:15px" colspan="15">Cost of Goods Sold</td>
+        </tr>
+
+        @foreach (var ldg in Model.Costs) {
+            costs.Bypass += ldg.Bypass;
+            costs.Gitimbine += ldg.Gitimbine;
+            costs.Kaaga += ldg.Kaaga;
+            costs.Kenol += ldg.Kenol;
+            costs.Kinoru += ldg.Kinoru;
+            costs.Kirunga += ldg.Kirunga;
+            costs.Kobil += ldg.Kobil;
+            costs.Maua += ldg.Maua;
+            costs.Nkubu += ldg.Nkubu;
+            costs.Ojijo += ldg.Ojijo;
+            costs.Oryx += ldg.Oryx;
+            costs.Uhuru += ldg.Uhuru;
+            costs.Viewpt += ldg.Viewpt;
+            costs.Total += ldg.Total;
+
+            <tr style="font-size:0.7em">
+                <td>&nbsp;&nbsp; @ldg.Item.Name @ldg.Type.Prefix</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Bypass)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Gitimbine)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Kaaga)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Kenol)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Kinoru)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Kirunga)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Kobil)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Maua)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Nkubu)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Ojijo)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Oryx)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Uhuru)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Viewpt)</td>
+                <td class="right-text bold-text">@string.Format("{0:N}", ldg.Total)</td>
+            </tr>
+        }
+
+        <tr style="font-size:0.7em">
+            <td class="bold-text">Total COGS</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", costs.Bypass)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", costs.Gitimbine)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", costs.Kaaga)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", costs.Kenol)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", costs.Kinoru)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", costs.Kirunga)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", costs.Kobil)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", costs.Maua)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", costs.Nkubu)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", costs.Ojijo)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", costs.Oryx)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", costs.Uhuru)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", costs.Viewpt)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", costs.Total)</td>
+        </tr>
+
+        <tr class="padding-top" style="font-size:0.7em">
+            <td class="bold-text">Gross Profit</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Bypass - costs.Bypass)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Gitimbine - costs.Gitimbine)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Kaaga - costs.Kaaga)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Kenol - costs.Kenol)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Kinoru - costs.Kinoru)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Kirunga - costs.Kirunga)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Kobil - costs.Kobil)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Maua - costs.Maua)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Nkubu - costs.Nkubu)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Ojijo - costs.Ojijo)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Oryx - costs.Oryx)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Uhuru - costs.Uhuru)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Viewpt - costs.Viewpt)</td>
+            <td class="bold-text border-top right-text">@string.Format("{0:N}", income.Total - costs.Total)</td>
         </tr>
     </tbody>
 

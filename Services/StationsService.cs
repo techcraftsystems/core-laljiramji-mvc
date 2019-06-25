@@ -930,6 +930,50 @@ namespace Core.Services
             return products;
         }
 
+        //Deliveries
+        public List<SelectListItem> GetDeliveryTypesIEnumerable() {
+            return Core.GetIEnumerable("SELECT dt_idnt, dt_type FROM DeliveryType ORDER BY dt_idnt");
+        }
+
+        public List<Delivery> GetDeliveries(DateTime start, DateTime stop, string filter = "") {
+            List<Delivery> deliveries = new List<Delivery>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            string query = conn.GetQueryString(filter, "dlv_rcpt+'-'+dlv_notes+'-'+CAST(dlv_amount AS NVARCHAR)+'-'+CAST(ISNULL(pc_amount,0) AS NVARCHAR)+'-'+CAST(dlv_discount AS NVARCHAR)+'-'+dt_type+'-'+st_code+'-'+st_name", "dlv_date BETWEEN '" + start.Date + "' AND '" + stop.Date + "'");
+
+            SqlDataReader dr = conn.SqlServerConnect("SELECT dlv_idnt, dlv_date, dlv_rcpt, dlv_notes, dlv_amount, ISNULL(pc_amount,0) dlv_pc, dlv_discount, dlv_added_on, dlv_added_by, dt_idnt, dt_type, st_idnt, st_code, st_name FROM Delivery INNER JOIN DeliveryType ON dlv_type=dt_idnt INNER JOIN Stations ON dlv_station=st_idnt LEFT OUTER JOIN vDeliveryPettyCash ON dlv_idnt=pc_delv " + query + " ORDER BY dlv_date, dlv_rcpt");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    Delivery delivery = new Delivery {
+                        Id = Convert.ToInt64(dr[0]),
+                        Date = Convert.ToDateTime(dr[1]),
+                        Receipt = dr[2].ToString(),
+                        Description = dr[3].ToString(),
+                        Amount = Convert.ToDouble(dr[4]),
+                        Expense = Convert.ToDouble(dr[5]),
+                        Discount = Convert.ToDouble(dr[6]),
+                        AddedOn = Convert.ToDateTime(dr[7]),
+                        AddedBy = new Users(Convert.ToInt64(dr[8])),
+                        Type = new DeliveryType {
+                            Id = Convert.ToInt64(dr[9]),
+                            Name = dr[10].ToString()
+                        },
+                        Station = new Stations {
+                            Id = Convert.ToInt64(dr[11]),
+                            Code = dr[12].ToString(),
+                            Name = dr[13].ToString()
+                        }
+                    };
+
+                    delivery.Banking = delivery.Amount - delivery.Expense - delivery.Discount;
+                    delivery.DateString = delivery.Date.ToString("dd/MM/yyyy");
+                    deliveries.Add(delivery);
+                }
+            }
+
+            return deliveries;
+        }
+
 
         public List<MonthsModel> InitializeMonthsModel() {
             DateTime date = new DateTime(DateTime.Now.Year, 1, 1);
