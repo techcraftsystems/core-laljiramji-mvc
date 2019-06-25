@@ -21,6 +21,7 @@ namespace Core.Controllers
         [Route("sales/deliveries")]
         public IActionResult Deliveries(SalesDeliveriesViewModel model, StationsService service, AccountsService accounts) {
             model.StationIdnts = service.GetStationIdntsIEnumerable();
+            model.StationCodes = service.GetStationCodesIEnumerable();
             model.DeliveryType = service.GetDeliveryTypesIEnumerable();
             model.BankAccounts = accounts.GetBankAccountsIEnumerable();
             model.PettyAccounts = accounts.GetPettyCashAccountsAutocomplete();

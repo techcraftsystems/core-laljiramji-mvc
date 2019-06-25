@@ -20,11 +20,12 @@ jq(function() {
 
     jq('#delivery-table tbody tr td a.blue-text').click(function(){
         jq('#expense-table tbody').empty();
+
         line = jq(this).data('line');
-        code = jq.parseJSON(jq(this).closest('td').find('input').val());
+        code = jq.parseJSON(jq(this).closest('td').find('input.json-data').val());
 
         var count = 0;
-        jq.each(code, function(key,value) {
+        jq.each(code.PettyCash, function(key,value) {
             var row = "<tr class='exps'><td>" + eval(count+1) + ".</td>";
             row += "<td class='width-120px'><input class='autocomplete' type='text' value='" + value.account + "'></td>";
             row += "<td><input class='input-opts' type='text' value='" + value.description + "'></td>";
@@ -87,7 +88,7 @@ jq(function() {
 
     jq('#expense-modal a.modal-post').click(function(){
         var err_count = 0;
-        var json = '{PettyCash:[';
+        var json = '{"PettyCash":[';
         var amts = 0;
 
         if (jq('#expense-table tr.exps').length == 0){

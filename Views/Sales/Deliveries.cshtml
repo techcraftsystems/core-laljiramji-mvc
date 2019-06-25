@@ -204,7 +204,7 @@
                                     <i class="material-icons pointer">delete_forever</i>
                                 </a>
                                 @Html.HiddenFor(model => model.Entries[i].Id)
-                                @Html.HiddenFor(model => model.Entries[i].JSonExpense)
+                                @Html.HiddenFor(model => model.Entries[i].JSonExpense, new { @class = "json-data" })
                             </td>
                         </tr>
                     }
