@@ -108,7 +108,7 @@
                 <th class="right-text">P/CASH</th>
                 <th class="right-text">DISCOUNT</th>
                 <th class="right-text">BANKING</th>
-                <th>&nbsp;</th>
+                <th style="width:60px;">&nbsp;</th>
             </tr>
         </thead>
         <tbody style="font-size:0.8em">
@@ -128,7 +128,10 @@
                     <td class="right-text">@string.Format("{0:N}", delv.Expense)</td>
                     <td class="right-text">@string.Format("{0:N}", delv.Discount)</td>
                     <td class="right-text">@string.Format("{0:N}", delv.Banking)</td>
-                    <td>&nbsp;</td>
+                    <td>
+                        <a class="material-icons tiny-box blue-text link-fuel left" data-idnt="4913" style="margin-top: -5px">border_color</a>
+                        <a class="material-icons tiny-box red-text link-fuel left" data-idnt="4913" style="margin-top: -5px">delete_forever</a>
+                    </td>
                 </tr>
             }
 
@@ -203,6 +206,7 @@
                                 <a class="red-text" style="font-size:0.7em" data-line="@(i)">
                                     <i class="material-icons pointer">delete_forever</i>
                                 </a>
+
                                 @Html.HiddenFor(model => model.Entries[i].Id)
                                 @Html.HiddenFor(model => model.Entries[i].JSonExpense, new { @class = "json-data" })
                             </td>
