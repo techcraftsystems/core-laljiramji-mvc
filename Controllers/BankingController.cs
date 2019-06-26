@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Core.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Administrator")]
     public class BankingController : Controller
     {
         // GET: /<controller>/
