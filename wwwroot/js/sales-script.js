@@ -9,6 +9,84 @@ jq(function() {
         GetDeliveries();
     });
 
+    jq('a.btn-delivery').click(function(){
+        jq("tr.itms").each(function(i, row) {
+            if (i == 0){
+                jq(this).removeClass('hide');
+            }
+            else{
+                if (!jq(this).hasClass('hide')){
+                    jq(this).addClass('hide');
+                }
+            }
+
+            jq(this).find('td:eq(1) input').val('');
+            jq(this).find('td:eq(3) input').val(0);
+            jq(this).find('td:eq(4) input').val(0);
+            jq(this).find('td:eq(5) input').val(0);
+            jq(this).find('td:eq(7) input').val('N/A');
+            jq(this).find('td:eq(8) input.json-data').val('{"PettyCash":[]}');
+            jq(this).find('td:eq(8) input.json-data').val(0);
+        });
+
+        jq('#delivery-modal').modal('open');
+    });
+
+    jq('a.edit-delivery').click(function(){
+        jq("tr.itms").each(function(i, row) {
+            if (i == 0){
+                jq(this).removeClass('hide');
+            }
+            else{
+                if (!jq(this).hasClass('hide')){
+                    jq(this).addClass('hide');
+                }
+
+                jq(this).find('td:eq(1) input').val('');
+                jq(this).find('td:eq(3) input').val(0);
+                jq(this).find('td:eq(4) input').val(0);
+                jq(this).find('td:eq(5) input').val(0);
+                jq(this).find('td:eq(7) input').val('N/A');
+                jq(this).find('td:eq(8) input.json-data').val('"PettyCash":[]}');
+                jq(this).find('td:eq(8) input.idnt-data').val(0);
+            }
+        });
+
+        var row = jq('#delivery-table tbody tr:eq(0)');
+
+        jq.ajax({
+            dataType: "json",
+            url: '/Sales/GetDelivery',
+            data: {
+                "idnt": jq(this).data('idnt')
+            },
+            success: function(delv) {
+                jq('#DateX').val(delv.dateString);
+                jq('div.input-station').find('select').val(delv.station.id);
+                jq('div.input-station').find('input').val(delv.station.name);
+
+                row.find('td:eq(1) input').val(delv.receipt);
+                row.find('td:eq(2) select').val(delv.type.id);
+                row.find('td:eq(2) input').val(delv.type.name);
+                row.find('td:eq(3) input').val(delv.amount);
+                row.find('td:eq(4) input').val(delv.expense);
+                row.find('td:eq(5) input').val(delv.banking);
+                row.find('td:eq(6) select').val(delv.bank.id);
+                row.find('td:eq(6) input').val(delv.bank.name);
+                row.find('td:eq(7) input').val(delv.description);
+                row.find('td:eq(8) input.json-data').val(delv.jSonExpense);
+                row.find('td:eq(8) input.idnt-data').val(delv.id);
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                console.log(xhr.status);
+                console.log(thrownError);
+            },
+            complete: function() {
+                jq('#delivery-modal').modal('open');
+            }
+        });
+    });
+
     jq('a.add-rows').click(function(){
         jq("tr.itms").each(function() {
             if (jq(this).hasClass('hide')){
@@ -30,7 +108,7 @@ jq(function() {
             row += "<td class='width-120px'><input class='autocomplete' type='text' value='" + value.account + "'></td>";
             row += "<td><input class='input-opts' type='text' value='" + value.description + "'></td>";
             row += "<td class='width-100px'><input type='number' class='right-text input-amts' value='" + value.amount + "'></td>";
-            row += "<td><a class='red-text' style='font-size:0.7em'><i class='material-icons pointer'>delete_forever</i></a></td>";
+            row += "<td><input type='hidden' value='" + value.id + "'><a class='red-text' style='font-size:0.7em'><i class='material-icons pointer'>delete_forever</i></a></td>";
             row += "</tr>";
 
             jq('#expense-table tbody').append(row);
@@ -47,6 +125,8 @@ jq(function() {
         if (count == 0){
             ExpenseAddRow();
         }
+
+        ExpenseCummulativeCount();
 
         jq('#expense-modal').modal('open');
     });
@@ -89,6 +169,7 @@ jq(function() {
     jq('#expense-modal a.modal-post').click(function(){
         var err_count = 0;
         var json = '{"PettyCash":[';
+        var idnt = '';
         var amts = 0;
 
         if (jq('#expense-table tr.exps').length == 0){
@@ -109,7 +190,8 @@ jq(function() {
                 return false;
             }
 
-            json += '{"account":"' + jq(this).find('td:eq(1) input').val().trim() + '", "description":"' + jq(this).find('td:eq(2) input').val().trim() + '", "amount":"' + eval(jq(this).find('td:eq(3) input').val()) + '"},';
+            json += '{"account":"' + jq(this).find('td:eq(1) input').val().trim() + '", "description":"' + jq(this).find('td:eq(2) input').val().trim() + '", "amount":"' + eval(jq(this).find('td:eq(3) input').val()) + '", "id":"' + eval(jq(this).find('td:eq(4) input').val()) + '"},';
+            idnt += jq(this).find('td:eq(4) input').val() + ',';
             amts += eval(jq(this).find('td:eq(3) input').val());
         });
 
@@ -117,7 +199,7 @@ jq(function() {
             return false;
         }
 
-        json = json.slice(0,-1) + ']}';
+        json = json.slice(0,-1) + '], "Idnts":"(' + idnt.slice(0,-1) + ')"}';
 
         jq("#Entries_" + line + "__JSonExpense").val(json);
         jq("#Entries_" + line + "__Expense").val(amts);
@@ -170,7 +252,7 @@ function ExpenseAddRow(jsondata){
     row += "<td class='width-120px'><input class='autocomplete' type='text'></td>";
     row += "<td><input class='input-opts' type='text' value='N/A'></td>";
     row += "<td class='width-100px'><input type='number' class='right-text input-amts' value='0.00'></td>";
-    row += "<td><a class='red-text' style='font-size:0.7em'><i class='material-icons pointer'>delete_forever</i></a></td>";
+    row += "<td><input type='hidden' value='0' /><a class='red-text' style='font-size:0.7em'><i class='material-icons pointer'>delete_forever</i></a></td>";
     row += "</tr>";
 
     jq('#expense-table tbody').append(row);
@@ -208,13 +290,14 @@ function GetDeliveries() {
                 row += "<td>" + delv.dateString + "</td>";
                 row += "<td>" + delv.receipt + "</td>";
                 row += "<td>" + delv.type.name + "</td>";
-                row += "<td>" + delv.description + "</td>";
+                row += "<td><a class='blue-text' href='/bank/" + delv.bank.code + "'>" + delv.bank.name.toUpperCase() + "</td>";
                 row += "<td><a class='blue-text' href='/core/stations/" + delv.station.code + "'>" + delv.station.code.toUpperCase() + "</td>";
+                row += "<td>" + delv.description + "</td>";
                 row += "<td class='right-text'>" + delv.amount.toString().toAccounting() + "</td>";
                 row += "<td class='right-text'>" + delv.expense.toString().toAccounting() + "</td>";
                 row += "<td class='right-text'>" + delv.discount.toString().toAccounting() + "</td>";
                 row += "<td class='right-text'>" + delv.banking.toString().toAccounting() + "</td>";
-                row += "<td>&nbsp;</td>";
+                row += "<td><a class='material-icons tiny-box blue-text link-fuel left pointer edit-delivery' style='margin-top: -5px'>border_color</a><a class='material-icons tiny-box red-text link-fuel left' style='margin-top: -5px'>delete_forever</a></td>";
                 row += "</tr>";
 
                 amts += delv.amount;
@@ -226,15 +309,15 @@ function GetDeliveries() {
             })
 
             if (results.length == 0) {
-                jq('#ledger-table tbody').append("<tr><td colspan=10>NO RECORDS FOUND</td></tr>");
+                jq('#ledger-table tbody').append("<tr><td colspan=11>NO RECORDS FOUND</td></tr>");
             }
             else {
-                var footr = "<tr><th colspan=5 class='bold-text white-text'>&nbsp; &nbsp; SUMMARY</th>";
+                var footr = "<tr><th colspan='6' class='bold-text white-text'>&nbsp; &nbsp; SUMMARY</th>";
                 footr += "<th class='right-text'>" + amts.toString().toAccounting() + "</th>";
                 footr += "<th class='right-text'>" + exps.toString().toAccounting() + "</th>";
                 footr += "<th class='right-text'>" + disc.toString().toAccounting() + "</th>";
                 footr += "<th class='right-text'>" + bank.toString().toAccounting() + "</th>";
-                footr += "<th>&nbsp;</th>";
+                footr += "<th></th>";
                 footr += "</tr>";
 
                 jq('#ledger-table tfoot').append(footr);

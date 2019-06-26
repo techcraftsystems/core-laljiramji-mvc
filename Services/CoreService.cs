@@ -484,6 +484,10 @@ namespace Core.Services
             delivery.Id = conn.SqlServerUpdate("DECLARE @idnt INT=" + delivery.Id + ", @date DATE='" + delivery.Date + "', @stns INT=" + delivery.Station.Id + ", @type INT=" + delivery.Type.Id + ", @rcpt NVARCHAR(MAX)='" + delivery.Receipt + "', @note NVARCHAR(MAX)='" + delivery.Description + "', @amts FLOAT=" + delivery.Amount + ", @user INT=" + Actor + "; IF NOT EXISTS (SELECT dlv_idnt FROM Delivery WHERE dlv_idnt=@idnt) BEGIN INSERT INTO Delivery (dlv_date, dlv_rcpt, dlv_station, dlv_type, dlv_amount, dlv_added_by, dlv_notes) output INSERTED.dlv_idnt VALUES (@date, @rcpt, @stns, @type, @amts, @user, @note) END ELSE BEGIN UPDATE Delivery SET dlv_date=@date, dlv_rcpt=@rcpt, dlv_station=@stns, dlv_type=@type, dlv_amount=@amts, dlv_notes=@note output INSERTED.dlv_idnt WHERE dlv_idnt=@idnt END");
 
             PettyCashObject PettyCashObject = JsonConvert.DeserializeObject<PettyCashObject>(delivery.JSonExpense);
+
+            conn = new SqlServerConnection();
+            conn.SqlServerUpdate("DELETE FROM DeliveryPettyCash WHERE pc_idnt NOT IN " + PettyCashObject.Idnts + " AND pc_delv=" + delivery.Id);
+
             foreach (var pc in PettyCashObject.PettyCash) {
                 pc.Delivery = delivery;
                 pc.AddedBy = delivery.AddedBy;

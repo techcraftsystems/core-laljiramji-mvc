@@ -46,6 +46,10 @@ namespace Core.Controllers
             return LocalRedirect("/sales/deliveries");
         }
 
+        public Delivery GetDelivery(int idnt, StationsService service) {
+            return service.GetDelivery(idnt);
+        }
+
         public JsonResult GetDeliveries(string start, string stop, string filter, StationsService service) {
             if (string.IsNullOrWhiteSpace(filter))
                 filter = "";

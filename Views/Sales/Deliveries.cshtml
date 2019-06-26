@@ -52,7 +52,7 @@
                 </ol>
             </div>
             <div class="col s2 m6 l6">
-                <a class="btn dropdown-settings waves-effect waves-light breadcrumbs-btn right gradient-45deg-light-blue-cyan gradient-shadow pointer modal-trigger" data-target="delivery-modal">
+                <a class="btn btn-delivery dropdown-settings waves-effect waves-light breadcrumbs-btn right gradient-45deg-light-blue-cyan gradient-shadow pointer">
                     <span class="hide-on-small-onl">ADD NEW</span>
                     <i class="material-icons right">add</i>
                 </a>
@@ -102,8 +102,9 @@
                 <th>DATE</th>
                 <th>RECEIPT</th>
                 <th>TYPE</th>
-                <th>NOTES</th>
+                <th>BANK</th>
                 <th>STATION</th>
+                <th>NOTES</th>
                 <th class="right-text">AMOUNT</th>
                 <th class="right-text">P/CASH</th>
                 <th class="right-text">DISCOUNT</th>
@@ -122,29 +123,30 @@
                     <td>@delv.DateString</td>
                     <td>@delv.Receipt</td>
                     <td>@delv.Type.Name</td>
-                    <td>@delv.Description</td>
+                    <td><a class="blue-text" href="/bank/@(delv.Bank.Code)">@delv.Bank.Name.ToUpper()</a></td>
                     <td><a class="blue-text" href="/core/stations/@(delv.Station.Code)">@delv.Station.Code.ToUpper()</a></td>
+                    <td>@delv.Description</td>
                     <td class="right-text">@string.Format("{0:N}", delv.Amount)</td>
                     <td class="right-text">@string.Format("{0:N}", delv.Expense)</td>
                     <td class="right-text">@string.Format("{0:N}", delv.Discount)</td>
                     <td class="right-text">@string.Format("{0:N}", delv.Banking)</td>
                     <td>
-                        <a class="material-icons tiny-box blue-text link-fuel left" data-idnt="4913" style="margin-top: -5px">border_color</a>
-                        <a class="material-icons tiny-box red-text link-fuel left" data-idnt="4913" style="margin-top: -5px">delete_forever</a>
+                        <a class="material-icons tiny-box blue-text link-fuel left pointer edit-delivery" data-idnt="@(delv.Id)" style="margin-top: -5px">border_color</a>
+                        <a class="material-icons tiny-box red-text link-fuel left pointer" data-idnt="@(delv.Id)" style="margin-top: -5px">delete_forever</a>
                     </td>
                 </tr>
             }
 
             @if(Model.Deliveries.Count.Equals(0)){
                 <tr>
-                    <td colspan="10" class="center-text">NO RECORDS FOUND</td>
+                    <td colspan="11" class="center-text">NO RECORDS FOUND</td>
                 </tr>
             }
         </tbody>
 
         <tfoot class="deep-orange accent-2 white-text">
             <tr>
-                <th colspan="5">&nbsp; &nbsp; SUMMARY</th>
+                <th colspan="6">&nbsp; &nbsp; SUMMARY</th>
                 <th class="right-text">@string.Format("{0:N}", delivery.Amount)</th>
                 <th class="right-text">@string.Format("{0:N}", delivery.Expense)</th>
                 <th class="right-text">@string.Format("{0:N}", delivery.Discount)</th>
@@ -168,7 +170,7 @@
                     <label>Select Date</label>
                 </div>
 
-                <div class="input-field col-md-3">
+                <div class="input-field col-md-3 input-station">
                     <i class="material-icons prefix">local_gas_station</i>
                     @Html.DropDownListFor(model => model.Station.Id, Model.StationIdnts)
                     <label>Station</label>
@@ -207,7 +209,7 @@
                                     <i class="material-icons pointer">delete_forever</i>
                                 </a>
 
-                                @Html.HiddenFor(model => model.Entries[i].Id)
+                                @Html.HiddenFor(model => model.Entries[i].Id, new { @class = "idnt-data" })
                                 @Html.HiddenFor(model => model.Entries[i].JSonExpense, new { @class = "json-data" })
                             </td>
                         </tr>
