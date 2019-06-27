@@ -40,7 +40,7 @@
     var line = 0;
     var code = "";
 </script>
-<script src="~/js/sales-script.js"></script>
+<script src="~/js/sales-deliveries-script.js"></script>
 
 <div id="breadcrumbs-wrapper">
     <div class="container">
@@ -132,7 +132,7 @@
                     <td class="right-text">@string.Format("{0:N}", delv.Banking)</td>
                     <td>
                         <a class="material-icons tiny-box blue-text link-fuel left pointer edit-delivery" data-idnt="@(delv.Id)" style="margin-top: -5px">border_color</a>
-                        <a class="material-icons tiny-box red-text link-fuel left pointer" data-idnt="@(delv.Id)" style="margin-top: -5px">delete_forever</a>
+                        <a class="material-icons tiny-box red-text link-fuel left pointer delete-delivery" data-idnt="@(delv.Id)" style="margin-top: -5px">delete_forever</a>
                     </td>
                 </tr>
             }
@@ -279,5 +279,19 @@
     <div class="modal-footer">
         <a class="modal-action modal-close waves-effect waves-red btn-flat">Disagree</a>
         <a class="modal-action modal-post waves-effect waves-green btn-flat">Agree</a>
+    </div>
+</div>
+
+<div id="delete-modal" class="modal" style="width:700px; margin-top:20px">
+    <div class="modal-content">
+        <h4>DELETE DELIVERY</h4>
+        <hr style="margin: 5px 0" />
+        <p id="delete-modal-field"></p>
+        <input type="hidden" />
+    </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat">CANCEL</a>
+        <a class="modal-action modal-post waves-effect waves-green btn-flat">DELETE</a>
     </div>
 </div>

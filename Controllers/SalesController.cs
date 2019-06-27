@@ -56,5 +56,13 @@ namespace Core.Controllers
                 
             return Json(service.GetDeliveries(DateTime.Parse(start), DateTime.Parse(stop), filter));
         }
+
+        public IActionResult DeleteDelivery(int idnt)
+        {
+            Delivery delivery = new Delivery(idnt);
+            delivery.Delete();
+
+            return LocalRedirect("/sales/deliveries");
+        }
     }
 }

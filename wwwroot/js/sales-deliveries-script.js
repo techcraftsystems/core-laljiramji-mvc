@@ -26,13 +26,18 @@ jq(function() {
             jq(this).find('td:eq(5) input').val(0);
             jq(this).find('td:eq(7) input').val('N/A');
             jq(this).find('td:eq(8) input.json-data').val('{"PettyCash":[]}');
-            jq(this).find('td:eq(8) input.json-data').val(0);
+            jq(this).find('td:eq(8) input.idnt-data').val(0);
         });
 
         jq('#delivery-modal').modal('open');
     });
 
-    jq('a.edit-delivery').click(function(){
+    jq('#ledger-table tbody').on('click', 'a.edit-delivery', function(){
+        if (isadmin == 'false'){
+            Materialize.toast('<span>You do not have permission to perform this task</span><a class="btn-flat red-text pointer">Access Denied</a>', 3000);
+            return false;
+        }
+
         jq("tr.itms").each(function(i, row) {
             if (i == 0){
                 jq(this).removeClass('hide');
@@ -83,6 +88,56 @@ jq(function() {
             },
             complete: function() {
                 jq('#delivery-modal').modal('open');
+            }
+        });
+    });
+
+    jq('#ledger-table tbody').on('click', 'a.delete-delivery', function(){
+        if (isadmin == 'false'){
+            Materialize.toast('<span>You do not have permission to perform this task</span><a class="btn-flat red-text pointer">Access Denied</a>', 3000);
+            return false;
+        }
+
+        line = jq(this).data('idnt');
+
+        jq.ajax({
+            dataType: "json",
+            url: '/Sales/GetDelivery',
+            data: {
+                "idnt": line
+            },
+            success: function(delv) {
+                jq('#delete-modal-field').html('Confirm deleting delivery <code class="language-css">' + delv.receipt + '</code> for ' + delv.station.name + ' dated ' + delv.dateString + ' for <code class="language-css">Kes ' + delv.amount.toString().toAccounting() + '</code>?');
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                console.log(xhr.status);
+                console.log(thrownError);
+            },
+            complete: function() {
+                jq('#delete-modal').modal('open');
+            }
+        });
+    });
+
+    jq('#delete-modal a.modal-post').click(function(){
+        jq('#delete-modal').modal('close');
+        jq.ajax({
+            type: "post",
+            url: '/Sales/DeleteDelivery',
+            data: {
+                "idnt": line
+            },
+            success: function(delv) {
+                Materialize.toast('<span>Successfully removed sales delivery</span><a class="btn-flat yellow-text pointer">Task Complete</a>', 3000);
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                console.log(xhr.status);
+                console.log(thrownError);
+            },
+            complete: function() {
+                setTimeout(function(){
+                    window.location.href = "/sales/deliveries/";
+                }, 3000);
             }
         });
     });
@@ -297,7 +352,7 @@ function GetDeliveries() {
                 row += "<td class='right-text'>" + delv.expense.toString().toAccounting() + "</td>";
                 row += "<td class='right-text'>" + delv.discount.toString().toAccounting() + "</td>";
                 row += "<td class='right-text'>" + delv.banking.toString().toAccounting() + "</td>";
-                row += "<td><a class='material-icons tiny-box blue-text link-fuel left pointer edit-delivery' style='margin-top: -5px'>border_color</a><a class='material-icons tiny-box red-text link-fuel left' style='margin-top: -5px'>delete_forever</a></td>";
+                row += "<td><a class='material-icons tiny-box blue-text link-fuel left pointer edit-delivery' style='margin-top: -5px' data-idnt=" + delv.id + ">border_color</a><a class='material-icons tiny-box red-text link-fuel left pointer delete-delivery' style='margin-top: -5px' data-idnt=" + delv.id + ">delete_forever</a></td>";
                 row += "</tr>";
 
                 amts += delv.amount;

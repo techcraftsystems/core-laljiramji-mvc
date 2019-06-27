@@ -44,12 +44,20 @@ namespace Core.Models {
             Description = "N/A";
         }
 
+        public Delivery (long idnt) : this() {
+            Id = idnt;
+        }
+
         public List<PettyCash> GetPettyCash() {
             return new List<PettyCash>();
         }
 
         public Delivery Save(HttpContext Context) {
             return new CoreService(Context).SaveDelivery(this);
+        }
+
+        public void Delete() {
+            new CoreService().DeleteDelivery(this);
         }
     }
 

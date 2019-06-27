@@ -497,6 +497,14 @@ namespace Core.Services
             return delivery;
         }
 
+        public void DeleteDelivery(Delivery delivery) {
+            SqlServerConnection conn = new SqlServerConnection();
+            conn.SqlServerUpdate("DELETE FROM Delivery WHERE dlv_idnt=" + delivery.Id);
+
+            conn = new SqlServerConnection();
+            conn.SqlServerUpdate("DELETE FROM DeliveryPettyCash WHERE pc_delv=" + delivery.Id);
+        }
+
         public PettyCash SavePettyCash(PettyCash pc) {
             SqlServerConnection conn = new SqlServerConnection();
             pc.Id = conn.SqlServerUpdate("DECLARE @idnt INT=" + pc.Id + ", @delv INT=" + pc.Delivery.Id + ", @acnt NVARCHAR(MAX)='" + pc.Account + "', @desc NVARCHAR(MAX)='" + pc.Description + "', @amts FLOAT=" + pc.Amount + ", @user INT=" + pc.AddedBy.Id + "; IF NOT EXISTS (SELECT pc_idnt FROM DeliveryPettyCash WHERE pc_idnt=@idnt) BEGIN INSERT INTO DeliveryPettyCash (pc_delv, pc_account, pc_description, pc_amount, pc_added_by) output INSERTED.pc_idnt VALUES (@delv, @acnt, @desc, @amts, @user) END ELSE BEGIN UPDATE DeliveryPettyCash SET pc_delv=@delv, pc_account=@acnt, pc_description=@desc, pc_amount=@amts output INSERTED.pc_idnt WHERE pc_idnt=@idnt END");

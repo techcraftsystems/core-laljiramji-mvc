@@ -69,6 +69,10 @@
             </div>
             <div class="navbar-collapse collapse">
                 @if (HttpContextAccessor.HttpContext.User.Identity.IsAuthenticated) {
+                    <script>
+                            var isadmin = '@(HttpContextAccessor.HttpContext.User.IsInRole("Administrator").ToString().ToLower())';
+                    </script>
+
                     <ul class="nav navbar-nav">
                         <li><a asp-area="" asp-controller="Stations" asp-action="Index">Stations</a></li>
                         <li><a asp-area="" asp-controller="Suppliers" asp-action="Index">Suppliers</a></li>
