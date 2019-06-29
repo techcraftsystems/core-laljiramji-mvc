@@ -30,6 +30,14 @@ namespace Core.Controllers
             return View(model);
         }
 
+        [Route("sales/transfers/ledger")]
+        public IActionResult TransfersLedger(SalesTransferLedgerViewModel model) {
+            DateTime Date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            model.Ledger = new StationsService().GetProductsTransfers(Date, DateTime.Now);
+
+            return View(model);
+        }
+
         [HttpPost] 
         public IActionResult PostNewDeliveries() {
             Stations station = Delvs.Station;
@@ -46,6 +54,13 @@ namespace Core.Controllers
             return LocalRedirect("/sales/deliveries");
         }
 
+        public IActionResult DeleteDelivery(int idnt) {
+            Delivery delivery = new Delivery(idnt);
+            delivery.Delete();
+            
+            return LocalRedirect("/sales/deliveries");
+        }
+
         public Delivery GetDelivery(int idnt, StationsService service) {
             return service.GetDelivery(idnt);
         }
@@ -53,16 +68,13 @@ namespace Core.Controllers
         public JsonResult GetDeliveries(string start, string stop, string filter, StationsService service) {
             if (string.IsNullOrWhiteSpace(filter))
                 filter = "";
-                
             return Json(service.GetDeliveries(DateTime.Parse(start), DateTime.Parse(stop), filter));
         }
 
-        public IActionResult DeleteDelivery(int idnt)
-        {
-            Delivery delivery = new Delivery(idnt);
-            delivery.Delete();
-
-            return LocalRedirect("/sales/deliveries");
+        public JsonResult GetProductsTransfers(string start, string stop, string filter, StationsService service) {
+            if (string.IsNullOrWhiteSpace(filter))
+                filter = "";
+            return Json(service.GetProductsTransfers(DateTime.Parse(start), DateTime.Parse(stop), filter));
         }
     }
 }

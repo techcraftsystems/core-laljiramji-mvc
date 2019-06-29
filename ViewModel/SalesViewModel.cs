@@ -45,4 +45,14 @@ namespace Core.ViewModel
             }
         }
     }
+
+    public class SalesTransferLedgerViewModel {
+        public List<ProductsTransfer> Ledger { get; set; }
+        public DateTime Date { get; set; }
+
+        public SalesTransferLedgerViewModel() {
+            Ledger = new List<ProductsTransfer>();
+            Date = DateTime.Now;
+        }
+    }
 }

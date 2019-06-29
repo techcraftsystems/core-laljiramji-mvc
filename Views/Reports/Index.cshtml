@@ -70,7 +70,7 @@
     <!--Column 2-->
     <div class="col-md-1">
         <ul class="report-icons">
-            <li class="light-blue-text">
+            <li class="indigo-text">
                 <div class="waves-effect waves-light modal-trigger" data-target="modal21">
                     <i class="material-icons medium icon-demo">streetview</i>
                     <p>Yearly Balances</p>
@@ -188,6 +188,25 @@
     <div class="col-md-1">
         <ul class="report-icons">
             <li class="light-blue-text">
+                <div class="waves-effect waves-light modal-trigger multiple-trigger" data-target="modal31" data-trigger="/reports/stock/transfers">
+                    <i class="material-icons medium icon-demo">keyboard_tab</i>
+                    <p>Transfered Stock</p>
+                </div>
+            </li>
+
+            <li class="light-blue-text">
+                <div class="waves-effect waves-light modal-trigger redirect-trigger" data-route="/sales/transfers/ledger">
+                    <i class="material-icons medium icon-demo">swap_horiz</i>
+                    <p>Transfers Ledger</p>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <!--Column 8-->
+    <div class="col-md-1">
+        <ul class="report-icons">
+            <li class="cyan-text">
                 <div class="waves-effect waves-light modal-trigger multiple-trigger" data-target="modal32" data-trigger="/reports/fuel/">
                     <i class="material-icons medium icon-demo">local_gas_station</i>
                     <p>Monthly Fuel</p>
@@ -287,7 +306,7 @@
 <!--Column 3 Modals-->
 <div id="modal31" class="modal modal-fixed-footer" style="width: 500px">
     <div class="modal-content">
-        <h4>VAT Report</h4>
+        <h4>View Report</h4>
         <p>Specify the below Parameters to generate the Summary </p>
         <div>
             <div class="input-field">

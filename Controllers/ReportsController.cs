@@ -119,6 +119,14 @@ namespace Core.Controllers
             return View(model);
         }
 
+        [Route("reports/stock/transfers/{month}/{year}")]
+        public IActionResult StocksTransferred(int month, int year, SalesTransferLedgerViewModel model) {
+            model.Date = new DateTime(year, month, 1);
+            model.Ledger = new StationsService().GetProductsTransfers(model.Date, model.Date.AddMonths(1).AddDays(-1));
+
+            return View(model);
+        }
+
         [Route("reports/stocks/quantity/{code}/{catg}/{month}/{year}")]
         public IActionResult StocksQuantity(string code, string catg, int month, int year, ReportProductSales model, StationsService service) {
             model.Date = new DateTime(year, month, 1);

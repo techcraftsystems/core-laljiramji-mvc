@@ -790,6 +790,68 @@ namespace Core.Services
             return sales;
         }
 
+        public List<ProductsTransfer> GetProductsTransfers(DateTime start, DateTime stop, string filter = "") {
+            List<ProductsTransfer> ledger = new List<ProductsTransfer>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            var query = conn.GetQueryString(filter, "Items+'-'+CAST(uPrice AS NVARCHAR)+'-'+CAST(tr_qt1 AS NVARCHAR)+'-'+CAST(tr_qt2 AS NVARCHAR)+'-'+CAST(tr_qt3 AS NVARCHAR)+'-'+CAST(tr_qt4 AS NVARCHAR)", "tr_date BETWEEN '" + start.Date + "' AND '" + stop.Date + "'");
+
+            SqlDataReader dr = conn.SqlServerConnect("USE shell_kinoru; SELECT tr_idnt, tr_date, tr_qt1, tr_qt2, tr_qt3, tr_qt4, tr_item, Items, Category, uPrice FROM ProductsTransfer INNER JOIN pProducts ON tr_item=id_ " + query + " ORDER BY tr_date, Items");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    ProductsTransfer transfer = new ProductsTransfer {
+                        Id = Convert.ToInt64(dr[0]),
+                        Date = Convert.ToDateTime(dr[1]),
+                        Gitimbine = Convert.ToDouble(dr[2]),
+                        Kaaga = Convert.ToDouble(dr[3]),
+                        Kirunga = Convert.ToDouble(dr[4]),
+                        Nkubu = Convert.ToDouble(dr[5]),
+                        Product = new Products {
+                            Id = Convert.ToInt64(dr[6]),
+                            Name = dr[7].ToString(),
+                            Category = dr[8].ToString(),
+                            Sp = Convert.ToDouble(dr[9])
+                        }
+                    };
+
+                    transfer.DateString = transfer.Date.ToString("dd/MM/yyyy");
+                    transfer.Total = transfer.Gitimbine + transfer.Kaaga + transfer.Kirunga + transfer.Nkubu;
+
+                    ledger.Add(transfer);
+                }
+            }
+
+            return ledger;
+        }
+
+        public List<ProductsTransfer> GetProductsTransfersSummary(DateTime start, DateTime stop) {
+            List<ProductsTransfer> ledger = new List<ProductsTransfer>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("USE shell_kinoru; DECLARE @start DATE='" + start.Date + "', @stop DATE='" + stop.Date + "'; SELECT tr_item, Items, Category, uPrice, SUM(tr_qt1)git, SUM(tr_qt2)kaag, SUM(tr_qt3)kir, SUM(tr_qt4)nkbu FROM ProductsTransfer INNER JOIN pProducts ON tr_item=id_ WHERE tr_date BETWEEN @start AND @stop GROUP BY Items, Category, uPrice, tr_item ORDER BY Items");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    ProductsTransfer transfer = new ProductsTransfer {
+                        Product = new Products {
+                            Id = Convert.ToInt64(dr[0]),
+                            Name = dr[1].ToString(),
+                            Category = dr[2].ToString(),
+                            Sp = Convert.ToDouble(dr[3])
+                        },
+                        Gitimbine = Convert.ToDouble(dr[4]),
+                        Kaaga = Convert.ToDouble(dr[5]),
+                        Kirunga = Convert.ToDouble(dr[6]),
+                        Nkubu = Convert.ToDouble(dr[7]),
+                    };
+
+                    transfer.Total = transfer.Gitimbine + transfer.Kaaga + transfer.Kirunga + transfer.Nkubu;
+                    ledger.Add(transfer);
+                }
+            }
+
+            return ledger;
+        }
+
         public List<ProductsSales> GetFuelSales(Stations station, DateTime start, DateTime stop) {
             List<ProductsSales> sales = new List<ProductsSales>();
 

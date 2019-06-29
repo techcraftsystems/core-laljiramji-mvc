@@ -1,0 +1,114 @@
+﻿@model Core.ViewModel.SalesTransferLedgerViewModel;
+@{
+    ViewData["Title"] = "Transfer Ledger";
+
+    DateTime start = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+    var ledger = new ProductsTransfer();
+}
+
+<style>
+    .row .col-md-1.get-ledger {
+        width: 5%;
+        padding-top: 10px;
+    }
+
+    .row .input-field.col-md-2 {
+        width: 20%;
+    }
+
+    .row .input-field.col-md-5 {
+        width: 55%;
+    }
+
+    input:not([type]), input[type=text]:not(.browser-default), input[type=password]:not(.browser-default), input[type=email]:not(.browser-default), input[type=url]:not(.browser-default), input[type=time]:not(.browser-default), input[type=date]:not(.browser-default), i[type=datetime]:not(.browser-default), input[type=datetime-local]:not(.browser-default), input[type=tel]:not(.browser-default), input[type=number]:not(.browser-default), input[type=search]:not(.browser-default), textarea.materialize-textarea {
+        margin-bottom: 5px;
+        margin-top: -10px;
+    }
+</style>
+<script src="~/js/sales-transfer-script.js"></script>
+
+<div class="row" style="margin-top: 10px; margin-bottom: 0px;">
+    <div class="input-field col-md-2">
+        <i class="material-icons prefix">date_range</i>
+        <input id="start" type="text" class="datepicker" value="@start.ToString("d MMMM, yyyy")">
+    </div>
+
+    <div class="input-field col-md-2">
+        <i class="material-icons prefix">date_range</i>
+        <input id="stops" type="text" class="datepicker" value="@DateTime.Now.ToString("d MMMM, yyyy")">
+    </div>
+
+    <div class="input-field col-md-5">
+        <i class="material-icons prefix">filter_list</i>
+        <input id="filter" type="text" placeholder="Filter Ledger" />
+    </div>
+
+    <div class="col-md-1 get-ledger">
+        <a class="btn btn-floating pulse btn gradient-45deg-amber-amber right"><i class="material-icons" style="line-height: 42px">search</i></a>
+    </div>
+</div>
+
+<div class="card zero-margin">
+    <div class="card-content deep-orange accent-2 white-text table-card" style="border-radius: 0">
+        <h5 class="card-stats-number"><i class="material-icons left">add_shopping_cart</i>Stocks Transfer</h5>
+        <p class="card-stats-compare right">
+            <i class="material-icons left">history</i>
+            <span class="deep-orange-text text-lighten-5 opening-balance">Lubes Transfer</span>
+        </p>
+    </div>
+
+    <table id="ledger-table" class="custom bordered" data-loaded="0" style="margin-top:-20px">
+        <thead class="deep-orange accent-2">
+            <tr>
+                <th>DATE</th>
+                <th>PRODUCT</th>
+                <th>CATEGORY</th>
+                <th class="center-text">GITIMBINE</th>
+                <th class="center-text">KAAGA</th>
+                <th class="center-text">KIRUNGA</th>
+                <th class="center-text">NKUBU</th>
+                <th class="center-text">TOTAL</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody style="font-size:0.9em">
+            @foreach (var ldg in Model.Ledger) {
+                ledger.Gitimbine += ldg.Gitimbine;
+                ledger.Kaaga += ldg.Kaaga;
+                ledger.Kirunga += ldg.Kirunga;
+                ledger.Nkubu += ldg.Nkubu;
+                ledger.Total += ldg.Total;
+
+                <tr>
+                    <td>@ldg.DateString</td>
+                    <td><a class="blue-text" href="/products/kinoru/@(ldg.Product.Id)">@ldg.Product.Name</a></td>
+                    <td>@ldg.Product.Category</td>
+                    <td class="center-text">@string.Format("{0:N0}", ldg.Gitimbine)</td>
+                    <td class="center-text">@string.Format("{0:N0}", ldg.Kaaga)</td>
+                    <td class="center-text">@string.Format("{0:N0}", ldg.Kirunga)</td>
+                    <td class="center-text">@string.Format("{0:N0}", ldg.Nkubu)</td>
+                    <td class="center-text bold-text">@string.Format("{0:N0}", ldg.Total)</td>
+                    <td><a class="material-icons tiny-box grey-text right edit-transfer" data-idnt="@(ldg.Id)">border_color</a></td>
+                </tr>
+            }
+
+            @if (Model.Ledger.Count.Equals(0)) {
+                <tr>
+                    <td colspan="9">NO RECORDS FOUND</td>
+                </tr>
+            }
+        </tbody>
+
+        <tfoot class="deep-orange accent-2 white-text">
+            <tr>
+                <th colspan="3">LEDGER SUMMARY</th>
+                <th class="center-text">@string.Format("{0:N0}", ledger.Gitimbine)</th>
+                <th class="center-text">@string.Format("{0:N0}", ledger.Kaaga)</th>
+                <th class="center-text">@string.Format("{0:N0}", ledger.Kirunga)</th>
+                <th class="center-text">@string.Format("{0:N0}", ledger.Nkubu)</th>
+                <th class="center-text">@string.Format("{0:N0}", ledger.Total)</th>
+                <th>&nbsp;</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>

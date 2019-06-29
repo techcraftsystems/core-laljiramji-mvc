@@ -84,4 +84,28 @@ namespace Core.Models
             Kirunga = new Products();
         }
     }
+
+    public class ProductsTransfer {
+        public long Id { get; set; }
+        public DateTime Date { get; set; }
+        public string DateString { get; set; }
+        public Products Product { get; set; }
+        public double Gitimbine { get; set; }
+        public double Kaaga { get; set; }
+        public double Nkubu { get; set; }
+        public double Kirunga { get; set; }
+        public double Total { get; set; }
+
+        public ProductsTransfer() {
+            Id = 0;
+            Date = DateTime.Now;
+            DateString = Date.ToString("dd/MM/yyyy");
+            Product = new Products();
+            Gitimbine = 0;
+            Kaaga = 0;
+            Nkubu = 0;
+            Kirunga = 0;
+            Total = 0;
+        }
+    }
 }
