@@ -31,6 +31,17 @@
     a.material-icons:hover {
         color: #2196F3 !important;
     }
+    div.modal-content label {
+        padding-left: 15px;
+    }
+    div.modal-content td {
+        padding: 2px;
+    }
+    div.modal-content td input {
+        padding: 0;
+        margin: 0 !important;
+        height: 2rem;
+    }
 </style>
 <script src="~/js/expense-index-script.js"></script>
 
@@ -54,7 +65,7 @@
         <li class="collection-item">
             <div class="">
                 <div class="col s12">
-                    <i class="material-icons left blue-text">local_shipping</i><a class="blue-text modal-trigger fuel-modal" data-target="truck-fuel-modal">Add Trucks Fuel</a>
+                    <i class="material-icons left blue-text">local_shipping</i><a class="blue-text fuel-modal">Add Trucks Fuel</a>
                 </div>
             </div>
         </li>
@@ -169,13 +180,28 @@
 
 <div id="truck-fuel-modal" class="modal modal-fixed-footer" style="width: 1000px">
     <div class="modal-content">
-        <h4>FUEL EXPENDITURE</h4>
-        @using (Html.BeginForm("AddTruckFuelExpense", "Expense", FormMethod.Post, new { id = "truck-fuel-form" }))
-        {
+        @using (Html.BeginForm("AddTruckFuelExpense", "Expense", FormMethod.Post, new { id = "truck-fuel-form" })) {
+            <h4>FUEL EXPENDITURE</h4>
+            <hr style="margin: 5px 0"/>
+
+            <div class="row">
+                <div class="input-field col-md-3">
+                    <i class="material-icons prefix">event</i>
+                    @Html.TextBoxFor(model => model.DateX, new { @class = "datepicker" })
+                    <label>Select Date</label>
+                </div>
+
+                <div class="input-field col-md-6">
+                    <i class="material-icons prefix">event</i>
+                    @Html.TextBoxFor(model => model.Notes)
+                    <label>Description</label>
+                </div>
+            </div>
+
             <table id="truck-fuel-table">
                 <thead>
                     <tr>
-                        <th>DATE</th>
+                        <th>&nbsp;</th>
                         <th>TRUCK</th>
                         <th>SUPPLIER</th>
                         <th>INVOICE</th>
@@ -183,26 +209,34 @@
                         <th class="right-align">PRICE</th>
                         <th class="right-align">AMOUNT</th>
                         <th class="right-align">V.A.T</th>
+                        <th>&nbsp;</th>
                     </tr>
                 </thead>
+
                 <tbody>
-                    <tr>
-                        <td class="width-150px">@Html.TextBoxFor(model => model.TrucksExpenses.DateString, new { @class = "datepicker" })</td>
-                        <td class="width-150px">@Html.DropDownListFor(model => model.TrucksExpenses.Truck.Id, Model.Trucks)</td>
-                        <td>@Html.DropDownListFor(model => model.TrucksExpenses.Supplier.Id, Model.Suppliers)</td>
-                        <td class="width-90px">@Html.TextBoxFor(model => model.TrucksExpenses.Invoice)</td>
-                        <td class="width-100px">@Html.TextBoxFor(model => model.TrucksExpenses.Quantity, new { @class = "qnty" })</td>
-                        <td class="width-60px">@Html.TextBoxFor(model => model.TrucksExpenses.Price, new { @class = "price right-align" })</td>
-                        <td class="width-120px"><input type="text" class="amts right-align" value="0" readonly></td>
-                        <td class="width-90px">@Html.TextBoxFor(model => model.TrucksExpenses.VatAmount, new { @class = "vats right-align" })</td>
-                    </tr>
+                    @for (int i = 0; i < Model.TrucksFuel.Count; i++) {
+                        <tr class="trcks @(i == 0 ? "":"hide")">
+                            <td style="width:1px;">@(i + 1).</td>
+                            <td class="width-150px">@Html.DropDownListFor(model => model.TrucksFuel[i].Truck.Id, Model.Trucks)</td>
+                            <td>@Html.DropDownListFor(model => model.TrucksFuel[i].Supplier.Id, Model.Suppliers)</td>
+                            <td class="width-90px">@Html.TextBoxFor(model => model.TrucksFuel[i].Invoice, new { @class = "center-text" })</td>
+                            <td class="width-100px">@Html.TextBoxFor(model => model.TrucksFuel[i].Quantity, new { @type = "number", @class = "qnty right-align" })</td>
+                            <td class="width-60px">@Html.TextBoxFor(model => model.TrucksFuel[i].Price, new { @type = "number", @class = "price right-align" })</td>
+                            <td class="width-120px"><input type="text" class="amts right-align" value="0" readonly></td>
+                            <td class="width-90px">@Html.TextBoxFor(model => model.TrucksFuel[i].VatAmount, new { @type = "number", @class = "vats right-align" })</td>
+                            <td>
+                                <a class="red-text right remove-truck-fuel-row" style="font-size:0.7em" data-line="0">
+                                    <i class="material-icons pointer">delete_forever</i>
+                                </a>
+                                @Html.HiddenFor(model => model.TrucksFuel[i].Id)
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
-
-            @Html.HiddenFor(model => model.TrucksExpenses.Id)
         }
 
-        <a class="btn-truck-fuel-row btn-floating waves-effect waves-light gradient-45deg-light-blue-cyan">
+        <a class="btn-truck-fuel-row btn-floating waves-effect waves-light gradient-45deg-light-blue-cyan" style="margin-top:10px">
             <i class="material-icons">exposure_plus_1</i>
         </a>
     </div>
@@ -216,8 +250,7 @@
 <div id="station-expense-modal" class="modal modal-fixed-footer" style="width: 1400px">
     <div class="modal-content">
         <h4>FUEL EXPENDITURE</h4>
-        @using (Html.BeginForm("AddStationExpense", "Expense", FormMethod.Post, new { id = "station-expense-form" }))
-        {
+        @using (Html.BeginForm("AddStationExpense", "Expense", FormMethod.Post, new { id = "station-expense-form" })) {
             <table id="station-expense-table">
                 <thead>
                     <tr>

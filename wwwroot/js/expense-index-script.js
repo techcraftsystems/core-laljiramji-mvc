@@ -1,3 +1,7 @@
+String.prototype.toAccounting = function() {
+    return parseFloat(this).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+};
+
 $(function() {
     $('.modal').modal();
 
@@ -5,24 +9,137 @@ $(function() {
         jq('#TrucksExpenses_Id').val(0);
     });
 
+    jq('a.fuel-modal').click(function(){
+        jq("tr.trcks").each(function(i, row) {
+            if (i == 0){
+                jq(this).removeClass('hide');
+            }
+            else{
+                if (!jq(this).hasClass('hide')){
+                    jq(this).addClass('hide');
+                }
+            }
+
+            jq(this).find('td:eq(0)').text(eval(i+1) + '.');
+            jq(this).find('td:eq(3) input').val('');
+            jq(this).find('td:eq(4) input').val('0');
+            jq(this).find('td:eq(6) input').val('0.00');
+            jq(this).find('td:eq(7) input').val('0.00');
+            jq(this).find('td:eq(8) input').val('0');
+        });
+
+        jq('#Notes').val("N/A");
+        jq('#truck-fuel-modal').modal('open');
+    });
+
     jq('#expense-table').on('click', 'a.link-fuel', function(){
-        GetTrucksFuelExpense(jq(this).data('idnt'));
+        if (isadmin == 'false'){
+            Materialize.toast('<span>You do not have permission to perform this task</span><a class="btn-flat red-text pointer">Access Denied</a>', 3000);
+            return false;
+        }
+
+        jq("tr.trcks").each(function(i, row) {
+            if (i == 0){
+                jq(this).removeClass('hide');
+            }
+            else{
+                if (!jq(this).hasClass('hide')){
+                    jq(this).addClass('hide');
+                }
+
+                jq(this).find('td:eq(3) input').val('');
+                jq(this).find('td:eq(4) input').val('0');
+                jq(this).find('td:eq(6) input').val('0.00');
+                jq(this).find('td:eq(7) input').val('0.00');
+                jq(this).find('td:eq(8) input').val('0');
+            }
+
+            jq(this).find('td:eq(0)').text(eval(i+1) + '.');
+        });
+
+        var row = jq('#truck-fuel-table tbody tr.trcks:eq(0)');
+
+        jq.ajax({
+            dataType: "json",
+            url: '/Expense/GetTrucksFuelExpense',
+            data: {
+                "idnt": jq(this).data('idnt')
+            },
+            success: function(exps) {
+                jq('#DateX').val(exps.dateString);
+                jq('#Notes').val(exps.description);
+
+                row.find('td:eq(1) input').val(exps.truck.registration);
+                row.find('td:eq(1) select').val(exps.truck.id);
+                row.find('td:eq(2) input').val(exps.supplier.name);
+                row.find('td:eq(2) select').val(exps.supplier.id);
+                row.find('td:eq(3) input').val(exps.invoice);
+                row.find('td:eq(4) input').val(exps.quantity);
+                row.find('td:eq(5) input').val(exps.price);
+                row.find('td:eq(5) input').change();
+                row.find('td:eq(7) input').val(exps.vatAmount);
+                row.find('td:eq(8) input').val(exps.id);
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                console.log(xhr.status);
+                console.log(thrownError);
+            },
+            complete: function() {
+                $('#truck-fuel-modal').modal('open');
+            }
+        }); 
+    });
+
+    jq('a.btn-truck-fuel-row').click(function(){
+        jq("tr.trcks").each(function() {
+            if (jq(this).hasClass('hide')){
+                jq(this).removeClass('hide');
+                return false;
+            }
+        });
+    });
+
+    jq('a.remove-truck-fuel-row').click(function(){
+        jq(this).closest('tr').remove();
+
+        jq("tr.trcks").each(function(i, row) {
+            jq(this).find('td:eq(0)').text(eval(i+1) + '.');
+        });
     });
 
     jq('#truck-fuel-modal .modal-footer .modal-post').click(function() {
-        if (jq('#TrucksExpenses_DateString').val().trim() == ''){
-            Materialize.toast('<span>Specify a valid Date</span><a class="btn-flat yellow-text right" href="#!">Close<a>', 3000);
-            return;
+        var err_count = 0;
+
+        if (jq('#truck-fuel-table tr.trcks').length == 0){
+            Materialize.toast('<span>No fuel purchase data rows were found</span><a class="btn-flat yellow-text" href="#!">Correct that</a>', 3000)
+            return false;
         }
 
-        if (jq('#TrucksExpenses_Invoice').val().trim() == ''){
-            Materialize.toast('<span>Specify Invoice Number</span><a class="btn-flat yellow-text right" href="#!">Close<a>', 3000);
-            return;
-        }
+        jq("#truck-fuel-table tr.trcks").each(function(i, row) {
+            if (jq(this).hasClass('hide'))
+                return;
 
-        if (jq('#TrucksExpenses_Quantity').val().trim() == '' || jq('#TrucksExpenses_Quantity').val() == 0){
-            Materialize.toast('<span>Specify the Quantity Fueled</span><a class="btn-flat yellow-text right" href="#!">Close<a>', 3000);
-            return;
+            if (jq(this).find('td:eq(3) input').val().trim() == '') {
+                Materialize.toast('<span>Invoice number in row ' + eval(i+1) + ' cannot be blank</span><a class="btn-flat yellow-text" href="#!">Correct that</a>', 3000)
+                err_count++;
+                return false;
+            }
+
+            if (!eval(jq(this).find('td:eq(6) input.amts').val()) > 0) {
+                Materialize.toast('<span>Invalid quantity/amount in row ' + eval(i+1) + '</span><a class="btn-flat yellow-text" href="#!">Correct that</a>', 3000)
+                err_count++;
+                return false;
+            }
+
+            if (!eval(jq(this).find('td:eq(7) input.vats').val()) > 0) {
+                Materialize.toast('<span>Invalid purchase VAT in row ' + eval(i+1) + '</span><a class="btn-flat yellow-text" href="#!">Correct that</a>', 3000)
+                err_count++;
+                return false;
+            }
+        });
+
+        if (err_count > 0){
+            return false;
         }
 
         jq('#truck-fuel-form').submit();
@@ -76,47 +193,8 @@ $(function() {
     jq('.get-expense a').click(function(){
         GetExpensesCore();
     });
+
 });
-
-String.prototype.toAccounting = function() {
-    var str =  parseFloat(this).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
-
-    if (str.charAt(0) == '-'){
-        return '(' + str.substring(1,40) + ')';
-    }
-    else {
-        return str;
-    }
-};
-
-function GetTrucksFuelExpense(idnt){
-    jq.ajax({
-        dataType: "json",
-        url: '/Expense/GetTrucksFuelExpense',
-        data: {
-            "idnt": idnt
-        },
-        success: function(expense) {
-            jq('#TrucksExpenses_Id').val(expense.id);
-            jq('#TrucksExpenses_Invoice').val(expense.invoice);
-            jq('#TrucksExpenses_Quantity').val(expense.quantity);
-            jq('#TrucksExpenses_Price').val(expense.price);
-
-            jq('#TrucksExpenses_Price').change();
-
-            jq('#TrucksExpenses_VatAmount').val(expense.vatAmount);
-
-        },
-        error: function(xhr, ajaxOptions, thrownError) {
-            console.log(xhr.status);
-            console.log(thrownError);
-        },
-        complete: function() {
-            $('#truck-fuel-modal').modal('open');
-        }
-    }); 
-
-}
 
 function GetExpensesCore() {
     jq.ajax({
@@ -137,6 +215,7 @@ function GetExpensesCore() {
             jq('#expense-table tfoot').empty();
 
             jq.each(results, function(i, expense) {
+                var cls = expense.source == 1 ? "link-fuel" : "link-exps";
                 var row = "<tr>";
                 row += "<td>" + expense.date + "</td>";
                 row += "<td>" + expense.quantity + "</td>";
@@ -147,7 +226,7 @@ function GetExpensesCore() {
                 row += "<td>" + expense.description + "</td>";
                 row += "<td class='right-align'>" + expense.price + "</td>";
                 row += "<td class='right-align'>" + expense.amount.toString().toAccounting() + "</td>";
-                row += "<td><a class='material-icons tiny-box grey-text'>border_color</a></td>";
+                row += "<td><a class='material-icons tiny-box grey-text " + cls + "'>border_color</a></td>";
                 row += "</tr>";
 
                 total += expense.amount;

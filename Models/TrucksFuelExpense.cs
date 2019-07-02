@@ -40,8 +40,16 @@ namespace Core.Models
 			Exclussive = 0;
         }
 
+        public TrucksFuelExpense(long idnt) : this() {
+            Id = idnt;
+        }
+
         public TrucksFuelExpense Save(HttpContext context) {
             return new CoreService(context).SaveTrucksFuelExpense(this);
+        }
+
+        public void Delete() {
+            new CoreService().DeleteTrucksFuelExpense(this);
         }
 
         public void UpdateLatestPurchasePrice() {

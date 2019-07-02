@@ -43,16 +43,20 @@ namespace Core.Controllers
         public IActionResult AddTruckFuelExpense()
         {
             CoreService core = new CoreService(HttpContext);
-            TrucksFuelExpense expense = ExpenseModel.TrucksExpenses;
 
-            DateTime date = DateTime.Parse(expense.DateString);
+            DateTime date = DateTime.Parse(ExpenseModel.DateX);
             VatResults vat = core.GetVatResults(date, new Fuel(1));
 
-            expense.Date = date;
-            expense.Amount = expense.Quantity * expense.Price;
-            expense.Zerorated = expense.Amount - expense.VatAmount - (expense.VatAmount/0.08);
-            expense.Description = "N/A";
-            expense.Save(HttpContext);
+            foreach(var expense in ExpenseModel.TrucksFuel) {
+                if (string.IsNullOrEmpty(expense.Invoice))
+                    continue;
+
+                expense.Date = date;
+                expense.Amount = expense.Quantity * expense.Price;
+                expense.Zerorated = expense.Amount - expense.VatAmount - (expense.VatAmount/0.08);
+                expense.Description = "N/A";
+                expense.Save(HttpContext);
+            }
 
             return LocalRedirect("/expenses/");
         }
@@ -84,6 +88,13 @@ namespace Core.Controllers
 
         public JsonResult GetTrucksFuelExpense(int idnt, CoreService core) {
             return Json(core.GetTrucksFuelExpense(idnt));
+        }
+
+        [Authorize(Roles = "Super User")]
+        public IActionResult DeleteFuelExpense(int idnt, CoreService core) {
+            new TrucksFuelExpense(idnt).Delete();
+
+            return Ok("success");
         }
     }
 }

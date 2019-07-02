@@ -40,7 +40,7 @@ namespace Core.ViewModel
 
             Deliveries = new List<Delivery>();
             Entries = new List<Delivery>();
-            for (int i=0; i<10; i++) {
+            for (int i = 0; i < 10; i++) {
                 Entries.Add(new Delivery());
             }
         }

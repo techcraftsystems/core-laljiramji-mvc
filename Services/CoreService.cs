@@ -213,7 +213,7 @@ namespace Core.Services
 
         public TrucksFuelExpense GetTrucksFuelExpense(int idnt) {
             SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("SELECT tf_idnt, tf_date, tf_truck, tr_registration, tf_supplier, sp_name, tf_invoice, tf_qnty, tf_price, tf_amount, tf_vatamts, tf_zerorated FROM TrucksFuel INNER JOIN Trucks ON tr_idnt=tf_truck INNER JOIN Suppliers ON sp_idnt=tf_supplier WHERE tf_idnt=" + idnt);
+            SqlDataReader dr = conn.SqlServerConnect("SELECT tf_idnt, tf_date, tf_truck, tr_registration, tf_supplier, sp_name, tf_invoice, tf_qnty, tf_price, tf_amount, tf_vatamts, tf_zerorated, tf_description FROM TrucksFuel INNER JOIN Trucks ON tr_idnt=tf_truck INNER JOIN Suppliers ON sp_idnt=tf_supplier WHERE tf_idnt=" + idnt);
             if (dr.Read())
             {
                 TrucksFuelExpense xp = new TrucksFuelExpense
@@ -226,9 +226,11 @@ namespace Core.Services
                     Quantity = Convert.ToDouble(dr[7]),
                     Price = Convert.ToDouble(dr[8]),
                     Amount = Convert.ToDouble(dr[9]),
-                    VatAmount = Convert.ToDouble(dr[10])
+                    VatAmount = Convert.ToDouble(dr[10]),
+                    Description = dr[12].ToString()
                 };
-                
+
+                xp.DateString = xp.Date.ToString("d MMMM, yyyy");
                 xp.Exclussive = (xp.VatAmount / 0.08);
                 xp.Zerorated = xp.Amount - xp.VatAmount - xp.Exclussive;
                 
@@ -243,7 +245,7 @@ namespace Core.Services
             List<TrucksFuelExpense> report = new List<TrucksFuelExpense>();
 
             SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("SELECT tf_idnt, tf_date, tf_truck, tr_registration, tf_supplier, sp_name, tf_invoice, tf_qnty, tf_price, tf_amount, tf_vatamts, tf_zerorated FROM TrucksFuel INNER JOIN Trucks ON tr_idnt=tf_truck INNER JOIN Suppliers ON sp_idnt=tf_supplier WHERE MONTH(tf_date)=" + month + " AND YEAR(tf_date)=" + year + " ORDER BY tf_date, tf_idnt");
+            SqlDataReader dr = conn.SqlServerConnect("SELECT tf_idnt, tf_date, tf_truck, tr_registration, tf_supplier, sp_name, tf_invoice, tf_qnty, tf_price, tf_amount, tf_vatamts, tf_zerorated, tf_description FROM TrucksFuel INNER JOIN Trucks ON tr_idnt=tf_truck INNER JOIN Suppliers ON sp_idnt=tf_supplier WHERE MONTH(tf_date)=" + month + " AND YEAR(tf_date)=" + year + " ORDER BY tf_date, tf_idnt");
             if (dr.HasRows) {
                 while (dr.Read()) {
                     TrucksFuelExpense xp = new TrucksFuelExpense {
@@ -255,10 +257,12 @@ namespace Core.Services
                         Quantity = Convert.ToDouble(dr[7]),
                         Price = Convert.ToDouble(dr[8]),
                         Amount = Convert.ToDouble(dr[9]),
-                        VatAmount = Convert.ToDouble(dr[10])
+                        VatAmount = Convert.ToDouble(dr[10]),
+                        Description = dr[12].ToString()
                     };
-					
-					xp.Exclussive = (xp.VatAmount / 0.08);
+
+                    xp.DateString = xp.Date.ToString("d MMMM, yyyy");
+                    xp.Exclussive = (xp.VatAmount / 0.08);
 					xp.Zerorated = xp.Amount - xp.VatAmount - xp.Exclussive;
 					
 					report.Add(xp);
@@ -470,6 +474,11 @@ namespace Core.Services
             expense.Id = conn.SqlServerUpdate("DECLARE @idnt INT=" + expense.Id+ ", @date DATE='" + expense.Date + "', @trck INT=" + expense.Truck.Id + ", @supp INT=" + expense.Supplier.Id + ", @invs NVARCHAR(MAX)='" + expense.Invoice + "', @qnty FLOAT=" + expense.Quantity + ", @prce FLOAT=" + expense.Price + ", @amts FLOAT=" + expense.Amount + ", @vats FLOAT=" + expense.VatAmount + ", @zero FLOAT=" + expense.Zerorated + ", @user NVARCHAR(50)='" + Username + "', @desc NVARCHAR(MAX)='" + expense.Description + "'; IF NOT EXISTS (SELECT tf_idnt FROM TrucksFuel WHERE tf_idnt=@idnt) BEGIN INSERT INTO TrucksFuel (tf_date, tf_truck, tf_supplier, tf_invoice, tf_qnty, tf_price, tf_amount, tf_vatamts, tf_zerorated, tf_user, tf_description) output INSERTED.tf_idnt VALUES (@date, @trck, @supp, @invs, @qnty, @prce, @amts, @vats, @zero, @user, @desc) END ELSE BEGIN UPDATE TrucksFuel SET tf_date=@date, tf_truck=@trck, tf_supplier=@supp, tf_invoice=@invs, tf_qnty=@qnty, tf_price=@prce, tf_amount=@amts, tf_vatamts=@vats, tf_zerorated=@zero, tf_description=@desc output INSERTED.tf_idnt WHERE tf_idnt=@idnt END");
 
             return expense;
+        }
+
+        public void DeleteTrucksFuelExpense(TrucksFuelExpense expense) {
+            SqlServerConnection conn = new SqlServerConnection();
+            conn.SqlServerUpdate("DELETE FROM TrucksFuel WHERE tf_idnt=" + expense.Id);
         }
 
         public StationsExpenses SaveStationsExpenses(StationsExpenses expense) {
