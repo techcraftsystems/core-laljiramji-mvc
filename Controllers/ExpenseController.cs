@@ -40,8 +40,7 @@ namespace Core.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddTruckFuelExpense()
-        {
+        public IActionResult AddTruckFuelExpense() {
             CoreService core = new CoreService(HttpContext);
 
             DateTime date = DateTime.Parse(ExpenseModel.DateX);

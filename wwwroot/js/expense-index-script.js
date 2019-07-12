@@ -125,13 +125,13 @@ $(function() {
                 return false;
             }
 
-            if (!eval(jq(this).find('td:eq(6) input.amts').val()) > 0) {
+            if (!eval(jq(this).find('td:eq(6) input.amts').val().replace(',','')) > 0) {
                 Materialize.toast('<span>Invalid quantity/amount in row ' + eval(i+1) + '</span><a class="btn-flat yellow-text" href="#!">Correct that</a>', 3000)
                 err_count++;
                 return false;
             }
 
-            if (!eval(jq(this).find('td:eq(7) input.vats').val()) > 0) {
+            if (!eval(jq(this).find('td:eq(7) input.vats').val().replace(',','')) > 0) {
                 Materialize.toast('<span>Invalid purchase VAT in row ' + eval(i+1) + '</span><a class="btn-flat yellow-text" href="#!">Correct that</a>', 3000)
                 err_count++;
                 return false;
