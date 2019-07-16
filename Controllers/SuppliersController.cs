@@ -1,4 +1,5 @@
 ﻿using System;
+using Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,12 +8,14 @@ namespace Core.Controllers
     [Authorize]
     public class SuppliersController : Controller 
     {
-        [Route("core/suppliers")]
+        private readonly CoreService Core = new CoreService();
+
+        [Route("/suppliers")]
         public IActionResult Index() {
-            return View();
+            return View(Core.GetSuppliers());
         }
 
-        [Route("core/suppliers/{uuid}")]
+        [Route("/suppliers/{uuid}")]
         public IActionResult Supplier(string uuid) {
             return View();
         }

@@ -1,6 +1,46 @@
-﻿@{
+﻿@model System.Collections.Generic.List<Core.Models.Suppliers>;
+@{
     ViewData["Title"] = "Suppliers";
 }
+
+<link href="~/lib/data-tables/css/jquery.dataTables.min.css" type="text/css" rel="stylesheet">
+<script src="~/lib/data-tables/js/jquery.dataTables.min.js"></script>
+<script src="~/js/suppliers-index-script.js"></script>
+
+<style>
+    select {
+        display: initial;
+        height: 2rem;
+        width: auto;
+    }
+    .dataTables_wrapper .dataTables_filter input {
+        margin-left: 0;
+        height: 2rem !important;
+    }
+    .dataTables_length {
+        display: none;
+    }
+    .dataTables_filter {
+        margin-top: -40px;
+    }
+    .alight-right {
+        text-align: right;
+    }
+    h3.header {
+        margin-bottom: 0;
+        padding-left: 10px;
+    }
+    table a {
+        color: #333;
+    }
+    table a:hover {
+        color: #00adef;
+    }
+    table.dataTable thead .sorting{
+        background-image: none;
+    }
+</style>
+
 
 <div id="breadcrumbs-wrapper">
     <div class="container">
@@ -20,4 +60,40 @@
         </div>
     </div>
 </div>
-<div style="clear:both; margin-top:45px;"></div>
+<div style="clear:both; margin-top:55px;"></div>
+
+<h3 class="header zero-margin">Suppliers Module</h3>
+<div class="col s12">
+    <table id="suppliers-table" class="display" cellspacing="0">
+        <thead>
+            <tr>
+                <th>SUPPLIER</th>
+                <th>CONTACTS</th>
+                <th>PHONE</th>
+                <th>KRA PIN</th>
+                <th class="right-text">BALANCE</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <th>SUPPLIER</th>
+                <th>CONTACTS</th>
+                <th>PHONE</th>
+                <th>KRA PIN</th>
+                <th class="right-text">BALANCE</th>
+            </tr>
+        </tfoot>
+        <tbody>
+            @foreach (var supp in Model)
+            {
+                <tr data-idnt="@supp.Id">
+                    <td><a class="blue-text" href="/suppliers/@(supp.Uuid)">@supp.Name</a></td>
+                    <td>@supp.Address @supp.City</td>
+                    <td>@supp.Telephone</td>
+                    <td>@supp.Pin</td>
+                    <td class="right-text">@string.Format("{0:N}", supp.Balance)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

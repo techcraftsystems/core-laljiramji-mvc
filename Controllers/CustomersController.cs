@@ -13,9 +13,8 @@ namespace Core.Controllers
     {
         // GET: /<controller>/
         [Route("customers")]
-        public IActionResult Index(CoreService svc)
-        {
-            List<Customers> customers = new List<Customers>(svc.GetCustomers(""));
+        public IActionResult Index(CoreService svc) {
+            List<Customers> customers = new List<Customers>(svc.GetCustomers());
             return View(customers);
         }
 

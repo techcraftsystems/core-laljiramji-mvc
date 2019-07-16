@@ -67,12 +67,11 @@ namespace Core.Services
             return customer;
         }
 
-        public List<Customers> GetCustomers(String stations){
+        public List<Customers> GetCustomers(string stations = ""){
             List<Customers> customers = new List<Customers>();
             String additionalquery = "";
 
-            if (!string.IsNullOrEmpty(stations.Trim()))
-            {
+            if (!string.IsNullOrEmpty(stations.Trim())) {
                 additionalquery = "WHERE st_name IN ('" + stations + "')";
             }
 
@@ -102,6 +101,33 @@ namespace Core.Services
             }
 
             return customers;
+        }
+
+        public List<Suppliers> GetSuppliers(string filter = "") {
+            List<Suppliers> suppliers = new List<Suppliers>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("SELECT sp_idnt, sp_uuid, sp_name, ISNULL(NULLIF(sp_pin,''),'—')sp_pin, sp_contacts, sp_city, sp_telephone, sp_balance, sp_fuel, sp_lubes, sp_gas, sp_soda FROM Suppliers ORDER BY sp_name, sp_idnt");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    suppliers.Add(new Suppliers {
+                        Id = Convert.ToInt64(dr[0]),
+                        Uuid = dr[1].ToString(),
+                        Name = dr[2].ToString(),
+                        Pin = dr[3].ToString(),
+                        Address = dr[4].ToString(),
+                        City = dr[5].ToString(),
+                        Telephone = dr[6].ToString(),
+                        Balance = Convert.ToInt64(dr[7]),
+                        Fuel = Convert.ToBoolean(dr[8]),
+                        Lube = Convert.ToBoolean(dr[9]),
+                        Gas = Convert.ToBoolean(dr[10]),
+                        Soda = Convert.ToBoolean(dr[11])
+                    });
+                }
+            }
+
+            return suppliers;
         }
 
         public List<SelectListItem> GetStationsIEnumerable(bool includeOthers = false) {
