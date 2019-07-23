@@ -103,6 +103,29 @@ namespace Core.Services
             return customers;
         }
 
+        public Suppliers GetSupplier(string uuid) {
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("SELECT sp_idnt, sp_uuid, sp_name, ISNULL(NULLIF(sp_pin,''),'—')sp_pin, sp_contacts, sp_city, sp_telephone, sp_balance, sp_fuel, sp_lubes, sp_gas, sp_soda FROM Suppliers WHERE sp_uuid COLLATE SQL_Latin1_General_CP1_CS_AS LIKE '" + uuid + "'");
+            if (dr.Read()) {
+                return new Suppliers {
+                    Id = Convert.ToInt64(dr[0]),
+                    Uuid = dr[1].ToString(),
+                    Name = dr[2].ToString(),
+                    Pin = dr[3].ToString(),
+                    Address = dr[4].ToString(),
+                    City = dr[5].ToString(),
+                    Telephone = dr[6].ToString(),
+                    Balance = Convert.ToInt64(dr[7]),
+                    Fuel = Convert.ToBoolean(dr[8]),
+                    Lube = Convert.ToBoolean(dr[9]),
+                    Gas = Convert.ToBoolean(dr[10]),
+                    Soda = Convert.ToBoolean(dr[11])
+                };
+            }
+
+            return null;
+        }
+
         public List<Suppliers> GetSuppliers(string filter = "") {
             List<Suppliers> suppliers = new List<Suppliers>();
 
@@ -207,8 +230,7 @@ namespace Core.Services
             return expenses;
         }
 
-        public List<TrucksMonthlySummary> GetTrucksMonthlySummary(int year)
-        {
+        public List<TrucksMonthlySummary> GetTrucksMonthlySummary(int year) {
             List<TrucksMonthlySummary> report = new List<TrucksMonthlySummary>();
 
             SqlServerConnection conn = new SqlServerConnection();
@@ -266,8 +288,7 @@ namespace Core.Services
             return new TrucksFuelExpense();
         }
 
-        public List<TrucksFuelExpense> GetTrucksFuelExpense(int month, int year)
-        {
+        public List<TrucksFuelExpense> GetTrucksFuelExpense(int month, int year) {
             List<TrucksFuelExpense> report = new List<TrucksFuelExpense>();
 
             SqlServerConnection conn = new SqlServerConnection();
@@ -348,6 +369,46 @@ namespace Core.Services
                     });
                 }
             }
+
+            return expenses;
+        }
+
+        public List<ExpensesLedger> GetCoreExpenses(DateTime start, DateTime stop, Suppliers supplier, string filter = "") {
+            List<ExpensesLedger> expenses = new List<ExpensesLedger>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            string filterString = conn.GetQueryString(filter, "xp_invoice+'-'+ec_category+'-'+xp_description+'-'+CAST(xp_amount AS NVARCHAR)+'-'+ISNULL(sp_name,'Unknown')+'-'+ISNULL(st_code,'')+'-'+ISNULL(st_name,'')", "xp_date BETWEEN '" + start.Date + "' AND '" + stop.Date + "'");
+            if (supplier != null)
+                filterString += " AND xp_supplier IN (" + supplier.Id + ")";
+
+            SqlDataReader dr = conn.SqlServerConnect("SELECT xp_idnt, xp_type, xp_date, xp_invoice, ec_category, xp_description, xp_amount, xp_vat_amts, xp_zero_rated, ISNULL(sp_idnt,0)spid,ISNULL(sp_uuid,'Y67WzS54')spuuid,ISNULL(sp_name,'Unknown')spname, ISNULL(st_idnt,0)stidnt, ISNULL(st_code,'')stcode, ISNULL(st_name,'')stname, xp_supplier FROM vExpensesLedger LEFT OUTER JOIN Suppliers ON sp_idnt=xp_supplier LEFT OUTER JOIN Stations ON st_idnt=xp_station " + filterString + " ORDER BY xp_date, xp_invoice, xp_idnt, xp_type");
+            if (dr.HasRows) {
+                while (dr.Read()) { 
+                    expenses.Add(new ExpensesLedger {
+                        Id = Convert.ToInt64(dr[0]),
+                        Type = Convert.ToInt32(dr[1]),
+                        Date = Convert.ToDateTime(dr[2]),
+                        DateString = Convert.ToDateTime(dr[2]).ToString("dd/MM/yyyy"),
+                        Invoice = dr[3].ToString(),
+                        Category = dr[4].ToString(),
+                        Description = dr[5].ToString(),
+                        Amount = Convert.ToDouble(dr[6]),
+                        Vat = Convert.ToDouble(dr[7]),
+                        Zero = Convert.ToDouble(dr[8]),
+                        Supplier = new Suppliers {
+                            Id = Convert.ToInt64(dr[9]),
+                            Uuid = dr[10].ToString(),
+                            Name = dr[11].ToString(),
+                        },
+                        Station = new Stations {
+                            Id = Convert.ToInt64(dr[12]),
+                            Code = dr[13].ToString(),
+                            Name = dr[14].ToString(),
+                        }
+                    });
+                }
+            }
+
 
             return expenses;
         }

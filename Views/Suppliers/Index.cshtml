@@ -87,7 +87,7 @@
             @foreach (var supp in Model)
             {
                 <tr data-idnt="@supp.Id">
-                    <td><a class="blue-text" href="/suppliers/@(supp.Uuid)">@supp.Name</a></td>
+                    <td><a class="blue-text" href="/core/suppliers/@(supp.Uuid)">@supp.Name</a></td>
                     <td>@supp.Address @supp.City</td>
                     <td>@supp.Telephone</td>
                     <td>@supp.Pin</td>

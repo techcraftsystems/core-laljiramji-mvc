@@ -25,7 +25,7 @@ namespace Core.Controllers
             return View(customer);
         }
 
-        public JsonResult GetLedgerEntries(Int64 custid, Int64 stid, string start, string stop, string filter, StationsService svc)
+        public JsonResult GetLedgerEntries(long custid, long stid, string start, string stop, string filter, StationsService svc)
         {
             if (string.IsNullOrWhiteSpace(filter))
                 filter = "";
