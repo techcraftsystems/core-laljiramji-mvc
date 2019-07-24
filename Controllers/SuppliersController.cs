@@ -12,22 +12,90 @@ namespace Core.Controllers
     {
         private readonly CoreService Core = new CoreService();
 
+        [BindProperty]
+        public SuppliersViewModel Input { get; set; }
+
         [Route("/core/suppliers")]
         public IActionResult Index() {
+            Core.UpdateSupplierBalance();
             return View(Core.GetSuppliers());
         }
 
         [Route("/core/suppliers/{uuid}")]
-        public IActionResult Supplier(string uuid, SuppliersViewModel model) {
+        public IActionResult Supplier(string uuid, SuppliersViewModel model, AccountsService accounts) {
             model.Supplier = Core.GetSupplier(uuid);
+            model.BankAccounts = accounts.GetBankAccountsIEnumerable();
+            model.Stations = Core.GetStationsIEnumerable(true);
+            model.Category = Core.GetExpenseCategoriesIEnumerable();
 
             return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult PostSupplierPayments() {
+            DateTime date = DateTime.Parse(Input.Date);
+            Suppliers supp = Input.Supplier;
+
+            foreach (var payment in Input.Payments) {
+                if (!string.IsNullOrEmpty(payment.Cheque)) {
+                    payment.Supplier = supp;
+                    payment.Date = date;
+                    payment.Save(HttpContext);
+                }
+            }
+
+            Core.UpdateSupplierBalance(supp);
+            return LocalRedirect("/core/suppliers/" + supp.Uuid);
+        }
+
+        [HttpPost]
+        public IActionResult DeleteSuppliersPayment(int idnt, int supp) {
+            new SuppliersPayment(idnt).Delete();
+            Core.UpdateSupplierBalance(new Suppliers(supp));
+            return Ok("success");
+        }
+
+        [HttpPost]
+        public IActionResult PostSupplierInvoice() {
+            DateTime date = DateTime.Parse(Input.Date);
+            Suppliers supp = Input.Supplier;
+
+            foreach (var invoice in Input.Invoices) {
+                if (!string.IsNullOrEmpty(invoice.Invoice)) {
+                    invoice.Supplier = supp;
+                    invoice.Date = date;
+                    invoice.Save(HttpContext);
+                }
+            }
+
+            Core.UpdateSupplierBalance(supp);
+            return LocalRedirect("/core/suppliers/" + supp.Uuid);
+        }
+
+        public IActionResult DeleteSuppliersInvoice(int idnt, int supp) {
+            new StationsExpenses(idnt).Delete();
+            Core.UpdateSupplierBalance(new Suppliers(supp));
+            return Ok("success");
+        }
+
+        public SuppliersPayment GetSuppliersPayment(int idnt) {
+            return Core.GetSuppliersPayment(idnt);
+        }
+
+        public StationsExpenses GetSuppliersInvoice(int idnt) {
+            return Core.GetStationsExpenses(idnt);
         }
 
         public JsonResult GetSupplierExpenses(long supp, string start, string stop, string filter = "") {
             if (string.IsNullOrWhiteSpace(filter))
                 filter = "";
             return Json(Core.GetCoreExpenses(DateTime.Parse(start), DateTime.Parse(stop), new Suppliers(supp), filter));
+        }
+
+        public JsonResult GetSuppliersPayments(long supp, string start, string stop, string filter = "") {
+            if (string.IsNullOrWhiteSpace(filter))
+                filter = "";
+            return Json(Core.GetSuppliersPayment(DateTime.Parse(start), DateTime.Parse(stop), new Suppliers(supp), filter));
         }
     }
 }

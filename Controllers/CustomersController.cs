@@ -11,7 +11,6 @@ namespace Core.Controllers
     [Authorize]
     public class CustomersController : Controller
     {
-        // GET: /<controller>/
         [Route("customers")]
         public IActionResult Index(CoreService svc) {
             List<Customers> customers = new List<Customers>(svc.GetCustomers());
@@ -19,14 +18,12 @@ namespace Core.Controllers
         }
 
         [Route("customers/{station}/{id}")]
-        public IActionResult Customers(String station, Int64 id, CoreService svc)
-        {
+        public IActionResult Customers(String station, Int64 id, CoreService svc) {
             Customers customer = svc.GetCustomer(station, id);
             return View(customer);
         }
 
-        public JsonResult GetLedgerEntries(long custid, long stid, string start, string stop, string filter, StationsService svc)
-        {
+        public JsonResult GetLedgerEntries(long custid, long stid, string start, string stop, string filter, StationsService svc) {
             if (string.IsNullOrWhiteSpace(filter))
                 filter = "";
 

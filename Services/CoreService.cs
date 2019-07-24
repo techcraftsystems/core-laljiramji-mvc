@@ -153,12 +153,78 @@ namespace Core.Services
             return suppliers;
         }
 
+        public SuppliersPayment GetSuppliersPayment(long idnt) {
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("SELECT p.sp_idnt, sp_date, sp_rcpt, sp_chqs, sp_invoice, sp_notes, sp_amount, sp_supp, sp_uuid, sp_name, ISNULL(sp_bank,0)sp_bank, ISNULL(bk_code,'')bk_code, ISNULL(bk_bank,'CASH')bk_bank FROM SuppliersPayments p LEFT OUTER JOIN BankAccounts ON sp_bank=bk_idnt LEFT OUTER JOIN Suppliers sp ON sp_supp=sp.sp_idnt WHERE p.sp_idnt=" + idnt);
+            if (dr.Read()) {
+                return new SuppliersPayment {
+                    Id = Convert.ToInt64(dr[0]),
+                    Date = Convert.ToDateTime(dr[1]),
+                    DateString = Convert.ToDateTime(dr[1]).ToString("d MMMM, yyyy"),
+                    Receipt = dr[2].ToString(),
+                    Cheque = dr[3].ToString(),
+                    Invoices = dr[4].ToString(),
+                    Description = dr[5].ToString(),
+                    Amount = Convert.ToDouble(dr[6]),
+                    Supplier = new Suppliers {
+                        Id = Convert.ToInt64(dr[7]),
+                        Uuid = dr[8].ToString(),
+                        Name = dr[9].ToString(),
+                    },
+                    Bank = new Bank {
+                        Id = Convert.ToInt64(dr[10]),
+                        Code = dr[11].ToString(),
+                        Name = dr[12].ToString(),
+                    }
+                };
+            }
+
+            return null;
+        }
+
+        public List<SuppliersPayment> GetSuppliersPayment(DateTime start, DateTime stop, Suppliers supplier, string filter = "") {
+            List<SuppliersPayment> payments = new List<SuppliersPayment>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            string filterString = conn.GetQueryString(filter, "sp_rcpt+'-'+sp_chqs+'-'+sp_invoice+'-'+sp_notes+'-'+CAST(sp_amount AS NVARCHAR)+'-'+sp_name+'-'+ISNULL(bk_bank,'CASH')", "sp_date BETWEEN '" + start.Date + "' AND '" + stop.Date + "'");
+            if (supplier != null)
+                filterString += " AND sp_supp=" + supplier.Id;
+
+            SqlDataReader dr = conn.SqlServerConnect("SELECT p.sp_idnt, sp_date, sp_rcpt, sp_chqs, sp_invoice, sp_notes, sp_amount, sp_supp, sp_uuid, sp_name, ISNULL(sp_bank,0)sp_bank, ISNULL(bk_code,'')bk_code, ISNULL(bk_bank,'CASH')bk_bank FROM SuppliersPayments p LEFT OUTER JOIN BankAccounts ON sp_bank=bk_idnt LEFT OUTER JOIN Suppliers sp ON sp_supp=sp.sp_idnt " + filterString + " ORDER BY sp_date, sp_chqs, p.sp_idnt");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    payments.Add(new SuppliersPayment {
+                        Id = Convert.ToInt64(dr[0]),
+                        Date = Convert.ToDateTime(dr[1]),
+                        DateString = Convert.ToDateTime(dr[1]).ToString("dd/MM/yyyy"),
+                        Receipt = dr[2].ToString(),
+                        Cheque = dr[3].ToString(),
+                        Invoices = dr[4].ToString(),
+                        Description = dr[5].ToString(),
+                        Amount = Convert.ToDouble(dr[6]),
+                        Supplier = new Suppliers {
+                            Id = Convert.ToInt64(dr[7]),
+                            Uuid = dr[8].ToString(),
+                            Name = dr[9].ToString(),
+                        },
+                        Bank = new Bank {
+                            Id = Convert.ToInt64(dr[10]),
+                            Code = dr[11].ToString(),
+                            Name = dr[12].ToString(),
+                        }
+                    });
+                }
+            }
+
+            return payments;
+        }
+
         public List<SelectListItem> GetStationsIEnumerable(bool includeOthers = false) {
             List<SelectListItem> stations = GetIEnumerable("SELECT st_idnt, st_name FROM Stations ORDER BY st_order");
             if (includeOthers) {
                 stations.Insert(0, new SelectListItem {
                     Value = "0",
-                    Text = "Mixed",
+                    Text = "Multiple",
                 });
             }
 
@@ -321,7 +387,7 @@ namespace Core.Services
 
         public StationsExpenses GetStationsExpenses(long idnt) {
             SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("SELECT xp_idnt, xp_date, xp_invoice, xp_amount, xp_vat_amts, xp_zero_rated, xp_description, xp_user, ec_idnt, ec_category, sp_idnt, sp_name, ISNULL(st_idnt,0)st_idnt, st_code, ISNULL(st_name,'MIXED')st_name FROM Expenses INNER JOIN ExpensesCategory ON xp_category=ec_idnt INNER JOIN Suppliers ON xp_supplier=sp_idnt LEFT OUTER JOIN Stations ON xp_station=st_idnt WHERE xp_idnt=" + idnt);
+            SqlDataReader dr = conn.SqlServerConnect("SELECT xp_idnt, xp_date, xp_invoice, xp_amount, xp_vat_amts, xp_zero_rated, xp_description, xp_user, ec_idnt, ec_category, sp_idnt, sp_name, ISNULL(st_idnt,0)st_idnt, st_code, ISNULL(st_name,'Multiple')st_name FROM Expenses INNER JOIN ExpensesCategory ON xp_category=ec_idnt INNER JOIN Suppliers ON xp_supplier=sp_idnt LEFT OUTER JOIN Stations ON xp_station=st_idnt WHERE xp_idnt=" + idnt);
             if (dr.Read()) {
                 return new StationsExpenses {
                     Id = Convert.ToInt64(dr[0]),
@@ -593,19 +659,45 @@ namespace Core.Services
             return delivery;
         }
 
-        public void DeleteDelivery(Delivery delivery) {
-            SqlServerConnection conn = new SqlServerConnection();
-            conn.SqlServerUpdate("DELETE FROM Delivery WHERE dlv_idnt=" + delivery.Id);
-
-            conn = new SqlServerConnection();
-            conn.SqlServerUpdate("DELETE FROM DeliveryPettyCash WHERE pc_delv=" + delivery.Id);
-        }
 
         public PettyCash SavePettyCash(PettyCash pc) {
             SqlServerConnection conn = new SqlServerConnection();
             pc.Id = conn.SqlServerUpdate("DECLARE @idnt INT=" + pc.Id + ", @delv INT=" + pc.Delivery.Id + ", @acnt NVARCHAR(MAX)='" + pc.Account + "', @desc NVARCHAR(MAX)='" + pc.Description + "', @amts FLOAT=" + pc.Amount + ", @user INT=" + pc.AddedBy.Id + "; IF NOT EXISTS (SELECT pc_idnt FROM DeliveryPettyCash WHERE pc_idnt=@idnt) BEGIN INSERT INTO DeliveryPettyCash (pc_delv, pc_account, pc_description, pc_amount, pc_added_by) output INSERTED.pc_idnt VALUES (@delv, @acnt, @desc, @amts, @user) END ELSE BEGIN UPDATE DeliveryPettyCash SET pc_delv=@delv, pc_account=@acnt, pc_description=@desc, pc_amount=@amts output INSERTED.pc_idnt WHERE pc_idnt=@idnt END");
 
             return pc;
+        }
+
+        public SuppliersPayment SaveSuppliersPayment(SuppliersPayment pt) {
+            SqlServerConnection conn = new SqlServerConnection();
+            pt.Id = conn.SqlServerUpdate("DECLARE @idnt INT=" + pt.Id + ", @supp INT=" + pt.Supplier.Id + ", @bank INT=" + pt.Bank.Id + ", @date DATE='" + pt.Date + "', @rcpt NVARCHAR(50)='" + pt.Receipt + "', @chqs NVARCHAR(50)='" + pt.Cheque + "', @invs NVARCHAR(250)='" + pt.Invoices + "', @note NVARCHAR(MAX)='" + pt.Description + "', @amts FLOAT=" + pt.Amount + ", @user INT=" + Actor + "; IF NOT EXISTS (SELECT sp_idnt FROM SuppliersPayments WHERE sp_idnt=@idnt) BEGIN INSERT INTO SuppliersPayments (sp_supp, sp_bank, sp_date, sp_rcpt, sp_chqs, sp_invoice, sp_notes, sp_amount, sp_user) output INSERTED.sp_idnt VALUES (@supp, @bank, @date, @rcpt, @chqs, @invs, @note, @amts, @user) END ELSE BEGIN UPDATE SuppliersPayments SET sp_bank=@bank, sp_date=@date, sp_rcpt=@rcpt, sp_chqs=@chqs, sp_invoice=@invs, sp_notes=@note, sp_amount=@amts output INSERTED.sp_idnt WHERE sp_idnt=@idnt END");
+
+            return pt;
+        }
+
+        public void UpdateSupplierBalance(Suppliers supplier = null) {
+            string query = "";
+            if (supplier != null)
+                query = "WHERE sp_idnt=" + supplier.Id;
+            SqlServerConnection conn = new SqlServerConnection();
+            conn.SqlServerUpdate("UPDATE Suppliers SET sp_balance=ISNULL(sp_bal,0) FROM Suppliers LEFT OUTER JOIN (SELECT sp_supp, SUM(sp_bal)sp_bal FROM (SELECT sp_supp, 0-sp_amount sp_bal FROM SuppliersPayments UNION ALL SELECT xp_supplier, xp_amount FROM vExpensesLedger)As Foo GROUP BY sp_supp) As Bals ON sp_supp=sp_idnt " + query);
+        }
+
+        public void DeleteDelivery(Delivery delivery) {
+            SqlServerConnection conn = new SqlServerConnection();
+            conn.SqlServerUpdate("DELETE FROM Delivery WHERE dlv_idnt=" + delivery.Id);
+            
+            conn = new SqlServerConnection();
+            conn.SqlServerUpdate("DELETE FROM DeliveryPettyCash WHERE pc_delv=" + delivery.Id);
+        }
+
+        public void DeleteSuppliersPayment(SuppliersPayment payment) {
+            SqlServerConnection conn = new SqlServerConnection();
+            conn.SqlServerUpdate("DELETE FROM SuppliersPayments WHERE sp_idnt=" + payment.Id);
+        }
+
+        public void DeleteSuppliersInvoice(StationsExpenses invoice) {
+            SqlServerConnection conn = new SqlServerConnection();
+            conn.SqlServerUpdate("DELETE FROM Expenses WHERE xp_idnt=" + invoice.Id);
         }
     }
 }

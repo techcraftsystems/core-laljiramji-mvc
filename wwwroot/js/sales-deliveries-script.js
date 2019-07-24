@@ -198,6 +198,12 @@ jq(function() {
                     return false;
                 }
 
+                if (jq(this).find('td:eq(4) input').val().trim() == '') {
+                    Materialize.toast('<span>Invoices paid field in row ' + eval(i+1) + ' cannot be blank</span><a class="btn-flat yellow-text pointer">FIX IT</a>', 3000)
+                    err_count++;
+                    return false;
+                }
+
                 if (!eval(jq(this).find('td:eq(5) input').val()) > 0) {
                     Materialize.toast('<span>Invalid banking amount in row ' + eval(i+1) + '</span><a class="btn-flat yellow-text" href="#!">Correct that</a>', 3000)
                     err_count++;

@@ -9,6 +9,8 @@ String.prototype.toAccounting = function() {
 };
 
 jq(function() {
+    jq('.modal').modal();
+
     jq('ul .invs').click(function(){
         if(jq("#invoice-table").data('loaded') == 0){
             GetSupplierExpenses();
@@ -18,7 +20,7 @@ jq(function() {
 
     jq('ul li.pymt').click(function(){
         if(jq("#payment-table").data('loaded') == 0){
-            //GetCustomerPayments();
+            GetSuppliersPayment();
             jq("#payment-table").data('loaded', 1);
         }
     });
@@ -28,7 +30,353 @@ jq(function() {
     });
 
     jq('.get-payments a').click(function(){
-        //GetCustomerPayments();
+        GetSuppliersPayment();
+    });
+
+    jq('a.make-payment').click(function(){
+        jq("#payment-modal-table tr.itms").each(function(i, row) {
+            if (i == 0){
+                jq(this).removeClass('hide');
+            }
+            else{
+                if (!jq(this).hasClass('hide')){
+                    jq(this).addClass('hide');
+                }
+            }
+
+            jq(this).find('td:eq(1) input').val('');
+            jq(this).find('td:eq(2) input').val('');
+            jq(this).find('td:eq(4) input').val('');
+            jq(this).find('td:eq(5) input').val('0.00');
+            jq(this).find('td:eq(6) input').val('N/A');
+            jq(this).find('td:eq(7) input.idnt-data').val(0);
+        });
+
+        jq('#payment-modal').modal('open');
+    });
+
+    jq('a.make-invoice').click(function(){
+        jq("#invoice-modal-table tr.invs").each(function(i, row) {
+            if (i == 0){
+                jq(this).removeClass('hide');
+            }
+            else{
+                if (!jq(this).hasClass('hide')){
+                    jq(this).addClass('hide');
+                }
+            }
+
+            jq(this).find('td:eq(1) input').val('');
+            jq(this).find('td:eq(4) input').val('N/A');
+            jq(this).find('td:eq(5) input').val('0.00');
+            jq(this).find('td:eq(6) input').val('0.00');
+            jq(this).find('td:eq(7) input').val('0.00');
+            jq(this).find('td:eq(8) input.idnt-data').val(0);
+        });
+
+        jq('#invoice-modal').modal('open');
+    });
+
+    jq('a.add-pymt-rows').click(function(){
+        jq("#payment-modal-table tr.itms").each(function() {
+            if (jq(this).hasClass('hide')){
+                jq(this).removeClass('hide');
+                return false;
+            }
+        });
+    });
+
+    jq('a.add-invs-rows').click(function(){
+        jq("#invoice-modal-table tr.invs").each(function() {
+            if (jq(this).hasClass('hide')){
+                jq(this).removeClass('hide');
+                return false;
+            }
+        });
+    });
+
+    jq('a.remove-pymt-row').click(function(){
+        jq(this).closest('tr').remove();
+
+        jq("#payment-modal-table tr.itms").each(function(i, row) {
+            jq(this).find('td:eq(0)').text(eval(i+1) + '.');
+        });
+    });
+
+    jq('a.remove-invs-row').click(function(){
+        jq(this).closest('tr').remove();
+
+        jq("#invoice-modal-table tr.invs").each(function(i, row) {
+            jq(this).find('td:eq(0)').text(eval(i+1) + '.');
+        });
+    });
+
+    jq('#payment-modal a.modal-post').click(function(){
+        var err_count = 0;
+
+        jq("#payment-modal-table tbody tr.itms").each(function(i, $row) {
+            if (!jq(this).hasClass('hide')){
+                if (jq(this).find('td:eq(2) input').val().trim() == '') {
+                    Materialize.toast('<span>Cheque number in row ' + eval(i+1) + ' cannot be blank</span><a class="btn-flat yellow-text pointer">FIX IT</a>', 3000)
+                    err_count++;
+                    return false;
+                }
+
+                if (!eval(jq(this).find('td:eq(5) input').val()) > 0) {
+                    Materialize.toast('<span>Invalid payment amount in row ' + eval(i+1) + '</span><a class="btn-flat yellow-text" href="#!">Correct that</a>', 3000)
+                    err_count++;
+                    return false;
+                }
+            }
+
+        });
+
+        if (err_count > 0){
+            return false;
+        }
+
+        jq('#payment-form').submit();
+    });
+
+    jq('#invoice-modal a.modal-post').click(function(){
+        var err_count = 0;
+
+        jq("#invoice-modal-table tbody tr.invs").each(function(i, $row) {
+            if (!jq(this).hasClass('hide')){
+                if (jq(this).find('td:eq(1) input').val().trim() == '') {
+                    Materialize.toast('<span>Invoice number in row ' + eval(i+1) + ' cannot be blank</span><a class="btn-flat yellow-text pointer">FIX IT</a>', 3000)
+                    err_count++;
+                    return false;
+                }
+
+                if (!eval(jq(this).find('td:eq(5) input').val()) > 0) {
+                    Materialize.toast('<span>Invalid invoice amount in row ' + eval(i+1) + '</span><a class="btn-flat yellow-text" href="#!">Correct that</a>', 3000)
+                    err_count++;
+                    return false;
+                }
+            }
+
+        });
+
+        if (err_count > 0){
+            return false;
+        }
+
+        jq('#invoice-form').submit();
+    });
+
+    jq('#payment-table tbody').on('click', 'i.edit-payment', function(){
+        if (isadmin == 'false'){
+            Materialize.toast('<span>You do not have permission to perform this task</span><a class="btn-flat red-text pointer">Access Denied</a>', 3000);
+            return false;
+        }
+
+        jq("tr.itms").each(function(i, row) {
+            if (i == 0){
+                jq(this).removeClass('hide');
+            }
+            else{
+                if (!jq(this).hasClass('hide')){
+                    jq(this).addClass('hide');
+                }
+
+                jq(this).find('td:eq(1) input').val('');
+                jq(this).find('td:eq(3) input').val(0);
+                jq(this).find('td:eq(4) input').val(0);
+                jq(this).find('td:eq(5) input').val(0);
+                jq(this).find('td:eq(7) input').val('N/A');
+                jq(this).find('td:eq(8) input.json-data').val('"PettyCash":[]}');
+                jq(this).find('td:eq(8) input.idnt-data').val(0);
+            }
+        });
+
+        var row = jq('#payment-modal-table tbody tr:eq(0)');
+
+        jq.ajax({
+            dataType: "json",
+            url: '/Suppliers/GetSuppliersPayment',
+            data: {
+                "idnt": jq(this).data('idnt')
+            },
+            success: function(pymt) {
+                jq('#Date').val(pymt.dateString);
+
+                row.find('td:eq(1) input').val(pymt.receipt);
+                row.find('td:eq(2) input').val(pymt.cheque);
+                row.find('td:eq(3) select').val(pymt.bank.id);
+                row.find('td:eq(3) input').val(pymt.bank.name);
+                row.find('td:eq(4) input').val(pymt.invoices);
+                row.find('td:eq(5) input').val(pymt.amount);
+                row.find('td:eq(6) input').val(pymt.description);
+                row.find('td:eq(7) input.idnt-data').val(pymt.id);
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                console.log(xhr.status);
+                console.log(thrownError);
+            },
+            complete: function() {
+                jq('#payment-modal').modal('open');
+            }
+        });
+    });
+
+    jq('#invoice-table tbody').on('click', 'i.edit-invoice', function(){
+        if (isadmin == 'false'){
+            Materialize.toast('<span>You do not have permission to perform this task</span><a class="btn-flat red-text pointer">Access Denied</a>', 3000);
+            return false;
+        }
+
+        jq("tr.invs").each(function(i, row) {
+            if (i == 0){
+                jq(this).removeClass('hide');
+            }
+            else{
+                if (!jq(this).hasClass('hide')){
+                    jq(this).addClass('hide');
+                }
+
+                jq(this).find('td:eq(1) input').val('');
+                jq(this).find('td:eq(3) input').val(0);
+                jq(this).find('td:eq(4) input').val(0);
+                jq(this).find('td:eq(5) input').val(0);
+                jq(this).find('td:eq(7) input').val('N/A');
+                jq(this).find('td:eq(8) input.json-data').val('"PettyCash":[]}');
+                jq(this).find('td:eq(8) input.idnt-data').val(0);
+            }
+        });
+
+        var row = jq('#invoice-modal-table tbody tr:eq(0)');
+
+        jq.ajax({
+            dataType: "json",
+            url: '/Suppliers/GetSuppliersInvoice',
+            data: {
+                "idnt": jq(this).data('idnt')
+            },
+            success: function(invs) {
+                jq('#Date').val(invs.dateString);
+
+                row.find('td:eq(1) input').val(invs.invoice);
+                row.find('td:eq(2) select').val(invs.category.id);
+                row.find('td:eq(2) input').val(invs.category.name);
+                row.find('td:eq(3) select').val(invs.station.id);
+                row.find('td:eq(3) input').val(invs.station.name);
+                row.find('td:eq(4) input').val(invs.description);
+                row.find('td:eq(5) input').val(invs.amount);
+                row.find('td:eq(6) input').val(invs.vatAmount);
+                row.find('td:eq(7) input').val(invs.zerorated);
+                row.find('td:eq(8) input.idnt-data').val(invs.id);
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                console.log(xhr.status);
+                console.log(thrownError);
+            },
+            complete: function() {
+                jq('#invoice-modal').modal('open');
+            }
+        });
+    });
+
+    jq('#payment-table tbody').on('click', 'i.delete-payment', function(){
+        if (isadmin == 'false'){
+            Materialize.toast('<span>You do not have permission to perform this task</span><a class="btn-flat red-text pointer">Access Denied</a>', 3000);
+            return false;
+        }
+
+        line = jq(this).data('idnt');
+
+        jq.ajax({
+            dataType: "json",
+            url: '/Suppliers/GetSuppliersPayment',
+            data: {
+                "idnt": line
+            },
+            success: function(delv) {
+                jq('#delete-modal-field').html('Confirm deleting receipt <code class="language-css"> ' + delv.receipt + '</code> cheque <code class="language-css">' + delv.cheque + '</code> dated <code class="language-css">' + delv.dateString + '</code> for <code class="language-css">Kes ' + delv.amount.toString().toAccounting() + '</code>?');
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                console.log(xhr.status);
+                console.log(thrownError);
+            },
+            complete: function() {
+                jq('#delete-payment-modal').modal('open');
+            }
+        });
+    });
+
+    jq('#invoice-table tbody').on('click', 'i.delete-invoice', function(){
+        if (isadmin == 'false'){
+            Materialize.toast('<span>You do not have permission to perform this task</span><a class="btn-flat red-text pointer">Access Denied</a>', 3000);
+            return false;
+        }
+
+        line = jq(this).data('idnt');
+
+        jq.ajax({
+            dataType: "json",
+            url: '/Suppliers/GetSuppliersInvoice',
+            data: {
+                "idnt": line
+            },
+            success: function(invs) {
+                jq('#delete-invoice-modal .delete-modal-field').html('Confirm deleting invoice <code class="language-css"> ' + invs.invoice + '</code> dated <code class="language-css">' + invs.dateString + '</code> for <code class="language-css">Kes ' + invs.amount.toString().toAccounting() + '</code>?');
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                console.log(xhr.status);
+                console.log(thrownError);
+            },
+            complete: function() {
+                jq('#delete-invoice-modal').modal('open');
+            }
+        });
+    });
+
+    jq('#delete-payment-modal a.modal-post').click(function(){
+        jq('#delete-payment-modal').modal('close');
+        jq.ajax({
+            type: "post",
+            url: '/Suppliers/DeleteSuppliersPayment',
+            data: {
+                "idnt": line,
+                "supp": xSupp
+            },
+            success: function(delv) {
+                Materialize.toast('<span>Successfully deleted supplier payment</span><a class="btn-flat yellow-text pointer">Task Complete</a>', 3000);
+
+                setTimeout(function(){
+                    window.location.href = "/core/suppliers/" + xUuid;
+                }, 3000);
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                console.log(xhr.status);
+                console.log(thrownError);
+                Materialize.toast('<span>Error ' + xhr.status + '. ' + thrownError + '</span><a class="btn-flat red-text pointer">Delete Failed</a>', 3000);
+            }
+        });
+    });
+
+    jq('#delete-invoice-modal a.modal-post').click(function(){
+        jq('#delete-invoice-modal').modal('close');
+        jq.ajax({
+            type: "post",
+            url: '/Suppliers/DeleteSuppliersInvoice',
+            data: {
+                "idnt": line,
+                "supp": xSupp
+            },
+            success: function(delv) {
+                Materialize.toast('<span>Successfully deleted supplier payment</span><a class="btn-flat yellow-text pointer">Task Complete</a>', 3000);
+
+                setTimeout(function(){
+                    window.location.href = "/core/suppliers/" + xUuid;
+                }, 3000);
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                console.log(xhr.status);
+                console.log(thrownError);
+                Materialize.toast('<span>Error ' + xhr.status + '. ' + thrownError + '</span><a class="btn-flat red-text pointer">Delete Failed</a>', 3000);
+            }
+        });
     });
 });
 
@@ -61,11 +409,15 @@ function GetSupplierExpenses(){
                 row += "<td>" + entry.description + "</td>";
                 row += "<td>" + entry.station.code.toUpperCase() + "</td>";
                 row += "<td class='bold-text'>" + entry.amount.toString().toAccounting() + "</td>";
-                row += "<td><i class='material-icons blue-text left pointer' style='font-size:1em;'>border_color</i><i class='material-icons red-text right pointer' style='font-size:1em;'>delete_forever</i></td>";
+                row += "<td><i class='material-icons blue-text edit-invoice left pointer' style='font-size:1em;' data-idnt='" + entry.id + "'>border_color</i><i class='material-icons red-text delete-invoice right pointer' style='font-size:1.2em;' data-idnt='" + entry.id + "'>delete_forever</i></td>";
                 row += "</tr>";
 
                 jq('#invoice-table tbody').append(row);
             })
+
+            if(results.length == 0){
+                jq('#invoice-table tbody').append("<tr><td colspan='6'>NO INVOICES FOUND</td></tr>");
+            }
 
             var footr = "<tr>";
             footr += "<td class='bold-text' colspan='5'>&nbsp;SUMMARY</td>";
@@ -74,6 +426,62 @@ function GetSupplierExpenses(){
             footr += "</tr>";
 
             jq('#invoice-table tfoot').append(footr);
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            console.log(xhr.status);
+            console.log(thrownError);
+        },
+        complete: function() {
+            $('body').addClass('loaded');
+        }
+    });
+}
+
+function GetSuppliersPayment(){
+    jq.ajax({
+        dataType: "json",
+        url: '/Suppliers/GetSuppliersPayments',
+        data: {
+            "supp":     xSupp,
+            "start":    jq('#paymentStartDate').val(),
+            "stop":     jq('#paymentStopsDate').val(),
+            "filter":   jq('#paymentFilter').val()
+        },
+        beforeSend: function() {
+            jq('body').removeClass('loaded');
+        },
+        success: function(results) {
+            jq('#payment-table tbody').empty();
+            jq('#payment-table tfoot').empty();
+
+            var cumm = 0.0;
+
+            jq.each(results, function(i, entry) {
+                cumm += entry.amount;
+
+                var row = "<tr data-idnt='" + entry.id + "'>";
+                row += "<td>" + entry.dateString + "</td>";
+                row += "<td>" + entry.cheque + "</td>";
+                row += "<td>" + entry.invoices + "</td>";
+                row += "<td>" + entry.description + "</td>";
+                row += "<td class='bold-text'>" + entry.amount.toString().toAccounting() + "</td>";
+                row += "<td><i class='material-icons blue-text edit-payment left pointer' style='font-size:1em;' data-idnt='" + entry.id + "'>border_color</i><i class='material-icons red-text delete-payment right pointer' style='font-size:1.2em;' data-idnt='" + entry.id + "'>delete_forever</i></td>";
+                row += "</tr>";
+
+                jq('#payment-table tbody').append(row);
+            })
+
+            if(results.length == 0){
+                jq('#payment-table tbody').append("<tr><td colspan='6'>NO PAYMENTS FOUND</td></tr>");
+            }
+
+            var footr = "<tr>";
+            footr += "<td class='bold-text' colspan='4'>&nbsp;SUMMARY</td>";
+            footr += "<td class='bold-text right'>" + cumm.toString().toAccounting() + "</td>";
+            footr += "<td>&nbsp;</td>";
+            footr += "</tr>";
+
+            jq('#payment-table tfoot').append(footr);
         },
         error: function(xhr, ajaxOptions, thrownError) {
             console.log(xhr.status);

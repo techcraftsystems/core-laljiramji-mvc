@@ -37,8 +37,16 @@ namespace Core.Models
             Zerorated = 0;
         }
 
+        public StationsExpenses(long idnt) : this() {
+            Id = idnt;
+        }
+
         public StationsExpenses Save(HttpContext context){
             return new CoreService(context).SaveStationsExpenses(this);
+        }
+
+        public void Delete() {
+            new CoreService().DeleteSuppliersInvoice(this);
         }
     }
 }
