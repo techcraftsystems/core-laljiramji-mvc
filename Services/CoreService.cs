@@ -105,7 +105,7 @@ namespace Core.Services
 
         public Suppliers GetSupplier(string uuid) {
             SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("SELECT sp_idnt, sp_uuid, sp_name, ISNULL(NULLIF(sp_pin,''),'—')sp_pin, sp_contacts, sp_city, sp_telephone, sp_balance, sp_fuel, sp_lubes, sp_gas, sp_soda FROM Suppliers WHERE sp_uuid COLLATE SQL_Latin1_General_CP1_CS_AS LIKE '" + uuid + "'");
+            SqlDataReader dr = conn.SqlServerConnect("SELECT sp_idnt, sp_uuid, sp_name, ISNULL(NULLIF(sp_pin,''),'—')sp_pin, sp_contacts, sp_city, sp_telephone, sp_balance, sp_fuel, sp_lubes, sp_gas, sp_soda, sp_icon FROM Suppliers WHERE sp_uuid COLLATE SQL_Latin1_General_CP1_CS_AS LIKE '" + uuid + "'");
             if (dr.Read()) {
                 return new Suppliers {
                     Id = Convert.ToInt64(dr[0]),
@@ -119,7 +119,8 @@ namespace Core.Services
                     Fuel = Convert.ToBoolean(dr[8]),
                     Lube = Convert.ToBoolean(dr[9]),
                     Gas = Convert.ToBoolean(dr[10]),
-                    Soda = Convert.ToBoolean(dr[11])
+                    Soda = Convert.ToBoolean(dr[11]),
+                    Icon = dr[12].ToString()
                 };
             }
 

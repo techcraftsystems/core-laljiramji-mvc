@@ -8,6 +8,7 @@ namespace Core.Models
         public long Id { get; set; }
         public string Uuid { get; set; }
         public string Name { get; set; }
+        public string Icon { get; set; }
         public string Pin { get; set; }
         public string Address { get; set; }
         public string City { get; set; }
@@ -22,6 +23,7 @@ namespace Core.Models
             Id = 0;
             Uuid = "";
             Name = "";
+            Icon = "";
             Pin = "";
             Address = "";
             City = "";
