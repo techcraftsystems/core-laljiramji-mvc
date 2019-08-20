@@ -222,7 +222,7 @@ namespace Core.Services
 
         public SuppliersCredits GetSuppliersCredit(long idnt) {
             SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("SELECT cn_idnt, cn_date, cn_added_on, cn_rcpt, cn_description, cn_amount, cnt_idnt, cnt_init, cnt_type, sp_idnt, sp_uuid, sp_name, ISNULL(st_idnt,0), ISNULL(st_code,''), ISNULL(st_name,'N/A'), cn_added_by FROM CreditNotes INNER JOIN CreditNotesType ON cn_type=cnt_idnt INNER JOIN Suppliers ON cn_supp=sp_idnt LEFT OUTER JOIN Stations ON cn_station=st_idnt WHERE cn_idnt=" + idnt);
+            SqlDataReader dr = conn.SqlServerConnect("SELECT cn_idnt, cn_date, cn_added_on, cn_rcpt, cn_description, cn_amount, cnt_idnt, cnt_init, cnt_type, sp_idnt, sp_uuid, sp_name, ISNULL(st_idnt,0), ISNULL(st_code,''), ISNULL(st_name,'Multiple'), cn_added_by FROM CreditNotes INNER JOIN CreditNotesType ON cn_type=cnt_idnt INNER JOIN Suppliers ON cn_supp=sp_idnt LEFT OUTER JOIN Stations ON cn_station=st_idnt WHERE cn_idnt=" + idnt);
             if (dr.Read()) {
                 return new SuppliersCredits {
                     Id = Convert.ToInt64(dr[0]),
@@ -757,7 +757,7 @@ namespace Core.Services
 
         public SuppliersCredits SaveCreditNote(SuppliersCredits note) {
             SqlServerConnection conn = new SqlServerConnection();
-            note.Id = conn.SqlServerUpdate("DECLARE @idnt INT=" + note.Id + ", @supp INT=" + note.Supplier.Id + ", @type INT=" + note.Type.Id + ", @date DATE='" + note.Date + "', @rcpt NVARCHAR(50)='" + note.Receipt + "', @note NVARCHAR(MAX)='" + note.Description + "', @amts FLOAT=" + note.Amount + ", @user INT=" + Actor + "; IF NOT EXISTS (SELECT cn_idnt FROM CreditNotes WHERE cn_idnt=@idnt) BEGIN INSERT INTO CreditNotes (cn_date, cn_supp, cn_type, cn_rcpt, cn_amount, cn_added_by, cn_description) output INSERTED.cn_idnt VALUES (@date, @supp, @type, @rcpt, @amts, @user, @note) END ELSE BEGIN UPDATE CreditNotes SET cn_date=@date, cn_supp=@supp, cn_type=@type, cn_rcpt=@rcpt, cn_amount=@amts, cn_description=@note output INSERTED.cn_idnt WHERE cn_idnt=@idnt END");
+            note.Id = conn.SqlServerUpdate("DECLARE @idnt INT=" + note.Id + ", @supp INT=" + note.Supplier.Id + ", @type INT=" + note.Type.Id + ", @station INT=" + note.Station.Id + ", @date DATE='" + note.Date + "', @rcpt NVARCHAR(50)='" + note.Receipt + "', @note NVARCHAR(MAX)='" + note.Description + "', @amts FLOAT=" + note.Amount + ", @user INT=" + Actor + "; IF NOT EXISTS (SELECT cn_idnt FROM CreditNotes WHERE cn_idnt=@idnt) BEGIN INSERT INTO CreditNotes (cn_date, cn_supp, cn_type, cn_station, cn_rcpt, cn_amount, cn_added_by, cn_description) output INSERTED.cn_idnt VALUES (@date, @supp, @type, @station, @rcpt, @amts, @user, @note) END ELSE BEGIN UPDATE CreditNotes SET cn_date=@date, cn_supp=@supp, cn_type=@type, cn_station=@station, cn_rcpt=@rcpt, cn_amount=@amts, cn_description=@note output INSERTED.cn_idnt WHERE cn_idnt=@idnt END");
 
             return note;
         }

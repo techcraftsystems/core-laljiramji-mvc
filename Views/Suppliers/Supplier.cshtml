@@ -524,7 +524,7 @@
 </div>
 
 <!-- CreditNote Modal -->
-<div id="credits-modal" class="modal modal-fixed-footer" style="width: 800px">
+<div id="credits-modal" class="modal modal-fixed-footer" style="width: 900px">
     <div class="modal-content">
         @using (Html.BeginForm("PostSupplierCredits", "Suppliers", FormMethod.Post, new { id = "credits-form" }))
         {
@@ -549,6 +549,7 @@
                         <th>&nbsp;</th>
                         <th>RCPT</th>
                         <th>TYPE</th>
+                        <th>STATION</th>
                         <th class="right-align">AMOUNT</th>
                         <th>DESCRIPTION</th>
                         <th>&nbsp;</th>
@@ -561,6 +562,7 @@
                             <td style="width:1px;">@(i + 1).</td>
                             <td class="width-90px">@Html.TextBoxFor(model => model.Credits[i].Receipt, new { @type = "number" })</td>
                             <td class="width-150px">@Html.DropDownListFor(model => model.Credits[i].Type.Id, Model.CreditsTypes)</td>
+                            <td class="width-150px">@Html.DropDownListFor(model => model.Credits[i].Station.Id, Model.Stations)</td>
                             <td class="width-100px">@Html.TextBoxFor(model => model.Credits[i].Amount, new { @type = "number", @class = "credit-amts right-align" })</td>
                             <td>@Html.TextBoxFor(model => model.Credits[i].Description)</td>
                             <td>

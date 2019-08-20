@@ -100,9 +100,9 @@ jq(function() {
             }
 
             jq(this).find('td:eq(1) input').val('');
-            jq(this).find('td:eq(3) input').val('0.00');
-            jq(this).find('td:eq(4) input').val('N/A');
-            jq(this).find('td:eq(5) input.idnt-data').val(0);
+            jq(this).find('td:eq(4) input').val('0.00');
+            jq(this).find('td:eq(5) input').val('N/A');
+            jq(this).find('td:eq(6) input.idnt-data').val(0);
         });
 
         jq('#credits-modal').modal('open');
@@ -224,7 +224,7 @@ jq(function() {
                     return false;
                 }
 
-                if (!eval(jq(this).find('td:eq(3) input').val()) > 0) {
+                if (!eval(jq(this).find('td:eq(4) input').val()) > 0) {
                     Materialize.toast('<span>Invalid credits amount in row ' + eval(i+1) + '</span><a class="btn-flat yellow-text" href="#!">Correct that</a>', 3000)
                     err_count++;
                     return false;
@@ -368,9 +368,9 @@ jq(function() {
                 }
 
                 jq(this).find('td:eq(1) input').val('');
-                jq(this).find('td:eq(3) input').val('0.00');
-                jq(this).find('td:eq(4) input').val('N/A');
-                jq(this).find('td:eq(5) input.idnt-data').val(0);
+                jq(this).find('td:eq(4) input').val('0.00');
+                jq(this).find('td:eq(5) input').val('N/A');
+                jq(this).find('td:eq(6) input.idnt-data').val(0);
             }
         });
 
@@ -388,11 +388,11 @@ jq(function() {
                 row.find('td:eq(1) input').val(notes.receipt);
                 row.find('td:eq(2) select').val(notes.type.id);
                 row.find('td:eq(2) input').val(notes.type.name);
-                //row.find('td:eq(3) select').val(notes.station.id);
-                //row.find('td:eq(3) input').val(notes.station.name);
-                row.find('td:eq(3) input').val(notes.amount);
-                row.find('td:eq(4) input').val(notes.description);
-                row.find('td:eq(5) input.idnt-data').val(notes.id);
+                row.find('td:eq(3) select').val(notes.station.id);
+                row.find('td:eq(3) input').val(notes.station.name);
+                row.find('td:eq(4) input').val(notes.amount);
+                row.find('td:eq(5) input').val(notes.description);
+                row.find('td:eq(6) input.idnt-data').val(notes.id);
             },
             error: function(xhr, ajaxOptions, thrownError) {
                 console.log(xhr.status);
@@ -707,7 +707,7 @@ function GetSuppliersCredits(){
             })
 
             if(results.length == 0){
-                jq('#credits-table tbody').append("<tr><td colspan='6'>NO PAYMENTS FOUND</td></tr>");
+                jq('#credits-table tbody').append("<tr><td colspan='7'>NO CREDITS FOUND</td></tr>");
             }
 
             var footr = "<tr>";
