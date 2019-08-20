@@ -78,4 +78,56 @@ namespace Core.Models
             new CoreService().DeleteSuppliersPayment(this);
         }
     }
+
+    public class SuppliersCredits {
+        public long Id { get; set; }
+        public DateTime Date { get; set; }
+        public string DateString { get; set; }
+        public SuppliersCreditsType Type { get; set; }
+        public Suppliers Supplier { get; set; }
+        public Stations Station { get; set; }
+        public string Receipt { get; set; }
+        public string Description { get; set; }
+        public double Amount { get; set; }
+        public Users AddedBy { get; set; }
+        public DateTime AddedOn { get; set; }
+
+        public SuppliersCredits() {
+            Id = 0;
+            Date = DateTime.Now;
+            DateString = Date.ToString("dd/MM/yyyy");
+            Type = new SuppliersCreditsType();
+            Supplier = new Suppliers();
+            Station = new Stations();
+            Receipt = "";
+            Description = "";
+            Amount = 0;
+            AddedBy = new Users();
+            AddedOn = DateTime.Now;
+        }
+
+        public SuppliersCredits(long idnt) : this() {
+            Id = idnt;
+        }
+
+        public SuppliersCredits Save(HttpContext Context) {
+            return new CoreService(Context).SaveCreditNote(this);
+        }
+
+        public void Delete() {
+            new CoreService().DeleteSuppliersCredit(this);
+        }
+    }
+
+    public class SuppliersCreditsType {
+        public long Id { get; set; }
+        public string Code { get; set; }
+        public string Name { get; set; }
+
+        public SuppliersCreditsType() {
+            Id = 0;
+            Code = "";
+            Name = "";
+        }
+    }
 }

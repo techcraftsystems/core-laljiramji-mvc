@@ -25,8 +25,7 @@ namespace Core.Controllers
         }
 
         [Route("reports/customers/summary/{code}/{year}/{type}")]
-        public IActionResult CustomerYearly(String code, Int64 year, String type, ReportsCustomerYearlyViewModel model, StationsService svc)
-        {
+        public IActionResult CustomerYearly(String code, Int64 year, String type, ReportsCustomerYearlyViewModel model, StationsService svc) {
             model.station = svc.GetStation(code);
             model.year = year;
             model.type = type;
@@ -36,8 +35,7 @@ namespace Core.Controllers
         }
 
         [Route("reports/customers/balances/{code}/{year}")]
-        public IActionResult CustomerBalances(String code, Int64 year, String type, ReportsCustomerYearlyViewModel model, StationsService svc)
-        {
+        public IActionResult CustomerBalances(String code, Int64 year, String type, ReportsCustomerYearlyViewModel model, StationsService svc) {
             model.station = svc.GetStation(code);
             model.year = year;
             model.type = type;

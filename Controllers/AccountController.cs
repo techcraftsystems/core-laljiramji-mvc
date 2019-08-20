@@ -12,8 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
-using System.Net;
-using System.Linq;
 
 namespace Core.Controllers
 {
@@ -113,8 +111,8 @@ namespace Core.Controllers
 
         [Authorize]
         public IActionResult AccessDenied(LoginModel model, string ReturnUrl = "/") {
-            string comp = Dns.GetHostName().Split(".").ToList().First();
-            string ipaddr = Dns.GetHostAddresses(Dns.GetHostName())[0].ToString();
+            //string comp = Dns.GetHostName().Split(".").ToList().First();
+            //string ipaddr = Dns.GetHostAddresses(Dns.GetHostName())[0].ToString();
 
             model.ReturnUrl = ReturnUrl;
             return View(model);

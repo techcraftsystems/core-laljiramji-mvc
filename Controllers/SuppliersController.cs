@@ -78,12 +78,39 @@ namespace Core.Controllers
             return Ok("success");
         }
 
+        [HttpPost]
+        public IActionResult PostSupplierCredits() {
+            DateTime date = DateTime.Parse(Input.Date);
+            Suppliers supp = Input.Supplier;
+
+            foreach (var note in Input.Credits) {
+                if (!string.IsNullOrEmpty(note.Receipt)) {
+                    note.Supplier = supp;
+                    note.Date = date;
+                    note.Save(HttpContext);
+                }
+            }
+
+            Core.UpdateSupplierBalance(supp);
+            return LocalRedirect("/core/suppliers/" + supp.Uuid);
+        }
+
+        public IActionResult DeleteSuppliersCredit(int idnt, int supp) {
+            new SuppliersCredits(idnt).Delete();
+            Core.UpdateSupplierBalance(new Suppliers(supp));
+            return Ok("success");
+        }
+
         public SuppliersPayment GetSuppliersPayment(int idnt) {
             return Core.GetSuppliersPayment(idnt);
         }
 
         public StationsExpenses GetSuppliersInvoice(int idnt) {
             return Core.GetStationsExpenses(idnt);
+        }
+
+        public SuppliersCredits GetSuppliersCredit(int idnt)         {
+            return Core.GetSuppliersCredit(idnt);
         }
 
         public JsonResult GetSupplierExpenses(long supp, string start, string stop, string filter = "") {
@@ -96,6 +123,12 @@ namespace Core.Controllers
             if (string.IsNullOrWhiteSpace(filter))
                 filter = "";
             return Json(Core.GetSuppliersPayment(DateTime.Parse(start), DateTime.Parse(stop), new Suppliers(supp), filter));
+        }
+
+        public JsonResult GetSuppliersCredits(long supp, string start, string stop, string filter = "") {
+            if (string.IsNullOrWhiteSpace(filter))
+                filter = "";
+            return Json(Core.GetSuppliersCredits(DateTime.Parse(start), DateTime.Parse(stop), new Suppliers(supp), filter));
         }
     }
 }

@@ -7,65 +7,83 @@
     h4 {
         padding-left: 12px;
     }
+
     .card .card-title {
         font-size: 20px;
         font-weight: 300;
     }
+
     .card-title.activator.grey-text.text-darken-4.truncate {
         padding-top: 10px;
         margin-bottom: 0px;
     }
+
     .activator.grey-text.text-darken-1 {
         font-size: 1.1em;
     }
+
     #profile-card .card-content p {
         color: #555;
         font-size: 1.1em;
         margin: 4px 0;
     }
+
     .card-content p span {
         vertical-align: super;
     }
+
     #profile-card .card-content {
         padding: 15px 20px 5px 20px;
     }
+
     .preview .body .col-md-1 {
         width: 5%;
     }
+
     .preview .body .col-md-3 {
         width: 29%;
     }
+
     .preview .body .col-md-5 {
         width: 37%;
     }
+
     nav .input-field input:focus, nav .input-field input[type=text]:valid, nav .input-field input[type=password]:valid, nav .input-field input[type=email]:valid, nav .input-field input[type=url]:valid, nav .input-field input[type=date]:valid {
         border-bottom: 1px solid #9e9e9e;
     }
+
     table td {
         padding: 5px;
     }
+
     table td a {
         color: #333;
     }
+
     table td a:hover {
         color: #448AFF;
     }
+
     td i.material-icons {
         height: 0px;
         line-height: 0px;
     }
+
     #invoice-table th:nth-child(6),
     #invoice-table td:nth-child(6),
     #payment-table th:nth-child(5),
     #payment-table td:nth-child(5) {
         text-align: right;
     }
+
     div.modal-content label {
         padding-left: 15px;
     }
+
     div.modal-content td {
         padding: 2px;
     }
+
     div.modal-content td input {
         padding: 0;
         margin: 0 !important;
@@ -112,42 +130,31 @@
 
         <ul id="profile-page-about-details" class="collection z-depth-1" style="margin-top:-10px;">
             <li class="collection-item">
-                <div class="">
-                    <div>
-                        <i class="material-icons left blue-text">shopping_cart</i><a class="blue-text make-invoice pointer" data-target="station-expense-modal">Make Expense</a>
-                    </div>
+                <div>
+                    <i class="material-icons left blue-text">shopping_cart</i><a class="blue-text make-invoice pointer" data-target="station-expense-modal">Make Expense</a>
                 </div>
             </li>
             <li class="collection-item">
-                <div class="">
-                    <div>
-                        <i class="material-icons left blue-text">format_indent_increase</i><a class="blue-text credit-note pointer">Credit Note</a>
-                    </div>
+                <div>
+                    <i class="material-icons left blue-text">format_indent_increase</i><a class="blue-text credit-note pointer">Credit Note</a>
                 </div>
             </li>
             <li class="collection-item">
-                <div class="">
-                    <div>
-                        <i class="material-icons left blue-text">payment</i><a class="blue-text make-payment pointer">Post Payment</a>
-                    </div>
+                <div>
+                    <i class="material-icons left blue-text">payment</i><a class="blue-text make-payment pointer">Post Payment</a>
                 </div>
             </li>
         </ul>
 
         <ul id="profile-page-about-details" class="collection z-depth-1" style="margin-top:-10px;">
             <li class="collection-item">
-                <div class="">
-                    <div>
-                        <i class="material-icons left black-text">chrome_reader_mode</i><a class="black-text pointer" data-target="station-expense-modal">View Statement</a>
-                    </div>
-                </div>
+                <i class="material-icons left black-text">chrome_reader_mode</i><a class="black-text pointer view-statement" data-target="station-expense-modal">View Statement</a>
             </li>
             <li class="collection-item">
-                <div class="">
-                    <div>
-                        <i class="material-icons left black-text">restore</i><a class="black-text pointer">Payment Schedule</a>
-                    </div>
-                </div>
+                <i class="material-icons left black-text">attachment</i><a class="black-text pointer payment-ledger">Payment Ledger</a>
+            </li>
+            <li class="collection-item">
+                <i class="material-icons left black-text">restore</i><a class="black-text pointer payment-schedule">Payment Schedule</a>
             </li>
         </ul>
     </div>
@@ -255,25 +262,25 @@
                     <div class="row" style="margin-top: 10px;">
                         <div class="input-field col-md-3">
                             <i class="material-icons prefix">date_range</i>
-                            <input id="creditStartDate" type="text" class="datepicker" value="@Model.Start.ToString("d MMMM, yyyy")" />
+                            <input id="creditsStartDate" type="text" class="datepicker" value="@Model.Start.ToString("d MMMM, yyyy")" />
                         </div>
 
                         <div class="input-field col-md-3">
                             <i class="material-icons prefix">date_range</i>
-                            <input id="creditStopsDate" type="text" class="datepicker" value="@DateTime.Now.ToString("d MMMM, yyyy")" />
+                            <input id="creditsStopsDate" type="text" class="datepicker" value="@DateTime.Now.ToString("d MMMM, yyyy")" />
                         </div>
 
                         <div class="input-field col-md-5">
                             <i class="material-icons prefix">filter_list</i>
-                            <input id="creditFilter" type="text" placeholder="Filter Credit Notes" />
+                            <input id="creditsFilter" type="text" placeholder="Filter Credit Notes" />
                         </div>
 
-                        <div class="col-md-1 get-credit">
+                        <div class="col-md-1 get-credits">
                             <a class="btn btn-floating pulse btn gradient-45deg-amber-amber right"><i class="material-icons" style="line-height: 42px">search</i></a>
                         </div>
                     </div>
 
-                    <table id="credit-table" class="bordered" data-loaded="0" style="margin-top:-20px">
+                    <table id="credits-table" class="bordered" data-loaded="0" style="margin-top:-20px">
                         <thead>
                             <tr>
                                 <th>DATE</th>
@@ -281,7 +288,7 @@
                                 <th>RECEIPT</th>
                                 <th>STATION</th>
                                 <th>DESCRIPTION</th>
-                                <th style="padding-right:15px;">AMOUNT</th>
+                                <th class="right-text" style="padding-right:15px;">AMOUNT</th>
                                 <th style="width:40px;">&nbsp;</th>
                             </tr>
                         </thead>
@@ -373,7 +380,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @for (int i = 0; i < Model.Payments.Count; i++) {
+                    @for (int i = 0; i < Model.Payments.Count; i++)
+                    {
                         <tr class="itms @(i == 0 ? "":"hide")">
                             <td style="width:1px;">@(i + 1).</td>
                             <td class="width-90px">@Html.TextBoxFor(model => model.Payments[i].Receipt, new { @type = "number" })</td>
@@ -461,7 +469,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @for (int i = 0; i < Model.Invoices.Count; i++){
+                    @for (int i = 0; i < Model.Invoices.Count; i++)
+                    {
                         <tr class="invs @(i == 0 ? "":"hide")">
                             <td style="width:1px;">@(i + 1).</td>
                             <td class="width-90px">@Html.TextBoxFor(model => model.Invoices[i].Invoice)</td>
@@ -503,6 +512,89 @@
 <div id="delete-invoice-modal" class="modal" style="width:700px;">
     <div class="modal-content">
         <h4>DELETE INVOICE</h4>
+        <hr style="margin: 5px 0" />
+        <p class="delete-modal-field"></p>
+        <input type="hidden" />
+    </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat">CANCEL</a>
+        <a class="modal-action modal-post waves-effect waves-green btn-flat">DELETE</a>
+    </div>
+</div>
+
+<!-- CreditNote Modal -->
+<div id="credits-modal" class="modal modal-fixed-footer" style="width: 800px">
+    <div class="modal-content">
+        @using (Html.BeginForm("PostSupplierCredits", "Suppliers", FormMethod.Post, new { id = "credits-form" }))
+        {
+            <h4>POST CREDITS</h4>
+            <hr style="margin: 5px 0" />
+            <div class="row">
+                <div class="input-field col-md-3">
+                    <i class="material-icons prefix">event</i>
+                    @Html.TextBoxFor(model => model.Date, new { @class = "datepicker" })
+                    <label>Select Date</label>
+                </div>
+
+                <div class="input-field col-md-5 input-station">
+                    <i class="material-icons prefix">format_quote</i>
+                    @Html.TextBoxFor(model => model.Rcpt)
+                    <label>Summary</label>
+                </div>
+            </div>
+            <table id="credits-modal-table">
+                <thead>
+                    <tr>
+                        <th>&nbsp;</th>
+                        <th>RCPT</th>
+                        <th>TYPE</th>
+                        <th class="right-align">AMOUNT</th>
+                        <th>DESCRIPTION</th>
+                        <th>&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Credits.Count; i++)
+                    {
+                        <tr class="notes @(i == 0 ? "":"hide")">
+                            <td style="width:1px;">@(i + 1).</td>
+                            <td class="width-90px">@Html.TextBoxFor(model => model.Credits[i].Receipt, new { @type = "number" })</td>
+                            <td class="width-150px">@Html.DropDownListFor(model => model.Credits[i].Type.Id, Model.CreditsTypes)</td>
+                            <td class="width-100px">@Html.TextBoxFor(model => model.Credits[i].Amount, new { @type = "number", @class = "credit-amts right-align" })</td>
+                            <td>@Html.TextBoxFor(model => model.Credits[i].Description)</td>
+                            <td>
+                                <a class="red-text remove-credit-row" style="font-size:0.7em">
+                                    <i class="material-icons pointer" style="padding-top:20px">delete_forever</i>
+                                </a>
+
+                                @Html.HiddenFor(model => model.Credits[i].Id, new { @class = "idnt-data" })
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @Html.HiddenFor(model => model.Supplier.Id)
+            @Html.HiddenFor(model => model.Supplier.Uuid)
+        }
+
+        <hr style="margin: 10px 0" />
+
+        <a class="add-credit-rows btn-floating waves-effect waves-light gradient-45deg-light-blue-cyan">
+            <i class="material-icons">exposure_plus_1</i>
+        </a>
+    </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat">Disagree</a>
+        <a class="modal-action modal-post waves-effect waves-green btn-flat">Agree</a>
+    </div>
+</div>
+
+<div id="delete-credits-modal" class="modal" style="width:700px;">
+    <div class="modal-content">
+        <h4>DELETE CREDITS</h4>
         <hr style="margin: 5px 0" />
         <p class="delete-modal-field"></p>
         <input type="hidden" />

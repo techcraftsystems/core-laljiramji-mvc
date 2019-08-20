@@ -11,8 +11,10 @@ namespace Core.ViewModel {
         public DateTime Start { get; set; }
         public List<SuppliersPayment> Payments { get; set; }
         public List<StationsExpenses> Invoices { get; set; }
+        public List<SuppliersCredits> Credits { get; set; }
 
         public IEnumerable<SelectListItem> BankAccounts { get; set; }
+        public IEnumerable<SelectListItem> CreditsTypes { get; set; }
         public IEnumerable<SelectListItem> Stations { get; set; }
         public IEnumerable<SelectListItem> Category { get; set; }
 
@@ -22,13 +24,19 @@ namespace Core.ViewModel {
             Date = DateTime.Now.ToString("d MMMM, yyyy");
             Start = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             BankAccounts = new List<SelectListItem>();
+            CreditsTypes = new List<SelectListItem>{
+                new SelectListItem {Value = "0", Text = "Credit Note"},
+                new SelectListItem {Value = "1", Text = "Debit Note"},
+            };
             Stations = new List<SelectListItem>();
             Category = new List<SelectListItem>();
 
             Payments = new List<SuppliersPayment>();
             Invoices = new List<StationsExpenses>();
+            Credits = new List<SuppliersCredits>();
 
             for (int i = 0; i < 10; i++) {
+                Credits.Add(new SuppliersCredits());
                 Payments.Add(new SuppliersPayment());
                 Invoices.Add(new StationsExpenses());
             }

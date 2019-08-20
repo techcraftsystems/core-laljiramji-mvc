@@ -220,6 +220,86 @@ namespace Core.Services
             return payments;
         }
 
+        public SuppliersCredits GetSuppliersCredit(long idnt) {
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("SELECT cn_idnt, cn_date, cn_added_on, cn_rcpt, cn_description, cn_amount, cnt_idnt, cnt_init, cnt_type, sp_idnt, sp_uuid, sp_name, ISNULL(st_idnt,0), ISNULL(st_code,''), ISNULL(st_name,'N/A'), cn_added_by FROM CreditNotes INNER JOIN CreditNotesType ON cn_type=cnt_idnt INNER JOIN Suppliers ON cn_supp=sp_idnt LEFT OUTER JOIN Stations ON cn_station=st_idnt WHERE cn_idnt=" + idnt);
+            if (dr.Read()) {
+                return new SuppliersCredits {
+                    Id = Convert.ToInt64(dr[0]),
+                    Date = Convert.ToDateTime(dr[1]),
+                    DateString = Convert.ToDateTime(dr[1]).ToString("d MMMM, yyyy"),
+                    AddedOn = Convert.ToDateTime(dr[2]),
+                    Receipt = dr[3].ToString(),
+                    Description = dr[4].ToString(),
+                    Amount = Convert.ToDouble(dr[5]),
+                    Type = new SuppliersCreditsType {
+                        Id = Convert.ToInt64(dr[6]),
+                        Code = dr[7].ToString(),
+                        Name = dr[8].ToString()
+                    },
+                    Supplier = new Suppliers {
+                        Id = Convert.ToInt64(dr[9]),
+                        Uuid = dr[10].ToString(),
+                        Name = dr[11].ToString()
+                    },
+                    Station = new Stations {
+                        Id = Convert.ToInt64(dr[12]),
+                        Code = dr[13].ToString(),
+                        Name = dr[14].ToString()
+                    },
+                    AddedBy = new Users {
+                        Id = Convert.ToInt64(dr[15])
+                    }
+                };
+            }
+
+            return null;
+        }
+
+        public List<SuppliersCredits> GetSuppliersCredits(DateTime start, DateTime stop, Suppliers supplier, string filter = "") {
+            List<SuppliersCredits> credits = new List<SuppliersCredits>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            string filterString = conn.GetQueryString(filter, "cn_rcpt+'-'+cn_description+'-'+CAST(cn_amount AS NVARCHAR)+'-'+cnt_type+'-'+sp_name+'-'+ISNULL(st_code,'')+'-'+ISNULL(st_name,'')", "cn_date BETWEEN '" + start.Date + "' AND '" + stop.Date + "'");
+            if (supplier != null)
+                filterString += " AND cn_supp=" + supplier.Id;
+
+            SqlDataReader dr = conn.SqlServerConnect("SELECT cn_idnt, cn_date, cn_added_on, cn_rcpt, cn_description, cn_amount, cnt_idnt, cnt_init, cnt_type, sp_idnt, sp_uuid, sp_name, ISNULL(st_idnt,0), ISNULL(st_code,''), ISNULL(st_name,'N/A'), cn_added_by FROM CreditNotes INNER JOIN CreditNotesType ON cn_type=cnt_idnt INNER JOIN Suppliers ON cn_supp=sp_idnt LEFT OUTER JOIN Stations ON cn_station=st_idnt " + filterString + " ORDER BY cn_date");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    credits.Add(new SuppliersCredits {
+                        Id = Convert.ToInt64(dr[0]),
+                        Date = Convert.ToDateTime(dr[1]),
+                        DateString = Convert.ToDateTime(dr[1]).ToString("dd/MM/yyyy"),
+                        AddedOn = Convert.ToDateTime(dr[2]),
+                        Receipt = dr[3].ToString(),
+                        Description = dr[4].ToString(),
+                        Amount = Convert.ToDouble(dr[5]),
+                        Type = new SuppliersCreditsType {
+                            Id = Convert.ToInt64(dr[6]),
+                            Code = dr[7].ToString(),
+                            Name = dr[8].ToString()
+                        },
+                        Supplier = new Suppliers {
+                            Id = Convert.ToInt64(dr[9]),
+                            Uuid = dr[10].ToString(),
+                            Name = dr[11].ToString()
+                        },
+                        Station = new Stations {
+                            Id = Convert.ToInt64(dr[12]),
+                            Code = dr[13].ToString(),
+                            Name = dr[14].ToString()
+                        },
+                        AddedBy = new Users {
+                            Id = Convert.ToInt64(dr[15])
+                        }
+                    });
+                }
+            }
+
+            return credits;
+        }
+
         public List<SelectListItem> GetStationsIEnumerable(bool includeOthers = false) {
             List<SelectListItem> stations = GetIEnumerable("SELECT st_idnt, st_name FROM Stations ORDER BY st_order");
             if (includeOthers) {
@@ -675,14 +755,24 @@ namespace Core.Services
             return pt;
         }
 
+        public SuppliersCredits SaveCreditNote(SuppliersCredits note) {
+            SqlServerConnection conn = new SqlServerConnection();
+            note.Id = conn.SqlServerUpdate("DECLARE @idnt INT=" + note.Id + ", @supp INT=" + note.Supplier.Id + ", @type INT=" + note.Type.Id + ", @date DATE='" + note.Date + "', @rcpt NVARCHAR(50)='" + note.Receipt + "', @note NVARCHAR(MAX)='" + note.Description + "', @amts FLOAT=" + note.Amount + ", @user INT=" + Actor + "; IF NOT EXISTS (SELECT cn_idnt FROM CreditNotes WHERE cn_idnt=@idnt) BEGIN INSERT INTO CreditNotes (cn_date, cn_supp, cn_type, cn_rcpt, cn_amount, cn_added_by, cn_description) output INSERTED.cn_idnt VALUES (@date, @supp, @type, @rcpt, @amts, @user, @note) END ELSE BEGIN UPDATE CreditNotes SET cn_date=@date, cn_supp=@supp, cn_type=@type, cn_rcpt=@rcpt, cn_amount=@amts, cn_description=@note output INSERTED.cn_idnt WHERE cn_idnt=@idnt END");
+
+            return note;
+        }
+
+        //Updates
         public void UpdateSupplierBalance(Suppliers supplier = null) {
             string query = "";
             if (supplier != null)
                 query = "WHERE sp_idnt=" + supplier.Id;
             SqlServerConnection conn = new SqlServerConnection();
-            conn.SqlServerUpdate("UPDATE Suppliers SET sp_balance=ISNULL(sp_bal,0) FROM Suppliers LEFT OUTER JOIN (SELECT sp_supp, SUM(sp_bal)sp_bal FROM (SELECT sp_supp, 0-sp_amount sp_bal FROM SuppliersPayments UNION ALL SELECT xp_supplier, xp_amount FROM vExpensesLedger)As Foo GROUP BY sp_supp) As Bals ON sp_supp=sp_idnt " + query);
+            conn.SqlServerUpdate("UPDATE Suppliers SET sp_balance=ISNULL(sp_bal,0) FROM Suppliers LEFT OUTER JOIN (SELECT sp_supp, SUM(sp_amts)sp_bal FROM vSuppliersBalances GROUP BY sp_supp) As Bals ON sp_supp=sp_idnt " + query);
         }
 
+
+        //Deletes
         public void DeleteDelivery(Delivery delivery) {
             SqlServerConnection conn = new SqlServerConnection();
             conn.SqlServerUpdate("DELETE FROM Delivery WHERE dlv_idnt=" + delivery.Id);
@@ -692,13 +782,15 @@ namespace Core.Services
         }
 
         public void DeleteSuppliersPayment(SuppliersPayment payment) {
-            SqlServerConnection conn = new SqlServerConnection();
-            conn.SqlServerUpdate("DELETE FROM SuppliersPayments WHERE sp_idnt=" + payment.Id);
+            new SqlServerConnection().SqlServerUpdate("DELETE FROM SuppliersPayments WHERE sp_idnt=" + payment.Id);
+        }
+
+        public void DeleteSuppliersCredit(SuppliersCredits credit) {
+            new SqlServerConnection().SqlServerUpdate("DELETE FROM CreditNotes WHERE cn_idnt=" + credit.Id);
         }
 
         public void DeleteSuppliersInvoice(StationsExpenses invoice) {
-            SqlServerConnection conn = new SqlServerConnection();
-            conn.SqlServerUpdate("DELETE FROM Expenses WHERE xp_idnt=" + invoice.Id);
+            new SqlServerConnection().SqlServerUpdate("DELETE FROM Expenses WHERE xp_idnt=" + invoice.Id);
         }
     }
 }
