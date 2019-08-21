@@ -67,7 +67,7 @@
                 <th class="right-text">BALANCE</th>
             </tr>
         </thead>
-        <tbody style="font-size:0.8em">
+        <tbody style="font-size:0.9em">
             @foreach (var ledger in Model.Ledger) {
                 if (!supp.Id.Equals(ledger.Supplier.Id) && supp.Id > 0) {
                     <tr style="white-space: pre-line; vertical-align:top">
@@ -114,7 +114,7 @@
             </tr>
         </tbody>
 
-        <tfoot class="deep-orange accent-2 white-text" style="font-size:0.8em">
+        <tfoot class="deep-orange accent-2 white-text" style="font-size:0.9em">
             <tr>
                 <th colspan="4">&nbsp; &nbsp; &nbsp;SUMMARY</th>
                 <th class="right-text">@string.Format("{0:N}", ps.Amount)</th>
