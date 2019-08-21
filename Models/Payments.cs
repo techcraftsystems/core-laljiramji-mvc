@@ -37,4 +37,24 @@ namespace Core.Models
             Cheques = 0;
         }
     }
+
+    public class PaymentLedger {
+        public long Id { get; set; }
+        public DateTime Date { get; set; }
+        public string Invoice { get; set; }
+        public Suppliers Supplier { get; set; }
+        public double Amount { get; set; }
+        public double Paid { get; set; }
+        public double Balance { get; set; }
+
+        public PaymentLedger() {
+            Id = 0;
+            Date = DateTime.Now;
+            Invoice = "";
+            Supplier = new Suppliers();
+            Amount = 0;
+            Paid = 0;
+            Balance = 0;
+        }
+    }
 }

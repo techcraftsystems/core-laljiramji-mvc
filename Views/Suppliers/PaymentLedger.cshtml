@@ -2,9 +2,25 @@
 @{
     ViewData["Title"] = "Payment Ledger";
     int month = DateTime.Now.Month - 1;
-}
 
+    var supp = new Suppliers();
+    var ps = new PaymentLedger();
+    var lg = new PaymentLedger();
+
+    int count = 1;
+
+    string date = "";
+    string invs = "";
+    string amts = "";
+    double amtx = 0;
+}
 <script src="~/js/suppliers-payments-script.js"></script>
+<style>
+    #schedule-table tbody td {
+        vertical-align: top;
+    }
+</style>
+
 
 <div id="breadcrumbs-wrapper">
     <div class="container">
@@ -27,9 +43,88 @@
         </div>
     </div>
 </div>
-<div style="clear:both; margin-top:45px;"></div>
+<div style="clear:both; margin-top:55px;"></div>
 
+<div class="card zero-margin">
+    <div class="card-content deep-orange accent-2 white-text table-card" style="border-radius: 0">
+        <h5 class="card-stats-number"><i class="material-icons left">add_shopping_cart</i>Payment Ledger</h5>
+        <p class="card-stats-compare right">
+            <i class="material-icons left">history</i>
+            <span class="deep-orange-text text-lighten-5 opening-balance">Suppliers</span>
+        </p>
+    </div>
 
+    <table id="schedule-table" class="custom bordered" data-loaded="0" style="margin-top:-20px">
+        <thead class="deep-orange accent-2">
+            <tr>
+                <th>#</th>
+                <th>NAME</th>
+                <th>DATE</th>
+                <th>INVOICE</th>
+                <th class="right-text">AMOUNT</th>
+                <th class="right-text">TOTAL</th>
+                <th class="right-text">PAID</th>
+                <th class="right-text">BALANCE</th>
+            </tr>
+        </thead>
+        <tbody style="font-size:0.8em">
+            @foreach (var ledger in Model.Ledger) {
+                if (!supp.Id.Equals(ledger.Supplier.Id) && supp.Id > 0) {
+                    <tr style="white-space: pre-line; vertical-align:top">
+                        <td>@(count).</td>
+                        <td><a class="black-text" href="/core/suppliers/@(supp.Uuid)">@supp.Name</a></td>
+                        <td>@date.Trim()</td>
+                        <td>@invs.Trim()</td>
+                        <td class="right-text">@amts.Trim()</td>
+                        <td class="right-text bold-text">@string.Format("{0:N}", amtx)</td>
+                        <td class="right-text">@string.Format("{0:N}", lg.Paid)</td>
+                        <td class="right-text bold-text">@string.Format("{0:N}", amtx - lg.Paid)</td>
+                    </tr>
+
+                    count++;
+
+                    date = "";
+                    invs = "";
+                    amts = "";
+                    amtx = 0;
+
+                    ps.Paid += lg.Paid;
+                }
+
+                ps.Amount += ledger.Amount;
+
+                supp = ledger.Supplier;
+                date += ledger.Date.ToString("dd/MM/yyyy") + "\n";
+                invs += ledger.Invoice + Environment.NewLine;
+                amts += string.Format("{0:N2}", ledger.Amount) + Environment.NewLine;
+                amtx += ledger.Amount;
+
+                lg = ledger;
+            }
+
+            <tr style="white-space: pre-line; vertical-align:top">
+                <td>@(count).</td>
+                <td><a class="black-text" href="/core/suppliers/@(supp.Uuid)">@supp.Name</a></td>
+                <td>@date.Trim()</td>
+                <td>@invs.Trim()</td>
+                <td class="right-text">@amts.Trim()</td>
+                <td class="right-text bold-text">@string.Format("{0:N}", amtx)</td>
+                <td class="right-text">@string.Format("{0:N}", lg.Paid)</td>
+                <td class="right-text bold-text">@string.Format("{0:N}", amtx - ps.Paid)</td>
+            </tr>
+        </tbody>
+
+        <tfoot class="deep-orange accent-2 white-text" style="font-size:0.8em">
+            <tr>
+                <th colspan="4">&nbsp; &nbsp; &nbsp;SUMMARY</th>
+                <th class="right-text">@string.Format("{0:N}", ps.Amount)</th>
+                <th class="right-text">@string.Format("{0:N}", ps.Amount)</th>
+                <th class="right-text">@string.Format("{0:N}", ps.Paid)</th>
+                <th class="right-text">@string.Format("{0:N}", ps.Amount - ps.Paid)</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
 
 
 

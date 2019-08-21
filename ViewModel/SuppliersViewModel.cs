@@ -46,11 +46,13 @@ namespace Core.ViewModel {
     public class SuppliersPaymentsViewModel {
         public DateTime Date { get; set; }
         public List<SelectListItem> Months { get; set; }
+        public List<PaymentLedger> Ledger { get; set; }
         public List<PaymentSchedule> Schedule { get; set; }
 
         public SuppliersPaymentsViewModel() {
             Date = DateTime.Now;
             Months = new List<SelectListItem>();
+            Ledger = new List<PaymentLedger>();
             Schedule = new List<PaymentSchedule>();
 
             var start = new DateTime(DateTime.Now.Year, 1, 1);

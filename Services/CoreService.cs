@@ -300,7 +300,7 @@ namespace Core.Services
             return credits;
         }
 
-        public List<PaymentSchedule> GetSuppliersPaymentSchedules(DateTime start, DateTime stop, Suppliers supplier, string filter = "", string order = "") {
+        public List<PaymentSchedule> GetSuppliersPaymentSchedule(DateTime start, DateTime stop, Suppliers supplier, string filter = "", string order = "") {
             List<PaymentSchedule> schedule = new List<PaymentSchedule>();
 
             SqlServerConnection conn = new SqlServerConnection();
@@ -335,6 +335,39 @@ namespace Core.Services
             }
 
             return schedule;
+        }
+
+        public List<PaymentLedger> GetSuppliersPaymentLedger(DateTime start, DateTime stop, Suppliers supplier, string filter = "", string order = "") {
+            List<PaymentLedger> ledger = new List<PaymentLedger>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            string filterString = conn.GetQueryString(filter, "xp_invoice+CAST(xp_amount AS NVARCHAR)+'-'+sp_pin+'-'+sp_name", "xp_date BETWEEN @start AND @stop");
+            if (supplier != null)
+                filterString += " AND xp_supplier=" + supplier.Id;
+
+            SqlDataReader dr = conn.SqlServerConnect("DECLARE @start DATE='" + start.Date + "', @stop DATE='" + stop.Date + "'; SELECT xp_idnt, xp_date, xp_invoice, xp_amount, ISNULL((SELECT SUM(sp_amount)amts FROM SuppliersPayments WHERE sp_supp=xp_supplier AND sp_date BETWEEN @start AND @stop GROUP BY sp_supp),0)xp_paid, sp_idnt, sp_uuid, sp_name, ISNULL(NULLIF(sp_pin,''),'N/A')sp_pin FROM Expenses INNER JOIN Suppliers ON xp_supplier=sp_idnt " + filterString + " ORDER BY " + order + " sp_name, sp_idnt, xp_date");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    PaymentLedger ldg = new PaymentLedger {
+                        Id = Convert.ToInt64(dr[0]),
+                        Date = Convert.ToDateTime(dr[1]),
+                        Invoice = dr[2].ToString(),
+                        Amount = Convert.ToDouble(dr[3]),
+                        Paid = Convert.ToDouble(dr[4]),
+                        Supplier = new Suppliers {
+                            Id = Convert.ToInt64(dr[5]),
+                            Uuid = dr[6].ToString(),
+                            Name = dr[7].ToString(),
+                            Pin = dr[8].ToString()
+                        }
+                    };
+
+                    ldg.Balance = ldg.Amount - ldg.Paid;
+                    ledger.Add(ldg);
+                }
+            }
+
+            return ledger;
         }
 
         public List<SelectListItem> GetStationsIEnumerable(bool includeOthers = false) {

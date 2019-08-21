@@ -18,14 +18,13 @@
     var ps = new PaymentSchedule();
     var sc = new PaymentSchedule();
 }
-
+<script src="~/js/suppliers-payments-script.js"></script>
 <style>
     #schedule-table tbody td {
         vertical-align: top;
     }
 </style>
 
-<script src="~/js/suppliers-payments-script.js"></script>
 <div id="breadcrumbs-wrapper">
     <div class="container">
         <div class="row zero-margin">
@@ -83,7 +82,7 @@
                         <td>@date.Trim()</td>
                         <td>@invs.Trim()</td>
                         <td>@supp.Pin</td>
-                        <td>@supp.Name</td>
+                        <td><a class="black-text" href="/core/suppliers/@(supp.Uuid)">@supp.Name</a></td>
                         <td class="right-text">@amts.Trim()</td>
                         <td class="right-text">@xvat.Trim()</td>
                         <td class="right-text">@psix.Trim()</td>
@@ -133,7 +132,7 @@
                 <td>@date.Trim()</td>
                 <td>@invs.Trim()</td>
                 <td>@supp.Pin</td>
-                <td>@supp.Name</td>
+                <td><a class="black-text" href="/core/suppliers/@(supp.Uuid)">@supp.Name</a></td>
                 <td class="right-text">@amts.Trim()</td>
                 <td class="right-text">@xvat.Trim()</td>
                 <td class="right-text">@psix.Trim()</td>
@@ -161,11 +160,7 @@
             </tr>
         </tfoot>
     </table>
-
 </div>
-
-
-
 
 <!--Reports Modals-->
 <div id="reports-modal" class="modal modal-fixed-footer" style="width: 500px">
