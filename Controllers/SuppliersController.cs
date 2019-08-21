@@ -31,6 +31,20 @@ namespace Core.Controllers
             return View(model);
         }
 
+        [Route("/core/suppliers/payments/ledger/{month}/{year}")]
+        public IActionResult PaymentLedger(int month, int year, SuppliersPaymentsViewModel model) {
+            model.Date = new DateTime(year, month, 1);
+            return View(model);
+        }
+
+        [Route("/core/suppliers/payments/schedule/{month}/{year}")]
+        public IActionResult PaymentSchedule(int month, int year, SuppliersPaymentsViewModel model) {
+            model.Date = new DateTime(year, month, 1);
+            model.Schedule = Core.GetSuppliersPaymentSchedules(model.Date, model.Date.AddMonths(1).AddDays(-1), null);
+
+            return View(model);
+        }
+
         [HttpPost]
         public IActionResult PostSupplierPayments() {
             DateTime date = DateTime.Parse(Input.Date);

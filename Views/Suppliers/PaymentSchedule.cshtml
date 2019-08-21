@@ -1,0 +1,178 @@
+﻿@model Core.ViewModel.SuppliersPaymentsViewModel;
+@{
+    ViewData["Title"] = "Payment Schedule";
+    int month = DateTime.Now.Month - 1;
+
+    var supp = new Suppliers();
+    string date = "";
+    string invs = "";
+    string amts = "";
+    string xvat = "";
+    string psix = "";
+    string pten = "";
+    string chqs = "";
+
+    double csix = 0;
+    double chqx = 0;
+
+    var ps = new PaymentSchedule();
+    var sc = new PaymentSchedule();
+}
+
+<style>
+    #schedule-table tbody td {
+        vertical-align: top;
+    }
+</style>
+
+<script src="~/js/suppliers-payments-script.js"></script>
+<div id="breadcrumbs-wrapper">
+    <div class="container">
+        <div class="row zero-margin">
+            <div class="col s10 m6 l6">
+                <ol class="breadcrumbs">
+                    <li><a href="/core/suppliers">Suppliers</a></li>
+                    <li><a href="/core/suppliers/payments">Payments</a></li>
+                    <li><a href="/core/suppliers/payments/schedule">Schedule</a></li>
+                    <li class="active">@Model.Date.ToString("MMMM yyyy")</li>
+                </ol>
+            </div>
+            <div class="col s2 m6 l6">
+                <a class="btn dropdown-settings waves-effect waves-light breadcrumbs-btn right gradient-45deg-light-blue-cyan gradient-shadow payment-ledger pointer" data-url="/core/suppliers/payments/schedule/">
+                    <i class="material-icons hide-on-med-and-up">settings</i>
+                    <span class="hide-on-small-onl">CHANGE</span>
+                    <i class="material-icons right">arrow_drop_down</i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="clear:both; margin-top:55px;"></div>
+
+<div class="card zero-margin">
+    <div class="card-content deep-orange accent-2 white-text table-card" style="border-radius: 0">
+        <h5 class="card-stats-number"><i class="material-icons left">add_shopping_cart</i>Payment Schedule</h5>
+        <p class="card-stats-compare right">
+            <i class="material-icons left">history</i>
+            <span class="deep-orange-text text-lighten-5 opening-balance">Suppliers</span>
+        </p>
+    </div>
+
+    <table id="schedule-table" class="custom bordered" data-loaded="0" style="margin-top:-20px">
+        <thead class="deep-orange accent-2">
+            <tr>
+                <th>DATE</th>
+                <th>INVOICE</th>
+                <th>PIN</th>
+                <th>NAME</th>
+                <th class="right-text">AMOUNT</th>
+                <th class="right-text">EX VAT</th>
+                <th class="right-text">6%</th>
+                <th class="right-text">CUMM</th>
+                <th class="right-text">10%</th>
+                <th class="right-text">C/NOTE</th>
+                <th class="right-text">CHEQUE</th>
+                <th class="right-text">CUMM</th>
+                <th class="right-text">ACTUAL</th>
+            </tr>
+        </thead>
+        <tbody style="font-size:0.8em">
+            @foreach (var schedule in Model.Schedule) {
+                if (!supp.Id.Equals(schedule.Supplier.Id) && supp.Id > 0) {
+                    <tr style="white-space: pre-line; vertical-align:top">
+                        <td>@date.Trim()</td>
+                        <td>@invs.Trim()</td>
+                        <td>@supp.Pin</td>
+                        <td>@supp.Name</td>
+                        <td class="right-text">@amts.Trim()</td>
+                        <td class="right-text">@xvat.Trim()</td>
+                        <td class="right-text">@psix.Trim()</td>
+                        <td class="right-text bold-text">@string.Format("{0:N}", csix)</td>
+                        <td class="right-text">@pten.Trim()</td>
+                        <td class="right-text">@string.Format("{0:N}", sc.Credits)</td>
+                        <td class="right-text">@chqs.Trim()</td>
+                        <td class="right-text bold-text">@string.Format("{0:N}", chqx)</td>
+                        <td class="right-text bold-text">@string.Format("{0:N}", chqx - sc.Credits)</td>
+                    </tr>
+
+                    date = "";
+                    invs = "";
+                    amts = "";
+                    xvat = "";
+                    psix = "";
+                    pten = "";
+                    chqs = "";
+                    csix = 0;
+                    chqx = 0;
+
+                    ps.Credits += sc.Credits;
+                }
+
+                ps.Amount += schedule.Amount;
+                ps.ExVats += schedule.ExVats;
+                ps.PercSix += schedule.PercSix;
+                ps.PercTen += schedule.PercTen;
+                ps.Cheques += schedule.Cheques;
+
+                supp = schedule.Supplier;
+                date += schedule.Date.ToString("dd/MM/yyyy") + "\n";
+                invs += schedule.Invoice + Environment.NewLine;
+                amts += string.Format("{0:N2}", schedule.Amount) + Environment.NewLine;
+                xvat += string.Format("{0:N2}", schedule.ExVats) + Environment.NewLine;
+                psix += string.Format("{0:N2}", schedule.PercSix) + Environment.NewLine;
+                pten += string.Format("{0:N2}", schedule.PercTen) + Environment.NewLine;
+                chqs += string.Format("{0:N2}", schedule.PercTen) + Environment.NewLine;
+
+                csix += schedule.PercSix;
+                chqx += schedule.Cheques;
+
+                sc = schedule;
+            }
+        </tbody>
+
+        <tfoot class="deep-orange accent-2 white-text" style="font-size:0.8em">
+            <tr>
+                <th colspan="4">&nbsp; &nbsp; &nbsp;SUMMARY</th>
+                <th class="right-text">@string.Format("{0:N}", ps.Amount)</th>
+                <th class="right-text">@string.Format("{0:N}", ps.ExVats)</th>
+                <th class="right-text">@string.Format("{0:N}", ps.PercSix)</th>
+                <th class="right-text">&mdash;</th>
+                <th class="right-text">@string.Format("{0:N}", ps.PercTen)</th>
+                <th class="right-text">@string.Format("{0:N}", ps.Credits)</th>
+                <th class="right-text">&mdash;</th>
+                <th class="right-text">@string.Format("{0:N}", ps.Cheques)</th>
+                <th class="right-text">@string.Format("{0:N}", ps.Cheques - ps.Credits)</th>
+            </tr>
+        </tfoot>
+    </table>
+
+</div>
+
+
+
+
+<!--Reports Modals-->
+<div id="reports-modal" class="modal modal-fixed-footer" style="width: 500px">
+    <div class="modal-content">
+        <h4>View Report</h4>
+        <p>Specify the below Parameters to generate the Summary </p>
+        <div>
+            <div class="input-field">
+                <i class="material-icons prefix">class</i>
+                @Html.DropDownListFor(model => month, Model.Months, new { @class = "modal-month" })
+                <label style="margin-left: 2rem;">Select Month</label>
+            </div>
+
+            <div class="input-field">
+                <i class="material-icons prefix">event_note</i>
+                <input class="modal-year validate" type="number" value="@DateTime.Now.Year" />
+                <label style="margin-left: 2rem;">Select Year</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
+        <a class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
+    </div>
+</div>

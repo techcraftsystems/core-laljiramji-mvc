@@ -1,0 +1,61 @@
+﻿@model Core.ViewModel.SuppliersPaymentsViewModel;
+@{
+    ViewData["Title"] = "Payment Ledger";
+    int month = DateTime.Now.Month - 1;
+}
+
+<script src="~/js/suppliers-payments-script.js"></script>
+
+<div id="breadcrumbs-wrapper">
+    <div class="container">
+        <div class="row zero-margin">
+            <div class="col s10 m6 l6">
+                <ol class="breadcrumbs">
+                    <li><a href="/core/suppliers">Suppliers</a></li>
+                    <li><a href="/core/suppliers/payments">Payments</a></li>
+                    <li><a href="/core/suppliers/payments/ledger">Ledger</a></li>
+                    <li class="active">@Model.Date.ToString("MMMM yyyy")</li>
+                </ol>
+            </div>
+            <div class="col s2 m6 l6">
+                <a class="btn dropdown-settings waves-effect waves-light breadcrumbs-btn right gradient-45deg-light-blue-cyan gradient-shadow payment-ledger pointer" data-url="/core/suppliers/payments/ledger/">
+                    <i class="material-icons hide-on-med-and-up">settings</i>
+                    <span class="hide-on-small-onl">CHANGE</span>
+                    <i class="material-icons right">arrow_drop_down</i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="clear:both; margin-top:45px;"></div>
+
+
+
+
+
+
+<!--Reports Modals-->
+<div id="reports-modal" class="modal modal-fixed-footer" style="width: 500px">
+    <div class="modal-content">
+        <h4>View Report</h4>
+        <p>Specify the below Parameters to generate the Summary </p>
+        <div>
+            <div class="input-field">
+                <i class="material-icons prefix">class</i>
+                @Html.DropDownListFor(model => month, Model.Months, new { @class = "modal-month" })
+                <label style="margin-left: 2rem;">Select Month</label>
+            </div>
+
+            <div class="input-field">
+                <i class="material-icons prefix">event_note</i>
+                <input class="modal-year validate" type="number" value="@DateTime.Now.Year" />
+                <label style="margin-left: 2rem;">Select Year</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
+        <a class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
+    </div>
+</div>

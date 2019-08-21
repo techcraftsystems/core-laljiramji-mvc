@@ -42,4 +42,24 @@ namespace Core.ViewModel {
             }
         }
     }
+
+    public class SuppliersPaymentsViewModel {
+        public DateTime Date { get; set; }
+        public List<SelectListItem> Months { get; set; }
+        public List<PaymentSchedule> Schedule { get; set; }
+
+        public SuppliersPaymentsViewModel() {
+            Date = DateTime.Now;
+            Months = new List<SelectListItem>();
+            Schedule = new List<PaymentSchedule>();
+
+            var start = new DateTime(DateTime.Now.Year, 1, 1);
+            for (int ix = 0; ix < 12; ix++) {
+                Months.Add(new SelectListItem {
+                    Value = ix.ToString(),
+                    Text = start.AddMonths(ix).ToString("MMMM")
+                });
+            }
+        }
+    }
 }

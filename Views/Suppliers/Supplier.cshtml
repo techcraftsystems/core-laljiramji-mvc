@@ -1,6 +1,17 @@
 ﻿@model Core.ViewModel.SuppliersViewModel;
 @{
     ViewData["Title"] = Model.Supplier.Name;
+
+    int month = DateTime.Now.Month - 1;
+    var months = new List<SelectListItem>();
+    var date = new DateTime(DateTime.Now.Year, 1, 1);
+
+    for (int ix = 0; ix < 12; ix++) {
+        months.Add(new SelectListItem {
+            Value = ix.ToString(),
+            Text = date.AddMonths(ix).ToString("MMMM")
+        });
+    }
 }
 
 <style>
@@ -151,10 +162,10 @@
                 <i class="material-icons left black-text">chrome_reader_mode</i><a class="black-text pointer view-statement" data-target="station-expense-modal">View Statement</a>
             </li>
             <li class="collection-item">
-                <i class="material-icons left black-text">attachment</i><a class="black-text pointer payment-ledger">Payment Ledger</a>
+                <i class="material-icons left black-text">attachment</i><a class="black-text pointer payment-ledger" data-url="/core/suppliers/payments/ledger/">Payment Ledger</a>
             </li>
             <li class="collection-item">
-                <i class="material-icons left black-text">restore</i><a class="black-text pointer payment-schedule">Payment Schedule</a>
+                <i class="material-icons left black-text">restore</i><a class="black-text pointer payment-ledger" data-url="/core/suppliers/payments/schedule/">Payment Schedule</a>
             </li>
         </ul>
     </div>
@@ -605,5 +616,31 @@
     <div class="modal-footer">
         <a class="modal-action modal-close waves-effect waves-red btn-flat">CANCEL</a>
         <a class="modal-action modal-post waves-effect waves-green btn-flat">DELETE</a>
+    </div>
+</div>
+
+<!--Reports Modals-->
+<div id="reports-modal" class="modal modal-fixed-footer" style="width: 500px">
+    <div class="modal-content">
+        <h4>View Report</h4>
+        <p>Specify the below Parameters to generate the Summary </p>
+        <div>
+            <div class="input-field">
+                <i class="material-icons prefix">class</i>
+                @Html.DropDownListFor(model => month, months, new { @class = "modal-month" })
+                <label style="margin-left: 2rem;">Select Month</label>
+            </div>
+
+            <div class="input-field">
+                <i class="material-icons prefix">event_note</i>
+                <input class="modal-year validate" type="number" value="@DateTime.Now.Year" />
+                <label style="margin-left: 2rem;">Select Year</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
+        <a class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
     </div>
 </div>

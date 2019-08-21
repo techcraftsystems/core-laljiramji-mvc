@@ -300,6 +300,43 @@ namespace Core.Services
             return credits;
         }
 
+        public List<PaymentSchedule> GetSuppliersPaymentSchedules(DateTime start, DateTime stop, Suppliers supplier, string filter = "", string order = "") {
+            List<PaymentSchedule> schedule = new List<PaymentSchedule>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            string filterString = conn.GetQueryString(filter, "xp_invoice+CAST(xp_amount AS NVARCHAR)+'-'+sp_pin+'-'+sp_name", "xp_date BETWEEN @start AND @stop");
+            if (supplier != null)
+                filterString += " AND xp_supplier=" + supplier.Id;
+
+            SqlDataReader dr = conn.SqlServerConnect("DECLARE @start DATE='" + start.Date + "', @stop DATE='" + stop.Date + "'; SELECT xp_idnt, xp_date, xp_invoice, xp_amount , ISNULL((SELECT SUM(CASE WHEN cn_type=0 THEN cn_amount ELSE 0-cn_amount END) cn_amts FROM CreditNotes WHERE cn_supp=xp_supplier AND cn_date BETWEEN @start AND @stop GROUP BY cn_supp),0) xp_credit , sp_idnt, sp_uuid, sp_name, ISNULL(NULLIF(sp_pin,''),'N/A')sp_pin FROM Expenses INNER JOIN Suppliers ON xp_supplier=sp_idnt " + filterString + " ORDER BY " + order + " sp_name, sp_idnt, xp_date");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    PaymentSchedule ps = new PaymentSchedule {
+                        Id = Convert.ToInt64(dr[0]),
+                        Date = Convert.ToDateTime(dr[1]),
+                        Invoice = dr[2].ToString(),
+                        Amount = Convert.ToDouble(dr[3]),
+                        Credits = Convert.ToDouble(dr[4]),
+                        Supplier = new Suppliers {
+                            Id = Convert.ToInt64(dr[5]),
+                            Uuid = dr[6].ToString(),
+                            Name = dr[7].ToString(),
+                            Pin = dr[8].ToString()
+                        }
+                    };
+
+                    ps.ExVats = (100.0 / 116.0) * ps.Amount;
+                    ps.PercSix = (6.0 / 100.0) * ps.ExVats;
+                    ps.PercTen = (10.0 / 100.0) * ps.ExVats;
+                    ps.Cheques = ps.Amount - ps.PercSix;
+
+                    schedule.Add(ps);
+                }
+            }
+
+            return schedule;
+        }
+
         public List<SelectListItem> GetStationsIEnumerable(bool includeOthers = false) {
             List<SelectListItem> stations = GetIEnumerable("SELECT st_idnt, st_name FROM Stations ORDER BY st_order");
             if (includeOthers) {
