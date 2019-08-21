@@ -128,6 +128,22 @@
 
                 sc = schedule;
             }
+
+            <tr style="white-space: pre-line; vertical-align:top">
+                <td>@date.Trim()</td>
+                <td>@invs.Trim()</td>
+                <td>@supp.Pin</td>
+                <td>@supp.Name</td>
+                <td class="right-text">@amts.Trim()</td>
+                <td class="right-text">@xvat.Trim()</td>
+                <td class="right-text">@psix.Trim()</td>
+                <td class="right-text bold-text">@string.Format("{0:N}", csix)</td>
+                <td class="right-text">@pten.Trim()</td>
+                <td class="right-text">@string.Format("{0:N}", sc.Credits)</td>
+                <td class="right-text">@chqs.Trim()</td>
+                <td class="right-text bold-text">@string.Format("{0:N}", chqx)</td>
+                <td class="right-text bold-text">@string.Format("{0:N}", chqx - sc.Credits)</td>
+            </tr>
         </tbody>
 
         <tfoot class="deep-orange accent-2 white-text" style="font-size:0.8em">
