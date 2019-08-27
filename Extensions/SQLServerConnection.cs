@@ -3,16 +3,22 @@ using System.Data.SqlClient;
 
 namespace Core.Extensions
 {
-    public class SqlServerConnection
-    {
-        private static readonly string sConn = "Data Source=41.139.250.38;Initial Catalog=core_system;User ID=ct;Password=ct-2011;Max Pool Size=200;";
-        private readonly SqlConnection conn = new SqlConnection(sConn);
-        private SqlCommand comm = new SqlCommand();
+    public class SqlServerConnection {
+        public string Server { get; set; }
+        private string SConn { get; set; }
+        private SqlConnection Conn { get; set; }
+        protected SqlCommand comm = new SqlCommand();
 
-        public SqlDataReader SqlServerConnect(string SqlString) {
+        public SqlServerConnection() {
+            Server = "core_system";
+            SConn = "Data Source=41.90.127.203;Initial Catalog=" + Server + ";User ID=ct;Password=ct-2011;Max Pool Size=200;";
+            Conn = new SqlConnection(SConn);
+        }
+
+        public SqlDataReader SqlServerConnect(string sqlstring) {
             try {
-                conn.Open();
-                comm = new SqlCommand(SqlString, conn);
+                Conn.Open();
+                comm = new SqlCommand(sqlstring, Conn);
 
                 return comm.ExecuteReader();
             }
@@ -23,7 +29,7 @@ namespace Core.Extensions
 
         public Int64 SqlServerUpdate(string SqlString) {
             try {
-                SqlCommand command = new SqlCommand(SqlString, conn);
+                SqlCommand command = new SqlCommand(SqlString, Conn);
                 command.Connection.Open();
 
                 if (SqlString.ToLower().Contains("output"))
@@ -37,8 +43,8 @@ namespace Core.Extensions
                 return 0;
             }
             finally {
-                if (conn.State == System.Data.ConnectionState.Open)
-                    conn.Close();
+                if (Conn.State == System.Data.ConnectionState.Open)
+                    Conn.Close();
             }
         }
 

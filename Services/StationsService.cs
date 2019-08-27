@@ -314,21 +314,19 @@ namespace Core.Services
 
             SqlServerConnection conn = new SqlServerConnection();
             SqlDataReader dr = conn.SqlServerConnect("DECLARE @st INT=" + stid + ", @year INT=" + year + ", @mnth INT=" + mnth + "; SELECT Dates, SUM(Amts)Amts, SUM(Pd)Pd, SUM(Uprna)Uprna, SUM(Debt)Debt, SUM(Disc)Disc, SUM(Transp)Transp FROM ( SELECT pcol_date Dates, pcol_amts Amts, 0 Pd, 0 Uprna, 0 Debt, 0 Disc, 0 Transp FROM vDailySales WHERE pcol_station=@st AND YEAR(pcol_date)=@year AND MONTH(pcol_date)=@mnth UNION ALL SELECT ar_date, 0, ar_cash,0,0,0,0 FROM vLedgerCash WHERE ar_st=@st AND YEAR(ar_date)=@year AND MONTH(ar_date)=@mnth UNION ALL SELECT sr_date, CASE sr_overpump when 1 THEN sr_amts-(sr_discount) ELSE 0 END, 0,0,sr_amts, sr_discount,0 FROM vInvoicesLedger WHERE sr_st=@st AND YEAR(sr_date)=@year AND MONTH(sr_date)=@mnth UNION ALL SELECT am_date, 0,0,0,am_amts,0,0 FROM vAccounts WHERE am_st=@st AND YEAR(am_date)=@year AND MONTH(am_date)=@mnth UNION ALL SELECT ex_date, 0,ex_amts,0,0,0,0 FROM vLedgerExpenses WHERE ex_st=@st AND YEAR(ex_date)=@year AND MONTH(ex_date)=@mnth UNION ALL SELECT pt_date,0,0,0,0,0, pt_amount FROM vTransport WHERE pt_st=@st AND YEAR(pt_date)=@year AND MONTH(pt_date)=@mnth UNION ALL SELECT cd_date, 0,0,0,0, cd_disc, 0 FROM vDiscounts WHERE cd_st=@st AND YEAR(cd_date)=@year AND MONTH(cd_date)=@mnth) As Foo GROUP BY Dates ORDER BY Dates");
-            if (dr.HasRows)
-            {
-                while (dr.Read())
-                {
-                    StationsReconcile recon = new StationsReconcile();
-                    recon.Date = Convert.ToDateTime(dr[0]).ToString("dd/MM/yyyy");
-                    recon.Amount = Convert.ToDouble(dr[1]);
-                    recon.Payment = Convert.ToDouble(dr[2]);
-                    recon.Uprna = Convert.ToDouble(dr[3]);
-                    recon.Debt = Convert.ToDouble(dr[4]);
-                    recon.Discount = Convert.ToDouble(dr[5]);
-                    recon.Discount = Convert.ToDouble(dr[5]);
-                    recon.Transport = Convert.ToDouble(dr[6]);
-                    recon.Balance = recon.Amount - recon.Payment - recon.Uprna - recon.Debt - recon.Transport + recon.Discount;
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    StationsReconcile recon = new StationsReconcile {
+                        Date = Convert.ToDateTime(dr[0]).ToString("dd/MM/yyyy"),
+                        Amount = Convert.ToDouble(dr[1]),
+                        Payment = Convert.ToDouble(dr[2]),
+                        Uprna = Convert.ToDouble(dr[3]),
+                        Debt = Convert.ToDouble(dr[4]),
+                        Discount = Convert.ToDouble(dr[5]),
+                        Transport = Convert.ToDouble(dr[6])
+                    };
 
+                    recon.Balance = recon.Amount - recon.Payment - recon.Uprna - recon.Debt - recon.Transport + recon.Discount;
                     reconciles.Add(recon);
                 }
             }
@@ -909,7 +907,7 @@ namespace Core.Services
             List<ProductsLedger> variance = new List<ProductsLedger>();
 
             SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("USE " + station.Prefix.Replace(".dbo.", "") + "; DECLARE @date1 DATE='" + start.Date + "', @date2 DATE='" + stop.Date + "'; SELECT vat_item, itemName, vat_date, SUM(ISNULL(purc,0)) PURC, SUM(ISNULL(delv,0)) DELV, SUM(ISNULL(ovp,0)) OVP FROM core_system.dbo.VatReports INNER JOIN Products ON id_=vat_item LEFT OUTER JOIN (SELECT date_ dts, item_id itm, qty purc, 0 delv, 0 ovp FROM PurchasesDetails INNER JOIN Purchases ON PurNum = PurNo WHERE item_id BETWEEN 1 AND 10 AND date_ BETWEEN @date1 AND @date2 UNION ALL SELECT fr_date, fr_fuel, 0, fr_quantity, 0 FROM FuelReceipts WHERE fr_date BETWEEN @date1 AND @date2 UNION ALL SELECT sr_date, sr_fuel, 0,0,sr_qnty FROM Receipts WHERE sr_overpump=1) As foo ON dts=vat_date AND vat_item=itm WHERE vat_date BETWEEN @date1 AND @date2 GROUP BY vat_date, vat_item, itemName ORDER BY vat_date, vat_item");
+            SqlDataReader dr = conn.SqlServerConnect("USE " + station.Prefix.Replace(".dbo.", "") + "; DECLARE @date1 DATE='" + start.Date + "', @date2 DATE='" + stop.Date + "'; SELECT vat_item, itemName, vat_date, SUM(ISNULL(purc,0)) PURC, SUM(ISNULL(delv,0)) DELV, SUM(ISNULL(ovp,0)) OVP FROM " + conn.Server + ".dbo.VatReports INNER JOIN Products ON id_=vat_item LEFT OUTER JOIN (SELECT date_ dts, item_id itm, qty purc, 0 delv, 0 ovp FROM PurchasesDetails INNER JOIN Purchases ON PurNum = PurNo WHERE item_id BETWEEN 1 AND 10 AND date_ BETWEEN @date1 AND @date2 UNION ALL SELECT fr_date, fr_fuel, 0, fr_quantity, 0 FROM FuelReceipts WHERE fr_date BETWEEN @date1 AND @date2 UNION ALL SELECT sr_date, sr_fuel, 0,0,sr_qnty FROM Receipts WHERE sr_overpump=1) As foo ON dts=vat_date AND vat_item=itm WHERE vat_date BETWEEN @date1 AND @date2 GROUP BY vat_date, vat_item, itemName ORDER BY vat_date, vat_item");
             if (dr.HasRows) {
                 while (dr.Read()) {
                     variance.Add(new ProductsLedger {

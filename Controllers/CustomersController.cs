@@ -17,6 +17,12 @@ namespace Core.Controllers
             return View(customers);
         }
 
+        [Route("customers/{code}")]
+        public IActionResult Station(string code, CoreService svc) {
+            List<Customers> customers = new List<Customers>(svc.GetCustomers("", code));
+            return View(customers);
+        }
+
         [Route("customers/{station}/{id}")]
         public IActionResult Customers(String station, Int64 id, CoreService svc) {
             Customers customer = svc.GetCustomer(station, id);

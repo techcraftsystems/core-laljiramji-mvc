@@ -191,6 +191,24 @@ namespace Core.Controllers
             return View(model);
         }
 
+        [Route("/reports/wetstock/detailed/{code}/{month}/{year}")]
+        public IActionResult WetstockDetails(string code, int month, int year, ReportWetstock model, StationsService service)
+        {
+            model.Date = new DateTime(year, month, 1);
+            model.Station = service.GetStation(code);
+            return View(model);
+        }
+
+        [Route("/reports/wetstock/summary/{code}/{month}/{year}")]
+        public IActionResult WetstockSummary(string code, int month, int year, ReportWetstock model, StationsService service, CoreService core)
+        {
+            model.Date = new DateTime(year, month, 1);
+            model.Station = service.GetStation(code);
+            model.Stations = service.GetStationCodesIEnumerable();
+            model.Wetstock = core.GetWetstockSummary(model.Date, model.Date.AddMonths(1).AddDays(-1), model.Station);
+            return View(model);
+        }
+
         public JsonResult GetStocksUnlinked(string filter = "") {
             if (string.IsNullOrWhiteSpace(filter))
                 filter = "";

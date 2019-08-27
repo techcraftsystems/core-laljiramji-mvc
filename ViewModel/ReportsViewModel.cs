@@ -115,4 +115,18 @@ namespace Core.ViewModel
             Stations = new List<SelectListItem>();
         }
     }
+
+    public class ReportWetstock {
+        public List<WetstockSummary> Wetstock { get; set; }
+        public Stations Station { get; set; }
+        public DateTime Date { get; set; }
+        public IEnumerable<SelectListItem> Stations { get; set; }
+
+        public ReportWetstock() {
+            Wetstock = new List<WetstockSummary>();
+            Station = new Stations();
+            Date = DateTime.Now;
+            Stations = new List<SelectListItem>();
+        }
+    }
 }

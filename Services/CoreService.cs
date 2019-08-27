@@ -67,12 +67,16 @@ namespace Core.Services
             return customer;
         }
 
-        public List<Customers> GetCustomers(string stations = ""){
+        public List<Customers> GetCustomers(string stations = "", string codes = ""){
             List<Customers> customers = new List<Customers>();
             String additionalquery = "";
 
             if (!string.IsNullOrEmpty(stations.Trim())) {
                 additionalquery = "WHERE st_name IN ('" + stations + "')";
+            }
+
+            if (!string.IsNullOrEmpty(codes.Trim())) {
+                additionalquery = "WHERE st_code IN ('" + codes + "')";
             }
 
             SqlServerConnection conn = new SqlServerConnection();
@@ -368,6 +372,37 @@ namespace Core.Services
             }
 
             return ledger;
+        }
+
+        public List<WetstockSummary> GetWetstockSummary(DateTime start, DateTime stop, Stations station) {
+            List<WetstockSummary> wetstocks = new List<WetstockSummary>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("USE " + station.Prefix.Replace(".dbo.", "") + "; DECLARE @start DATE='" + start.Date + "', @stop DATE='" + stop.Date + "';  SELECT tnk, tnk_name, fuel, itemName, (SELECT TOP(1)td_reading FROM TanksDips WHERE CAST(td_date AS DATE)<@start AND td_tank=tnk ORDER BY td_date DESC) op, SUM(sales)sale, SUM(rtns)rtns, SUM(delv)delv, (SELECT TOP(1)td_reading FROM TanksDips WHERE CAST(td_date AS DATE)<=@stop AND td_tank=tnk ORDER BY td_date DESC) dips FROM (SELECT pcol_tank tnk, pcol_fuel fuel, pcol_electronic_test rtns, pcol_electronic_cl-pcol_electronic_op sales, 0 delv FROM PumpsCollections WHERE pcol_date BETWEEN @start AND @stop UNION ALL SELECT fr_tank, fr_fuel, 0,0, fr_quantity FROM FuelReceipts WHERE fr_date BETWEEN @start AND @stop) As Foo INNER JOIN Tanks ON tnk=tnk_idnt INNER JOIN Products ON id_=fuel GROUP BY tnk, fuel, tnk_name, itemName");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    WetstockSummary ws = new WetstockSummary {                     
+                        Tank = new Tank {
+                            Id = Convert.ToInt64(dr[0]),
+                            Name = dr[1].ToString()
+                        },
+                        Fuel = new Fuel {
+                            Id = Convert.ToInt64(dr[2]),
+                            Name = dr[3].ToString()
+                        },
+                        Opening = Convert.ToDouble(dr[4]),
+                        Sale = Convert.ToDouble(dr[5]),
+                        Returns = Convert.ToDouble(dr[6]),
+                        Delivery = Convert.ToDouble(dr[7]),
+                        Dips = Convert.ToDouble(dr[8]),
+                    };
+
+                    ws.Closing = ws.Opening + ws.Returns + ws.Delivery - ws.Sale;
+                    wetstocks.Add(ws);
+                }
+            }
+
+            return wetstocks;
         }
 
         public List<SelectListItem> GetStationsIEnumerable(bool includeOthers = false) {

@@ -33,9 +33,8 @@ namespace Core.Extensions
 
         }
 
-        public string Decrypt(string value)
-        {
-            if (String.IsNullOrEmpty(value))
+        public string Decrypt(string value) {
+            if (string.IsNullOrEmpty(value))
                 return null;
             
             DESCryptoServiceProvider cryptoProvider = new DESCryptoServiceProvider();

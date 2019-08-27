@@ -14,20 +14,17 @@
         height: 2rem;
         width: auto;
     }
-
     .dataTables_wrapper .dataTables_filter input {
         margin-left: 0;
         height: 2rem !important;
     }
-
     .dataTables_length {
         display: none;
     }
-
     .dataTables_filter {
         margin-top: -60px;
     }
-    .alight-right{
+    .alight-right {
         text-align: right;
     }
     h3 {
@@ -68,12 +65,11 @@
             </tr>
         </tfoot>
         <tbody>
-            @foreach (var cust in Model)
-            {
+            @foreach (var cust in Model) {
                 <tr>
                     <td><a href="/customers/@cust.Station.Code.ToLower()/@cust.Id">@cust.Name</a></td>
                     <td><a href="/core/stations/@cust.Station.Code.ToLower()">@cust.Station.Name.ToUpper()</a> </td>
-                    <td><a href="/customers/@(cust.Station.Code)">@cust.Station.Name.ToUpper()</a> </td>
+                    <td><a href="">@cust.Station.Name.ToUpper()</a> </td>
                     <td>@cust.Contacts</td>
                     <td>@cust.Telephone</td>
                     <td>@cust.KraPin</td>
