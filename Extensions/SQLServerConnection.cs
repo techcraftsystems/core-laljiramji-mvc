@@ -11,7 +11,7 @@ namespace Core.Extensions
 
         public SqlServerConnection() {
             Server = "core_system";
-            SConn = "Data Source=41.90.127.203;Initial Catalog=" + Server + ";User ID=ct;Password=ct-2011;Max Pool Size=200;";
+            SConn = "Data Source=192.168.1.11;Initial Catalog=" + Server + ";User ID=ct;Password=ct-2011;Max Pool Size=200;";
             Conn = new SqlConnection(SConn);
         }
 

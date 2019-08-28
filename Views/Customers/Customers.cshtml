@@ -1,70 +1,86 @@
-﻿@model Core.Models.Customers;
+﻿@model Core.ViewModel.CustomerViewModel;
 @{
-    ViewData["Title"] = Model.Name;
+    ViewData["Title"] = Model.Customer.Name;
 }
 
 <style>
     h4 {
         padding-left: 12px;
     }
+
     .card .card-title {
         font-size: 20px;
         font-weight: 300;
     }
+
     .card-title.activator.grey-text.text-darken-4.truncate {
         padding-top: 10px;
         margin-bottom: 0px;
     }
+
     .activator.grey-text.text-darken-1 {
         font-size: 1.1em;
     }
+
     #profile-card .card-content p {
         color: #555;
         font-size: 1.1em;
         margin: 4px 0;
     }
+
     .card-content p span {
         vertical-align: super;
     }
+
     #profile-card .card-content {
         padding: 15px 20px 5px 20px;
     }
+
     .preview .body .col-md-1 {
         width: 5%;
     }
+
     .preview .body .col-md-3 {
         width: 29%;
     }
+
     .preview .body .col-md-5 {
         width: 37%;
     }
+
     nav .input-field input:focus, nav .input-field input[type=text]:valid, nav .input-field input[type=password]:valid, nav .input-field input[type=email]:valid, nav .input-field input[type=url]:valid, nav .input-field input[type=date]:valid {
         border-bottom: 1px solid #9e9e9e;
     }
+
     table td {
         padding: 5px;
     }
-    table td a {
-        color: #333;
-    }
-    table td a:hover {
-        color: #448AFF;
-    }
+
+        table td a {
+            color: #333;
+        }
+
+            table td a:hover {
+                color: #448AFF;
+            }
+
     td i.material-icons {
         height: 0px;
         line-height: 0px;
     }
+
     #invoice-table th:nth-child(6),
     #invoice-table td:nth-child(6),
     #invoice-table th:nth-child(7),
-    #invoice-table td:nth-child(7){
+    #invoice-table td:nth-child(7) {
         text-align: right;
     }
 </style>
 
 <script type="text/javascript">
-    var xCust = @Model.Id;
-    var xStid = @Model.Station.Id;
+    var xCust = @(Model.Customer.Id);
+    var xStid = @(Model.Customer.Station.Id);
+    var xCode = "@(Model.Customer.Station.Code)";
 
     jq(function() {
         String.prototype.toAccounting = function() {
@@ -83,7 +99,7 @@
 
 <div class="rows">
     <!--Navigation Column-->
-    <div class="col-md-4" style="padding-right:5px;">
+    <div class="col-md-3" style="padding-right:5px;">
         <div id="profile-card" class="card">
             <div class="card-image waves-effect waves-block waves-light">
                 <img class="activator" src="~/images/gallary/11.png" alt="user bg">
@@ -94,43 +110,47 @@
                 <a class="btn-floating activator btn-move-up waves-effect waves-light red accent-2 z-depth-5 right">
                     <i class="material-icons">edit</i>
                 </a>
-                <div class="card-title activator grey-text text-darken-4 truncate">@Model.Name</div>
-                <div class="activator"><a class="grey-text text-darken-1" href="/core/stations/@Model.Station.Code.ToLower()">@Model.Station.Name</a></div>
-                <hr style="margin: 10px 0;"/>
-                <p class="truncate">
-                    <i class="material-icons">assignment_ind</i> 
-                    <span>@Model.Contacts</span> 
-                </p>
-
+                <div class="card-title activator grey-text text-darken-4 truncate">@Model.Customer.Name</div>
+                <div class="activator"><a class="grey-text text-darken-1" href="/core/stations/@Model.Customer.Station.Code.ToLower()">@Model.Customer.Station.Name</a></div>
+                <hr style="margin: 10px 0;" />
                 <p>
                     <i class="material-icons">perm_phone_msg</i>
-                    <span>@Model.Telephone</span> 
+                    <span>@Model.Customer.Telephone</span>
                 </p>
 
                 <p>
                     <i class="material-icons">event</i>
-                    <span>@Model.LastInvoice.ToString("dd/MM/yyyy")</span>
+                    <span>@Model.Customer.LastInvoice.ToString("dd/MM/yyyy")</span>
                 </p>
 
                 <p>
                     <i class="material-icons">turned_in</i>
-                    <span>Ksh @string.Format("{0:N}", Model.Balance)</span>
+                    <span>Ksh @string.Format("{0:N}", Model.Customer.Balance)</span>
                 </p>
             </div>
-
-            <div class="card-reveal">
-                <span class="card-title grey-text text-darken-4 truncate">
-                    @Model.Name
-                    <i class="material-icons right">close</i>
-                </span>
-                <p>Here you can edit details about this customer</p>
-
-            </div>
         </div>
+
+        <ul id="profile-page-about-details" class="collection z-depth-1" style="margin-top:-10px;">
+            <li class="collection-item">
+                <i class="material-icons left blue-text">payment</i><a class="blue-text make-payment pointer">Post Payment</a>
+            </li>
+            <li class="collection-item">
+                <i class="material-icons left blue-text">format_indent_increase</i><a class="blue-text credit-note pointer">Credit Note</a>
+            </li>
+        </ul>
+
+        <ul id="profile-page-about-details" class="collection z-depth-1" style="margin-top:-10px;">
+            <li class="collection-item">
+                <i class="material-icons left black-text">chrome_reader_mode</i><a class="black-text pointer view-statement" data-target="station-expense-modal">View Statement</a>
+            </li>
+            <li class="collection-item">
+                <i class="material-icons left black-text">attachment</i><a class="black-text pointer payment-ledger" data-url="/core/suppliers/payments/ledger/">Payment Report</a>
+            </li>
+        </ul>
     </div>
 
     <!-- Main Column -->
-    <div class="col-md-8" style="padding: 0; margin-top: 7px; margin-bottom: 0px;">
+    <div class="col-md-9" style="padding: 0; margin-top: 7px; margin-bottom: 0px;">
         <nav class="navbar nav-extended">
             <div class="nav-content preview" style="border: 1px solid rgba(0,0,0,0.1); margin-top: -5px;">
                 <ul class="tabs">
@@ -216,7 +236,7 @@
                                 <th>DESCRIPTION</th>
                                 <th>CHQ.NO</th>
                                 <th class="right-text" style="padding-right:15px;">AMOUNT</th>
-                                <th>&nbsp;</th>
+                                <th style="width:1px">&nbsp;</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -229,4 +249,91 @@
 
     <!-- Finally -->
     <div class="clear both"></div>
+</div>
+
+
+
+
+<!-- Payment Modal -->
+<div id="payment-modal" class="modal modal-fixed-footer" style="width: 900px">
+    <div class="modal-content">
+        @using (Html.BeginForm("PostCustomerPayments", "Customers", FormMethod.Post, new { id = "payment-form" }))
+        {
+            <h4>MAKE PAYMENT</h4>
+            <hr style="margin: 5px 0" />
+            <div class="row">
+                <div class="input-field col-md-3">
+                    <i class="material-icons prefix">event</i>
+                    @Html.TextBoxFor(model => model.Date, new { @class = "datepicker" })
+                    <label>Select Date</label>
+                </div>
+
+                <div class="input-field col-md-5 input-station">
+                    <i class="material-icons prefix">format_quote</i>
+                    @Html.TextBoxFor(model => model.Note)
+                    <label>Summary</label>
+                </div>
+            </div>
+            <table id="payment-modal-table">
+                <thead>
+                    <tr>
+                        <th>&nbsp;</th>
+                        <th>RCPT</th>
+                        <th>CHEQUE</th>
+                        <th class="right-align">AMOUNT</th>
+                        <th>DESCRIPTION</th>
+                        <th>&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Payments.Count; i++)
+                    {
+                        <tr class="itms @(i == 0 ? "":"hide")">
+                            <td style="width:1px;">@(i + 1).</td>
+                            <td class="width-90px">@Html.TextBoxFor(model => model.Payments[i].Receipt, new { @type = "number" })</td>
+                            <td class="width-100px">@Html.TextBoxFor(model => model.Payments[i].Cheque, new { @type = "number" })</td>
+                            <td class="width-100px">@Html.TextBoxFor(model => model.Payments[i].Amount, new { @type = "number", @class = "pymt-a right-align" })</td>
+                            <td>@Html.TextBoxFor(model => model.Payments[i].Notes)</td>
+                            <td>
+                                <a class="red-text remove-pymt-row" style="font-size:0.7em">
+                                    <i class="material-icons pointer" style="padding-top:20px">delete_forever</i>
+                                </a>
+
+                                @Html.HiddenFor(model => model.Payments[i].Id, new { @class = "idnt-data" })
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @Html.HiddenFor(model => model.Customer.Id);
+            @Html.HiddenFor(model => model.Customer.Station.Code);
+            @Html.HiddenFor(model => model.Customer.Station.Prefix);
+        }
+
+        <hr style="margin: 10px 0" />
+
+        <a class="add-pymt-rows btn-floating waves-effect waves-light gradient-45deg-light-blue-cyan">
+            <i class="material-icons">exposure_plus_1</i>
+        </a>
+    </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat">Disagree</a>
+        <a class="modal-action modal-post waves-effect waves-green btn-flat">Agree</a>
+    </div>
+</div>
+
+<div id="delete-payment-modal" class="modal" style="width:700px;">
+    <div class="modal-content">
+        <h4>DELETE PAYMENT</h4>
+        <hr style="margin: 5px 0" />
+        <p id="delete-modal-field"></p>
+        <input type="hidden" />
+    </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat">CANCEL</a>
+        <a class="modal-action modal-post waves-effect waves-green btn-flat">DELETE</a>
+    </div>
 </div>

@@ -5,7 +5,6 @@ using Core.Models;
 using Core.Extensions;
 using Core.ViewModel;
 using Core.ReportModel;
-using Core.DataModel;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Core.Services
@@ -626,6 +625,38 @@ namespace Core.Services
             return reports;
         }
 
+        public CustomersPayments GetCustomerPayment(long idnt, Stations station) {
+            SqlServerConnection conn = new SqlServerConnection();
+
+            SqlDataReader dr = conn.SqlServerConnect("SELECT im_idnt, im_type, im_date, rcpt, imcq, mm_notes, im_paid, st_idnt, st_code, st_name, st_database, im_cust, CASE im_type WHEN 4 THEN 'LIPA NA MPESA' WHEN 3 THEN BankName+(CASE WHEN BankName IN ('CFC', 'KCB', 'EQUITY') THEN ' VISA' ELSE '' END) ELSE ISNULL(Names,'N/A') END NameX FROM (SELECT im_st, im_idnt, im_cust, 0 im_type, im_date, rcpt, imcq, mm_notes, im_paid FROM vCustomersPayment UNION ALL SELECT aw_st, aw_idnt, aw_account, aw_type, aw_date, 88, aw_chqs, aw_notes, aw_amount FROM vAccountsWithdraw) As Foo INNER JOIN Stations ON im_st=st_idnt LEFT OUTER JOIN vBankAccounts ON im_cust=BankID AND im_st=BankSt LEFT OUTER JOIN vCustomers ON im_cust=Custid AND im_st=Sts WHERE st_code='" + station.Code + "' AND im_idnt=" + idnt);
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    return new CustomersPayments {
+                        Id = Convert.ToInt64(dr[0]),
+                        Type = Convert.ToInt64(dr[1]),
+                        Date = Convert.ToDateTime(dr[2]).ToString("d MMMM, yyyy"),
+                        PostDate = Convert.ToDateTime(dr[2]),
+                        Receipt = Convert.ToInt32(dr[3]),
+                        Cheque = Convert.ToInt32(dr[4]),
+                        Notes = dr[5].ToString(),
+                        Amount = Convert.ToDouble(dr[6]),
+                        Station = new Stations {
+                            Id = Convert.ToInt64(dr[7]),
+                            Code = dr[8].ToString(),
+                            Name = dr[9].ToString(),
+                            Prefix = dr[10].ToString()
+                        },
+                        Customer = new Customers {
+                            Id = Convert.ToInt64(dr[11]),
+                            Name = dr[12].ToString()
+                        }
+                    };
+                }
+            }
+
+            return null;
+        }
+
         public List<CustomersPayments> GetCustomerPayments(DateTime start, DateTime stop, string stations, string customers, string filter = "")
         {
             List<CustomersPayments> payments = new List<CustomersPayments>();
@@ -647,8 +678,9 @@ namespace Core.Services
                         Id = Convert.ToInt64(dr[0]),
                         Type = Convert.ToInt64(dr[1]),
                         Date = Convert.ToDateTime(dr[2]).ToString("dd/MM/yyyy"),
-                        Receipt = dr[3].ToString(),
-                        Cheque = dr[4].ToString(),
+                        PostDate = Convert.ToDateTime(dr[2]),
+                        Receipt = Convert.ToInt32(dr[3]),
+                        Cheque = Convert.ToInt32(dr[4]),
                         Notes = dr[5].ToString(),
                         Amount = Convert.ToDouble(dr[6])
                     };

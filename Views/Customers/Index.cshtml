@@ -71,9 +71,9 @@
             @foreach (var cust in Model)
             {
                 <tr>
-                    <td><a href="/customers/@cust.Station.Code.ToLower()/@cust.Id">@cust.Name</a></td>
+                    <td><a href="/core/customers/@cust.Station.Code.ToLower()/@cust.Id">@cust.Name</a></td>
                     <td><a href="/core/stations/@cust.Station.Code.ToLower()">@cust.Station.Name.ToUpper()</a> </td>
-                    <td><a href="/customers/@(cust.Station.Code)">@cust.Station.Name.ToUpper()</a> </td>
+                    <td><a href="/core/customers/@(cust.Station.Code)">@cust.Station.Name.ToUpper()</a> </td>
                     <td>@cust.Contacts</td>
                     <td>@cust.Telephone</td>
                     <td>@cust.KraPin</td>

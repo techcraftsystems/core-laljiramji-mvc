@@ -5,28 +5,55 @@ using Microsoft.AspNetCore.Mvc;
 using Core.Models;
 using Core.Services;
 using Microsoft.AspNetCore.Authorization;
+using Core.ViewModel;
 
 namespace Core.Controllers
 {
     [Authorize]
     public class CustomersController : Controller
     {
-        [Route("customers")]
+        [BindProperty]
+        public CustomerViewModel Input { get; set; }
+
+        [Route("/core/customers")]
         public IActionResult Index(CoreService svc) {
             List<Customers> customers = new List<Customers>(svc.GetCustomers());
             return View(customers);
         }
 
-        [Route("customers/{code}")]
+        [Route("/core/customers/{code}")]
         public IActionResult Station(string code, CoreService svc) {
             List<Customers> customers = new List<Customers>(svc.GetCustomers("", code));
             return View(customers);
         }
 
-        [Route("customers/{station}/{id}")]
-        public IActionResult Customers(String station, Int64 id, CoreService svc) {
-            Customers customer = svc.GetCustomer(station, id);
-            return View(customer);
+        [Route("/core/customers/{station}/{idnt}")]
+        public IActionResult Customers(string station, long idnt, CustomerViewModel model, CoreService svc) {
+            model.Customer = svc.GetCustomer(station, idnt);
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult PostCustomerPayments() {
+            DateTime date = DateTime.Parse(Input.Date);
+            Customers customer = Input.Customer;
+
+            foreach (var payment in Input.Payments) {
+                if (payment.Receipt > 0) {
+                    payment.Customer = customer;
+                    payment.PostDate = date;
+                    payment.Save(HttpContext);
+                }
+            }
+
+            //Core.UpdateSupplierBalance(supp);
+            return LocalRedirect("/core/customers/" + customer.Station.Code + "/" + customer.Id + "#payment");
+        }
+
+        public IActionResult DeleteCustomersPayment(int idnt, string code, StationsService service) {
+            service.GetCustomerPayment(idnt, service.GetStation(code)).Delete();
+            //Core.UpdateSupplierBalance(new Suppliers(supp));
+            return Ok("success");
         }
 
         public JsonResult GetLedgerEntries(long custid, long stid, string start, string stop, string filter, StationsService svc) {
@@ -35,6 +62,10 @@ namespace Core.Controllers
 
             List<LedgerEntries> entries = svc.GetLedgerEntries(stid, DateTime.Parse(start), DateTime.Parse(stop), filter, custid);
             return Json(entries);
+        }
+
+        public CustomersPayments GetCustomersPayment(long idnt, string code, StationsService service) {
+            return service.GetCustomerPayment(idnt, service.GetStation(code));
         }
     }
 }

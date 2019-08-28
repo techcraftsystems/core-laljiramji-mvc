@@ -444,7 +444,7 @@ function GetCustomerPayments() {
             jq.each(results, function(i, pt) {
                 var row = "<tr>";
                 row += "<td>" + pt.date + "</td>";
-                row += "<td><a class='blue-text' href='/customers/" + pt.station.code + "/" + pt.customer.id + "'>" + pt.customer.name + "</a></td>";
+                row += "<td><a class='blue-text' href='/core/customers/" + pt.station.code + "/" + pt.customer.id + "'>" + pt.customer.name + "</a></td>";
                 row += "<td>" + pt.receipt + "</td>";
                 row += "<td>" + pt.cheque + "</td>";
                 row += "<td class='bold-text' style='text-align:right;padding-right:15px;'>" + pt.amount.toString().toAccounting() + "</td>";

@@ -10,10 +10,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 
-namespace Core.Services
-{
-    public class CoreService
-    {
+namespace Core.Services {
+    public class CoreService {
         private int Actor { get; set; }
         private string Username { get; set; }
 
@@ -41,30 +39,32 @@ namespace Core.Services
             return enumarables;
         }
 
-        public Customers GetCustomer(String station, Int64 id){
-            Customers customer = new Customers();
-
+        public Customers GetCustomer(string station, long id){
             SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("SELECT Custid, Names, Contacts, Telephone, KRA_PIN, AccountBalance, CreditLimit, DateJoined, ISNULL(sr_last,'1990-01-01')x, st_idnt, st_code, CASE st_idnt WHEN 12 THEN 'Shell Uhuru Highway' ELSE st_name END st_names FROM vCustomers INNER JOIN Stations ON Sts=st_idnt LEFT OUTER JOIN vLastInvoices ON sr_st=Sts AND sr_cust=Custid WHERE st_code='" + station + "' AND Custid=" + id);
+            SqlDataReader dr = conn.SqlServerConnect("SELECT Custid, Names, Contacts, Telephone, KRA_PIN, AccountBalance, CreditLimit, DateJoined, ISNULL(sr_last,'1990-01-01')x, st_idnt, st_code, CASE st_idnt WHEN 12 THEN 'Shell Uhuru Highway' ELSE st_name END st_names, st_database FROM vCustomers INNER JOIN Stations ON Sts=st_idnt LEFT OUTER JOIN vLastInvoices ON sr_st=Sts AND sr_cust=Custid WHERE st_code='" + station + "' AND Custid=" + id);
             if (dr.Read()) {
-                customer.Id = Convert.ToInt64(dr[0]);
-                customer.Name = dr[1].ToString();
-                customer.Contacts = dr[2].ToString();
-                customer.Telephone = dr[3].ToString();
-                customer.KraPin = dr[4].ToString();
+                return new Customers {
+                    Id = Convert.ToInt64(dr[0]),
+                    Name = dr[1].ToString(),
+                    Contacts = dr[2].ToString(),
+                    Telephone = dr[3].ToString(),
+                    KraPin = dr[4].ToString(),
 
-                customer.Balance = Convert.ToDouble(dr[5]);
-                customer.CreditLimit = Convert.ToDouble(dr[6]);
+                    Balance = Convert.ToDouble(dr[5]),
+                    CreditLimit = Convert.ToDouble(dr[6]),
 
-                customer.DateJoined = Convert.ToDateTime(dr[7]);
-                customer.LastInvoice = Convert.ToDateTime(dr[8]);
-
-                customer.Station.Id = Convert.ToInt64(dr[9]);
-                customer.Station.Code = dr[10].ToString();
-                customer.Station.Name = dr[11].ToString();
+                    DateJoined = Convert.ToDateTime(dr[7]),
+                    LastInvoice = Convert.ToDateTime(dr[8]),
+                    Station = new Stations {
+                        Id = Convert.ToInt64(dr[9]),
+                        Code = dr[10].ToString(),
+                        Name = dr[11].ToString(),
+                        Prefix = dr[12].ToString()
+                    }
+                };
             }
 
-            return customer;
+            return null;
         }
 
         public List<Customers> GetCustomers(string stations = "", string codes = ""){
@@ -815,11 +815,6 @@ namespace Core.Services
             return expense;
         }
 
-        public void DeleteTrucksFuelExpense(TrucksFuelExpense expense) {
-            SqlServerConnection conn = new SqlServerConnection();
-            conn.SqlServerUpdate("DELETE FROM TrucksFuel WHERE tf_idnt=" + expense.Id);
-        }
-
         public StationsExpenses SaveStationsExpenses(StationsExpenses expense) {
             SqlServerConnection conn = new SqlServerConnection();
             expense.Id = conn.SqlServerUpdate("DECLARE @idnt INT=" + expense.Id + ", @date DATE='" + expense.Date + "', @catg INT=" + expense.Category.Id + ", @supp INT=" + expense.Supplier.Id + ", @stns INT=" + expense.Station.Id + ",  @invs NVARCHAR(MAX)='" + expense.Invoice + "', @amts FLOAT=" + expense.Amount + ", @vats FLOAT=" + expense.VatAmount + ", @zero FLOAT=" + expense.Zerorated + ", @user NVARCHAR(50)='" + Username + "', @desc NVARCHAR(MAX)='" + expense.Description + "'; IF NOT EXISTS (SELECT xp_idnt FROM Expenses WHERE xp_idnt=@idnt) BEGIN INSERT INTO Expenses (xp_date, xp_invoice, xp_category, xp_station, xp_supplier, xp_amount, xp_vat_amts, xp_zero_rated, xp_description, xp_user) output INSERTED.xp_idnt VALUES (@date, @invs, @catg, @stns, @supp, @amts, @vats, @zero, @desc, @user) END ELSE BEGIN UPDATE Expenses SET xp_date=@date, xp_invoice=@invs, xp_category=@catg, xp_station=@stns, xp_supplier=@supp, xp_amount=@amts, xp_vat_amts=@vats, xp_zero_rated=@zero, xp_description=@desc output INSERTED.xp_idnt WHERE xp_idnt=@idnt END");
@@ -845,12 +840,20 @@ namespace Core.Services
             return delivery;
         }
 
-
         public PettyCash SavePettyCash(PettyCash pc) {
             SqlServerConnection conn = new SqlServerConnection();
             pc.Id = conn.SqlServerUpdate("DECLARE @idnt INT=" + pc.Id + ", @delv INT=" + pc.Delivery.Id + ", @acnt NVARCHAR(MAX)='" + pc.Account + "', @desc NVARCHAR(MAX)='" + pc.Description + "', @amts FLOAT=" + pc.Amount + ", @user INT=" + pc.AddedBy.Id + "; IF NOT EXISTS (SELECT pc_idnt FROM DeliveryPettyCash WHERE pc_idnt=@idnt) BEGIN INSERT INTO DeliveryPettyCash (pc_delv, pc_account, pc_description, pc_amount, pc_added_by) output INSERTED.pc_idnt VALUES (@delv, @acnt, @desc, @amts, @user) END ELSE BEGIN UPDATE DeliveryPettyCash SET pc_delv=@delv, pc_account=@acnt, pc_description=@desc, pc_amount=@amts output INSERTED.pc_idnt WHERE pc_idnt=@idnt END");
 
             return pc;
+        }
+
+        public CustomersPayments SaveCustomersPayments(CustomersPayments pt) {
+            SqlServerConnection conn = new SqlServerConnection();
+            pt.Id = conn.SqlServerUpdate("USE " + pt.Customer.Station.Prefix.Replace(".dbo.", "") + "; DECLARE @output INT=0, @idnt INT=" + pt.Id + ", @cust INT=" + pt.Customer.Id + ", @date DATE='" + pt.PostDate + "', @rcpt INT=" + pt.Receipt + ", @chqs INT=" + pt.Cheque + ", @note NVARCHAR(MAX)='" + pt.Notes + "', @amts FLOAT=" + pt.Amount + ", @user NVARCHAR(50)='" + Username + "'; IF NOT EXISTS (SELECT im_idnt FROM InvoicePayment WHERE im_idnt=@idnt) BEGIN INSERT INTO InvoicePayment (im_date, im_cust, im_paid, im_change, im_tendered, im_user) VALUES(@date, @cust, @amts, @rcpt, @chqs, @user) SELECT @output=SCOPE_IDENTITY() END ELSE BEGIN UPDATE InvoicePayment SET im_date=@date, im_cust=@cust, im_paid=@amts, im_change=@rcpt, im_tendered=@chqs WHERE im_idnt=@idnt SELECT @output=@idnt END SELECT @output");
+
+            this.UpdateMoneyTransactions(pt.Customer.Station, pt.Id, pt.PostDate, 3, (pt.Cheque == 0 ? 0 : 1), 1, pt.Cheque.ToString(), pt.Amount, pt.Notes);
+
+            return pt;
         }
 
         public SuppliersPayment SaveSuppliersPayment(SuppliersPayment pt) {
@@ -876,6 +879,11 @@ namespace Core.Services
             conn.SqlServerUpdate("UPDATE Suppliers SET sp_balance=ISNULL(sp_bal,0) FROM Suppliers LEFT OUTER JOIN (SELECT sp_supp, SUM(sp_amts)sp_bal FROM vSuppliersBalances GROUP BY sp_supp) As Bals ON sp_supp=sp_idnt " + query);
         }
 
+        public long UpdateMoneyTransactions(Stations station, long idnt, DateTime date, int source, int action, int account, string dtls, double amount, string notes) {
+            SqlServerConnection conn = new SqlServerConnection();
+            return conn.SqlServerUpdate("USE " + station.Prefix.Replace(".dbo.", "") + "; DECLARE @output INT=0, @idnt INT=" + idnt + ", @date DATE='" + date + "', @source INT=" + source + ", @action INT=" + action + ", @account INT=" + account + ", @dtls NVARCHAR(MAX)='" + dtls + "', @note NVARCHAR(MAX)='" + notes + "', @amts FLOAT=" + amount + "; IF NOT EXISTS (SELECT TOP(1)mm_idnt FROM MoneyTransactions WHERE mm_source=@source AND mm_transaction=@idnt) BEGIN INSERT INTO MoneyTransactions (mm_date, mm_source, mm_action, mm_account, mm_transaction, mm_transdetails, mm_amount, mm_notes) VALUES (@date, @source, @action, @account, @idnt, @dtls, @amts, @note) SELECT @output=SCOPE_IDENTITY() END ELSE BEGIN UPDATE MoneyTransactions SET mm_date=@date, mm_action=@action, mm_account=@account, mm_transdetails=@dtls, mm_amount=@amts, mm_notes=@note WHERE mm_source=@source AND mm_transaction=@idnt SELECT @output=mm_idnt FROM MoneyTransactions WHERE mm_source=@source AND mm_transaction=@idnt END SELECT @output");
+        }
+
 
         //Deletes
         public void DeleteDelivery(Delivery delivery) {
@@ -884,6 +892,13 @@ namespace Core.Services
             
             conn = new SqlServerConnection();
             conn.SqlServerUpdate("DELETE FROM DeliveryPettyCash WHERE pc_delv=" + delivery.Id);
+        }
+
+        public void DeleteCustomersPayment(CustomersPayments payment) {
+            SqlServerConnection conn = new SqlServerConnection();
+            conn.SqlServerUpdate("USE " + payment.Station.Prefix.Replace(".dbo.", "") + "; DELETE FROM InvoicePayment WHERE im_idnt=" + payment.Id);
+
+            this.DeleteMoneyTransactions(payment.Station, payment.Id, 3);
         }
 
         public void DeleteSuppliersPayment(SuppliersPayment payment) {
@@ -896,6 +911,16 @@ namespace Core.Services
 
         public void DeleteSuppliersInvoice(StationsExpenses invoice) {
             new SqlServerConnection().SqlServerUpdate("DELETE FROM Expenses WHERE xp_idnt=" + invoice.Id);
+        }
+
+        public void DeleteTrucksFuelExpense(TrucksFuelExpense expense) {
+            SqlServerConnection conn = new SqlServerConnection();
+            conn.SqlServerUpdate("DELETE FROM TrucksFuel WHERE tf_idnt=" + expense.Id);
+        }
+
+        public void DeleteMoneyTransactions(Stations station, long idnt, int source) {
+            SqlServerConnection conn = new SqlServerConnection();
+            conn.SqlServerUpdate("USE " + station.Prefix.Replace(".dbo.", "") + "; DELETE FROM MoneyTransactions WHERE mm_source=" + source + " AND mm_transaction=" + idnt);
         }
     }
 }
