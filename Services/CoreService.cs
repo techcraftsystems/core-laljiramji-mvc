@@ -69,7 +69,7 @@ namespace Core.Services {
 
         public List<Customers> GetCustomers(string stations = "", string codes = ""){
             List<Customers> customers = new List<Customers>();
-            String additionalquery = "";
+            string additionalquery = "";
 
             if (!string.IsNullOrEmpty(stations.Trim())) {
                 additionalquery = "WHERE st_name IN ('" + stations + "')";
@@ -105,6 +105,16 @@ namespace Core.Services {
             }
 
             return customers;
+        }
+
+        public double GetCustomerBalance(Customers Customer) {
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("SELECT AccountBalance FROM vCustomers WHERE Sts=" + Customer.Station.Id + " AND Custid=" + Customer.Id);
+            if (dr.Read()) {
+                return Convert.ToDouble(dr[0]);
+            }
+
+            return 0;
         }
 
         public Suppliers GetSupplier(string uuid) {
@@ -871,6 +881,21 @@ namespace Core.Services {
         }
 
         //Updates
+        public void UpdateCustomerBalance(Customers customer = null, Stations station = null) {
+            string query = "";
+
+            if (customer == null && station == null)
+                return;
+            if (customer != null) {
+                station = customer.Station;
+                query = "WHERE Custid = " + customer.Id;
+            }
+
+            SqlServerConnection conn = new SqlServerConnection();
+            conn.SqlServerUpdate("USE " + station.Prefix.Replace(".dbo.", "") + ";UPDATE Customers SET AccountBalance=ISNULL(BALS,0) FROM Customers LEFT OUTER JOIN pCustomersBalances_1 ON Custid=CUST " + query);
+
+        }
+
         public void UpdateSupplierBalance(Suppliers supplier = null) {
             string query = "";
             if (supplier != null)

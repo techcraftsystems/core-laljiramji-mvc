@@ -30,29 +30,33 @@ namespace Core.Controllers
         [Route("/core/customers/{station}/{idnt}")]
         public IActionResult Customers(string station, long idnt, CustomerViewModel model, CoreService svc) {
             model.Customer = svc.GetCustomer(station, idnt);
+            model.Customer.UpdateBalance();
+
             return View(model);
         }
 
         [HttpPost]
         public IActionResult PostCustomerPayments() {
             DateTime date = DateTime.Parse(Input.Date);
-            Customers customer = Input.Customer;
+            Customers Customer = Input.Customer;
 
             foreach (var payment in Input.Payments) {
                 if (payment.Receipt > 0) {
-                    payment.Customer = customer;
+                    payment.Customer = Customer;
                     payment.PostDate = date;
                     payment.Save(HttpContext);
                 }
             }
 
-            //Core.UpdateSupplierBalance(supp);
-            return LocalRedirect("/core/customers/" + customer.Station.Code + "/" + customer.Id + "#payment");
+            Customer.UpdateBalance();
+            return LocalRedirect("/core/customers/" + Customer.Station.Code + "/" + Customer.Id + "#payment");
         }
 
         public IActionResult DeleteCustomersPayment(int idnt, string code, StationsService service) {
-            service.GetCustomerPayment(idnt, service.GetStation(code)).Delete();
-            //Core.UpdateSupplierBalance(new Suppliers(supp));
+            CustomersPayments payment =  service.GetCustomerPayment(idnt, service.GetStation(code));
+            payment.Delete();
+            payment.Customer.UpdateBalance();
+
             return Ok("success");
         }
 
