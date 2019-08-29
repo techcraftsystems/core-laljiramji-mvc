@@ -1,3 +1,84 @@
 ﻿@model Core.ViewModel.ReportWetstock;
 @{
+    ViewData["Title"] = "Wetstock Summary";
+    var stock = new Wetstock();
+    var summs = new Wetstock();
+
+    int count = 0;
 }
+
+<script>var route = "/reports/wetstock/summary/";</script>
+<script src="~/js/reports-index-script.js"></script>
+<div id="breadcrumbs-wrapper">
+    <div class="container">
+        <div class="row zero-margin">
+            <div class="col s10 m6 l6">
+                <ol class="breadcrumbs">
+                    <li><a href="/reports">Reports</a></li>
+                    <li><a href="/reports/wetstock">Westock</a></li>
+                    <li><a href="">Summary</a></li>
+                    <li class="active">@Model.Date.ToString("ddMMM") &mdash; @Model.Stop.ToString("ddMMM yyyy") </li>
+                </ol>
+            </div>
+            <div class="col s2 m6 l6">
+                <a class="btn dropdown-settings waves-effect waves-light breadcrumbs-btn right gradient-45deg-light-blue-cyan gradient-shadow modal-trigger multiple-trigger" data-target="modal81" data-trigger="/reports/wetstock/summary/">
+                    <i class="material-icons hide-on-med-and-up">settings</i>
+                    <span class="hide-on-small-onl">UPDATE</span>
+                    <i class="material-icons right">arrow_drop_down</i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="clear:both; margin-top:55px;"></div>
+
+
+@foreach (var ws in Model.Wetstock)
+{
+    if (!stock.Tank.Id.Equals(ws.Tank.Id))
+    {
+        stock = ws;
+        <div>@ws.Tank.Name @ws.Tank.Fuel.Name <br /></div>
+    }
+
+}
+
+
+<div class="card zero-margin">
+    <div class="card-content deep-orange accent-2 white-text table-card" style="border-radius: 0">
+        <h5 class="card-stats-number"><i class="material-icons left">devices_other</i> Wetstock Summary</h5>
+        <p class="card-stats-compare right">
+            <i class="material-icons left">history</i>
+            <span class="deep-orange-text text-lighten-5 opening-balance">@Model.Station.Name</span>
+        </p>
+    </div>
+
+    <table id="wetstock-table" class="custom bordered" data-loaded="0" style="margin-top:-20px">
+        <thead class="deep-orange accent-2">
+            <tr>
+                <th>#</th>
+                <th>DATE</th>
+                <th class="right-text">OPENING</th>
+                <th class="right-text">DELIVERY</th>
+                <th class="right-text">SALES</th>
+                <th class="right-text">TESTS</th>
+                <th class="right-text">BOOK</th>
+                <th class="right-text">ACTUALS</th>
+                <th class="right-text">WATER</th>
+                <th class="right-text">VARIANCE</th>
+                <th class="right-text">VARIANCE%</th>
+            </tr>
+        </thead>
+
+        <tbody style="font-size:0.9em"></tbody>
+
+        <tfoot class="deep-orange accent-2 white-text" style="font-size:0.9em">
+            <tr>
+                <th>&nbsp;</th>
+                <th colspan="2">SUMMARY</th>
+                <th class="right-text">@string.Format("{0:N}", stock.Opening)</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+

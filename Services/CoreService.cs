@@ -6,6 +6,7 @@ using Core.DataModel;
 using Core.Extensions;
 using Core.Models;
 using Core.Objects;
+using Core.ViewModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
@@ -382,6 +383,90 @@ namespace Core.Services {
             }
 
             return ledger;
+        }
+
+        public List<Wetstock> GetWetstocks(DateTime start, DateTime stop, Stations station) {
+            List<Wetstock> wetstock = new List<Wetstock>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("USE " + station.Prefix.Replace(".dbo.", "") + "; DECLARE @start DATE='" + start + "', @stop DATE='" + stop + "'; SELECT ws_date AS pcol_date, ws_open AS OPENING, ws_delv AS DELIVERIES, ws_sales AS SALES, ws_test AS TESTS, ws_open+ws_delv+ws_test-ws_sales AS BOOK, ws_actual AS ACTUALS, ws_water AS WATER, ws_actual-ws_open-ws_delv-ws_test+ws_sales AS VARIANCE, CASE WHEN ws_sales=0 THEN 100 ELSE ((ws_actual-ws_open-ws_delv-ws_test+ws_sales)/ws_sales)*100 END AS VARIANCE_PERC, tnk_idnt, tnk_name, id_, itemName FROM pTanksWetstocks INNER JOIN Tanks ON ws_tank = tnk_idnt INNER JOIN Products ON tnk_fuel = id_ WHERE ws_date BETWEEN @start AND @stop ORDER BY itemName, tnk_name, ws_date");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    Wetstock ws = new Wetstock {
+                        Date = Convert.ToDateTime(dr[0]),
+                        Opening = Convert.ToDouble(dr[1]),
+                        Deliveries = Convert.ToDouble(dr[2]),
+                        Sales = Convert.ToDouble(dr[3]),
+                        Tests = Convert.ToDouble(dr[4]),
+                        Books = Convert.ToDouble(dr[5]),
+                        Actuals = Convert.ToDouble(dr[6]),
+                        Water = Convert.ToDouble(dr[7]),
+                        Variance = Convert.ToDouble(dr[8]),
+                        VariancePerc = Convert.ToDouble(dr[9]),
+                        Tank = new Tank {
+                            Id = Convert.ToInt64(dr[10]),
+                            Name = dr[11].ToString(),
+                            Fuel = new Fuel {
+                                Id = Convert.ToInt64(dr[12]),
+                                Name = dr[13].ToString()
+                            }
+                        }
+                    };
+                    
+                    wetstock.Add(ws);
+                }
+            }
+
+            return wetstock;
+        }
+
+        public List<WetstockModel> GetWetstockModels(DateTime start, DateTime stop, Stations station)
+        {
+            List<WetstockModel> wsm = new List<WetstockModel>();
+            List<Wetstock> wst = new List<Wetstock>();
+            int tank = 0;
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("USE " + station.Prefix.Replace(".dbo.", "") + "; DECLARE @start DATE='" + start + "', @stop DATE='" + stop + "'; SELECT ws_date AS pcol_date, ws_open AS OPENING, ws_delv AS DELIVERIES, ws_sales AS SALES, ws_test AS TESTS, ws_open+ws_delv+ws_test-ws_sales AS BOOK, ws_actual AS ACTUALS, ws_water AS WATER, ws_actual-ws_open-ws_delv-ws_test+ws_sales AS VARIANCE, CASE WHEN ws_sales=0 THEN 100 ELSE ((ws_actual-ws_open-ws_delv-ws_test+ws_sales)/ws_sales)*100 END AS VARIANCE_PERC, tnk_idnt, tnk_name, id_, itemName FROM pTanksWetstocks INNER JOIN Tanks ON ws_tank = tnk_idnt INNER JOIN Products ON tnk_fuel = id_ WHERE ws_date BETWEEN @start AND @stop ORDER BY itemName, tnk_name, ws_date");
+            if (dr.HasRows)
+            {
+                while (dr.Read())
+                {
+                    if (!tank.Equals(Convert.ToInt32(dr[10])))
+                    {
+
+                    }
+
+                    Wetstock ws = new Wetstock
+                    {
+                        Date = Convert.ToDateTime(dr[0]),
+                        Opening = Convert.ToDouble(dr[1]),
+                        Deliveries = Convert.ToDouble(dr[2]),
+                        Sales = Convert.ToDouble(dr[3]),
+                        Tests = Convert.ToDouble(dr[4]),
+                        Books = Convert.ToDouble(dr[5]),
+                        Actuals = Convert.ToDouble(dr[6]),
+                        Water = Convert.ToDouble(dr[7]),
+                        Variance = Convert.ToDouble(dr[8]),
+                        VariancePerc = Convert.ToDouble(dr[9]),
+                        Tank = new Tank
+                        {
+                            Id = Convert.ToInt64(dr[10]),
+                            Name = dr[11].ToString(),
+                            Fuel = new Fuel
+                            {
+                                Id = Convert.ToInt64(dr[12]),
+                                Name = dr[13].ToString()
+                            }
+                        }
+                    };
+
+                    //wetstock.Add(ws);
+                }
+            }
+
+
+            return wsm;
         }
 
         public List<WetstockSummary> GetWetstockSummary(DateTime start, DateTime stop, Stations station) {
@@ -811,6 +896,13 @@ namespace Core.Services {
 
 
         //::Data Writters
+        public Suppliers SaveSuppliers(Suppliers supp) {
+            SqlServerConnection conn = new SqlServerConnection();
+            supp.Id = conn.SqlServerUpdate("DECLARE @idnt INT='" + supp.Id + "', @name NVARCHAR(250)='" + supp.Name + "', @pin NVARCHAR(250)='" + supp.Pin + "', @adds NVARCHAR(250)='" + supp.Address + "', @city NVARCHAR(250)='" + supp.City + "', @tels NVARCHAR(250)='" + supp.Telephone + "', @email NVARCHAR(250)='" + supp.Email + "'; IF NOT EXISTS (SELECT sp_idnt FROM Suppliers where sp_idnt=@idnt) BEGIN INSERT INTO Suppliers (sp_name, sp_pin, sp_contacts, sp_city, sp_telephone, sp_email) output INSERTED.sp_idnt VALUES (@name, @pin, @adds, @city, @tels, @email) END ELSE BEGIN UPDATE Suppliers SET sp_name=@name, sp_pin=@pin, sp_contacts=@adds, sp_city=@city, sp_telephone=@tels, sp_email=@email output INSERTED.sp_idnt WHERE sp_idnt=@idnt END");
+                     
+            return supp;
+        }
+
         public FuelPriceChange SavePriceChange(FuelPriceChange change) {
             SqlServerConnection conn = new SqlServerConnection();
             change.Id = conn.SqlServerUpdate("DECLARE @date DATE='" + change.Date + "', @item INT='" + change.Fuel.Id + "', @trck FLOAT=" + change.Trucks + ", @rate FLOAT=" + change.Taxx + ", @zero FLOAT=" + change.Zero + "; IF NOT EXISTS (SELECT vat_idnt FROM VatReports WHERE vat_date=@date AND vat_item=@item) BEGIN INSERT INTO VatReports (vat_date, vat_item, vat_rate, vat_zero, vat_trucks) output INSERTED.vat_idnt VALUES (@date, @item, @rate, @zero, @trck) END ELSE BEGIN UPDATE VatReports SET vat_rate=@rate, vat_zero=@zero, vat_trucks=@trck output INSERTED.vat_idnt WHERE vat_date=@date AND vat_item=@item END");

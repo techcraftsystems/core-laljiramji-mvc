@@ -13,6 +13,7 @@ namespace Core.Models
         public string Address { get; set; }
         public string City { get; set; }
         public string Telephone { get; set; }
+        public string Email { get; set; }
         public double Balance { get; set; }
         public bool Fuel { get; set; }
         public bool Lube { get; set; }
@@ -28,6 +29,7 @@ namespace Core.Models
             Address = "";
             City = "";
             Telephone = "";
+            Email = "";
         }
 
         public Suppliers(long idnt) : this() {
@@ -37,6 +39,10 @@ namespace Core.Models
         public Suppliers(long idnt, string name) : this() {
             Id = idnt;
             Name = name;
+        }
+
+        public Suppliers Save() {
+            return new CoreService().SaveSuppliers(this);
         }
     }
 

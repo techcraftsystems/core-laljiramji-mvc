@@ -239,6 +239,30 @@ jq(function() {
 
         jq('#credits-form').submit();
     });
+	
+    jq('#edit-modal a.modal-post').click(function(){
+        var err_count = 0;
+
+        if (jq('#edit-modal #Supplier_Name').val().trim().length < 3){
+            Materialize.toast('<span>Invalid Supplier Name. Length must be greater than 3 character</span><a class="btn-flat yellow-text pointer">FIX IT</a>', 3000)
+            return false;
+        }
+		
+        if (jq('#edit-modal #Supplier_Pin').val().trim().length < 10){
+            Materialize.toast('<span>Invalid supplier PIN Number</span><a class="btn-flat yellow-text pointer">FIX IT</a>', 3000)
+            return false;
+        }
+
+        if (err_count > 0){
+            return false;
+        }
+
+        jq('#edit-form').submit();
+		
+		Materialize.toast('<span>Updated Successfully</span>', 5000)
+		return true;
+    });
+	
 
     jq('#payment-table tbody').on('click', 'i.edit-payment', function(){
         if (isadmin == 'false'){
@@ -555,6 +579,10 @@ jq(function() {
                 Materialize.toast('<span>Error ' + xhr.status + '. ' + thrownError + '</span><a class="btn-flat red-text pointer">Delete Failed</a>', 3000);
             }
         });
+    });
+	
+    jq('#edit-modal a.modal-post').click(function(){
+        
     });
 	
 	jq('a.payment-ledger').click(function(){

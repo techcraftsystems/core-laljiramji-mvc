@@ -116,11 +116,12 @@
             </div>
 
             <div class="card-content">
-                <img src="~/images/@(Model.Supplier.Icon == "" ? "avatar/avatar-10.png" : "logos/" + Model.Supplier.Icon)" alt="" class="circle responsive-img activator card-profile-image grey lighten-3 padding-2">
-                <a class="btn-floating btn-move-up waves-effect waves-light red accent-2 z-depth-5 right">
+                <img src="~/images/@(Model.Supplier.Icon == "" ? "avatar/avatar-10.png" : "logos/" + Model.Supplier.Icon)" alt="" class="circle responsive-img activator card-profile-image grey lighten-3 padding-2" />
+                <a class="btn-floating btn-move-up waves-effect waves-light red accent-2 z-depth-5 right modal-trigger" data-target="edit-modal">
                     <i class="material-icons">edit</i>
                 </a>
                 <div class="card-title activator grey-text text-darken-4 truncate">@Model.Supplier.Name</div>
+                <div class="activator"><a class="grey-text text-darken-1" href="/core/stations/embu">@Model.Supplier.Pin</a></div>
                 <hr style="margin: 10px 0;" />
                 <p class="truncate">
                     <i class="material-icons">assignment_ind</i>
@@ -619,7 +620,7 @@
     </div>
 </div>
 
-<!--Reports Modals-->
+<!--Modals-->
 <div id="reports-modal" class="modal modal-fixed-footer" style="width: 500px">
     <div class="modal-content">
         <h4>View Report</h4>
@@ -642,5 +643,55 @@
     <div class="modal-footer">
         <a class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
         <a class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
+    </div>
+</div>
+
+<div id="edit-modal" class="modal modal-fixed-footer" style="width: 500px">
+    <div class="modal-content">
+        @using (Html.BeginForm("UpdateSuppliers", "Suppliers", FormMethod.Post, new { id = "edit-form" }))
+        {
+            <h4>Supplier's Details</h4>
+            <p>Edit Details Here</p>
+            <div class="row">
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">assignment_ind</i>
+                    @Html.TextBoxFor(model => model.Supplier.Name)
+                    <label>Names</label>
+                </div>
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">security</i>
+                    @Html.TextBoxFor(model => model.Supplier.Pin)
+                    <label>Pin</label>
+                </div>
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">perm_phone_msg</i>
+                    @Html.TextBoxFor(model => model.Supplier.Address)
+                    <label>Address</label>
+                </div>
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">home</i>
+                    @Html.TextBoxFor(model => model.Supplier.City)
+                    <label>City</label>
+                </div>
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">phone</i>
+                    @Html.TextBoxFor(model => model.Supplier.Telephone)
+                    <label>Telephone</label>
+                </div>
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">mail</i>
+                    @Html.TextBoxFor(model => model.Supplier.Email)
+                    <label>Email</label>
+                </div>
+            </div>
+
+            @Html.HiddenFor(model => model.Supplier.Id)
+            @Html.HiddenFor(model => model.Supplier.Uuid)
+        }
+    </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat btn-danger">Cancel</a>
+        <a class="modal-action modal-close modal-post waves-effect waves-green btn-flat btn-primary">Save</a>
     </div>
 </div>

@@ -48,6 +48,14 @@ namespace Core.Controllers
         }
 
         [HttpPost]
+        public IActionResult UpdateSuppliers() {
+            Suppliers supp = Input.Supplier;
+            supp.Save();
+
+            return LocalRedirect("/core/suppliers/" + supp.Uuid);
+        }
+
+        [HttpPost]
         public IActionResult PostSupplierPayments() {
             DateTime date = DateTime.Parse(Input.Date);
             Suppliers supp = Input.Supplier;
