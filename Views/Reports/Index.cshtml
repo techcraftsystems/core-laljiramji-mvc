@@ -236,7 +236,7 @@
             </li>
 
             <li class="cyan-text">
-                <div class="waves-effect waves-light modal-trigger multiple-trigger" data-target="modal32" data-trigger="/reports/wetstock/summary/">
+                <div class="waves-effect waves-light modal-trigger multiple-trigger" data-target="modal81" data-trigger="/reports/wetstock/summary/">
                     <i class="material-icons medium icon-demo">devices</i>
                     <p>Wetstock Summary</p>
                 </div>
@@ -511,6 +511,18 @@
                 <i class="material-icons prefix">local_gas_station</i>
                 @Html.DropDownListFor(model => model.Station.Code, Model.StationCodes, new { @class = "modal-station" })
                 <label>Select Station</label>
+            </div>
+
+            <div class="input-field col s6">
+                <i class="material-icons prefix">date_range</i>
+                <input id="" type="text" class="datepicker modal-start" value="@DateTime.Now.AddDays(-1).ToString("d MMMM, yyyy")" />
+                <label>From</label>
+            </div>
+
+            <div class="input-field col s6">
+                <i class="material-icons prefix">date_range</i>
+                <input id="" type="text" class="datepicker modal-stop" value="@DateTime.Now.ToString("d MMMM, yyyy")" />
+                <label>To</label>
             </div>
         </div>
     </div>

@@ -59,5 +59,13 @@ $(function() {
 
         window.location.href = route + type + "/" + station + "/" + catg + "/" + month + "/" + year; 
     });
+	
+    jq('#modal81 .modal-footer .modal-post').click(function() {
+        var station =   jq('#modal81 .modal-station :selected').val();
+        var from =		jq('#modal81 .modal-start').val();
+        var to =		jq('#modal81 .modal-stop').val();
+
+        window.location.href = route + station + "?from=" + from + "&to=" + to; 
+    });
 
 });

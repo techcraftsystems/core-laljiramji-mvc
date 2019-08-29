@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Wetstock Summary";
     var wetstock = new WetstockSummary();
+    int count = 0;
 
     int month = DateTime.Now.Month - 1;
     var months = new List<SelectListItem>();
@@ -44,7 +45,7 @@
         <h5 class="card-stats-number"><i class="material-icons left">devices_other</i> Wetstock Summary</h5>
         <p class="card-stats-compare right">
             <i class="material-icons left">history</i>
-            <span class="deep-orange-text text-lighten-5 opening-balance">Summary</span>
+            <span class="deep-orange-text text-lighten-5 opening-balance">@Model.Station.Name</span>
         </p>
     </div>
 
@@ -72,9 +73,10 @@
                 wetstock.Delivery += ws.Delivery;
                 wetstock.Closing += ws.Closing;
                 wetstock.Dips += ws.Dips;
+                count++;
 
                 <tr>
-                    <td style="width:1px;">@ws.Tank.Id</td>
+                    <td style="width:1px;">@count</td>
                     <td>@ws.Tank.Name</td>
                     <td>@ws.Fuel.Name</td>
                     <td class="right-text">@string.Format("{0:N}", ws.Opening)</td>

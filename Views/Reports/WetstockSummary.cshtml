@@ -1,1 +1,129 @@
 ﻿@model Core.ViewModel.ReportWetstock;
+@{
+    ViewData["Title"] = "Wetstock Summary";
+    var wetstock = new WetstockSummary();
+    int count = 0;
+}
+
+<script>var route = "/reports/wetstock/summary/";</script>
+<script src="~/js/reports-index-script.js"></script>
+<div id="breadcrumbs-wrapper">
+    <div class="container">
+        <div class="row zero-margin">
+            <div class="col s10 m6 l6">
+                <ol class="breadcrumbs">
+                    <li><a href="/reports">Reports</a></li>
+                    <li><a href="/reports/wetstock">Westock</a></li>
+                    <li><a href="">Summary</a></li>
+                    <li class="active">@Model.Date.ToString("ddMMM") &mdash; @Model.Stop.ToString("ddMMM yyyy") </li>
+                </ol>
+            </div>
+            <div class="col s2 m6 l6">
+                <a class="btn dropdown-settings waves-effect waves-light breadcrumbs-btn right gradient-45deg-light-blue-cyan gradient-shadow modal-trigger multiple-trigger" data-target="modal81" data-trigger="/reports/wetstock/summary/">
+                    <i class="material-icons hide-on-med-and-up">settings</i>
+                    <span class="hide-on-small-onl">UPDATE</span>
+                    <i class="material-icons right">arrow_drop_down</i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="clear:both; margin-top:55px;"></div>
+
+<div class="card zero-margin">
+    <div class="card-content deep-orange accent-2 white-text table-card" style="border-radius: 0">
+        <h5 class="card-stats-number"><i class="material-icons left">devices_other</i> Wetstock Summary</h5>
+        <p class="card-stats-compare right">
+            <i class="material-icons left">history</i>
+            <span class="deep-orange-text text-lighten-5 opening-balance">@Model.Station.Name</span>
+        </p>
+    </div>
+
+    <table id="wetstock-table" class="custom bordered" data-loaded="0" style="margin-top:-20px">
+        <thead class="deep-orange accent-2">
+            <tr>
+                <th>#</th>
+                <th>TANK</th>
+                <th>PRODUCT</th>
+                <th class="right-text">OPENING</th>
+                <th class="right-text">SALES</th>
+                <th class="right-text">RETURNS</th>
+                <th class="right-text">DELIVERY</th>
+                <th class="right-text">CLOSING</th>
+                <th class="right-text">CL/DIPS</th>
+                <th class="right-text">VARIANCE</th>
+            </tr>
+        </thead>
+        <tbody style="font-size:0.9em">
+            @foreach (var ws in Model.Wetstock)
+            {
+                wetstock.Opening += ws.Opening;
+                wetstock.Sale += ws.Sale;
+                wetstock.Returns += ws.Returns;
+                wetstock.Delivery += ws.Delivery;
+                wetstock.Closing += ws.Closing;
+                wetstock.Dips += ws.Dips;
+                count++;
+
+                <tr>
+                    <td style="width:1px;">@count</td>
+                    <td>@ws.Tank.Name</td>
+                    <td>@ws.Fuel.Name</td>
+                    <td class="right-text">@string.Format("{0:N}", ws.Opening)</td>
+                    <td class="right-text">@string.Format("{0:N}", ws.Sale)</td>
+                    <td class="right-text">@string.Format("{0:N}", ws.Returns)</td>
+                    <td class="right-text">@string.Format("{0:N}", ws.Delivery)</td>
+                    <td class="right-text">@string.Format("{0:N}", ws.Closing)</td>
+                    <td class="right-text">@string.Format("{0:N}", ws.Dips)</td>
+                    <td class="right-text">@string.Format("{0:N}", ws.Closing - ws.Dips)</td>
+                </tr>
+            }
+        </tbody>
+
+        <tfoot class="deep-orange accent-2 white-text" style="font-size:0.9em">
+            <tr>
+                <th>&nbsp;</th>
+                <th colspan="2">SUMMARY</th>
+                <td class="bold-text right-text">@string.Format("{0:N}", wetstock.Opening)</td>
+                <td class="bold-text right-text">@string.Format("{0:N}", wetstock.Sale)</td>
+                <td class="bold-text right-text">@string.Format("{0:N}", wetstock.Returns)</td>
+                <td class="bold-text right-text">@string.Format("{0:N}", wetstock.Delivery)</td>
+                <td class="bold-text right-text">@string.Format("{0:N}", wetstock.Closing)</td>
+                <td class="bold-text right-text">@string.Format("{0:N}", wetstock.Dips)</td>
+                <td class="bold-text right-text">@string.Format("{0:N}", wetstock.Closing - wetstock.Dips)</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<!--Column 8 Modals-->
+<div id="modal81" class="modal modal-fixed-footer" style="width: 500px">
+    <div class="modal-content">
+        <h4>Report Details</h4>
+        <p>Specify the below Parameters to generate the Report</p>
+        <div class="row">
+            <div class="input-field col s12">
+                <i class="material-icons prefix">local_gas_station</i>
+                @Html.DropDownListFor(model => model.Station.Code, Model.Stations, new { @class = "modal-station" })
+                <label>Select Station</label>
+            </div>
+
+            <div class="input-field col s6">
+                <i class="material-icons prefix">date_range</i>
+                <input id="" type="text" class="datepicker modal-start" value="@Model.Date.ToString("d MMMM, yyyy")" />
+                <label>From</label>
+            </div>
+
+            <div class="input-field col s6">
+                <i class="material-icons prefix">date_range</i>
+                <input id="" type="text" class="datepicker modal-stop" value="@Model.Stop.ToString("d MMMM, yyyy")" />
+                <label>To</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
+        <a class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
+    </div>
+</div>
