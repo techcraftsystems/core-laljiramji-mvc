@@ -4,8 +4,10 @@
     ViewData["Title"] = "Reports";
     int month = DateTime.Now.Month - 1;
     var months = new List<SelectListItem>();
-    for (int ix = 0; ix < 12; ix++) {
-        months.Add(new SelectListItem {
+    for (int ix = 0; ix < 12; ix++)
+    {
+        months.Add(new SelectListItem
+        {
             Value = ix.ToString(),
             Text = Model.StartDate.AddMonths(ix).ToString("MMMM")
         });
@@ -16,40 +18,46 @@
     ul.report-icons li {
         margin-top: 20px
     }
-    ul.report-icons li:first-child {
-        margin-top: 0px
-    }
-    ul.report-icons li div {
-        cursor: pointer;
-        text-align: center
-    }
-    ul.report-icons li p {
-        font-weight: 500;
-        line-height: 1em
-    }
+
+        ul.report-icons li:first-child {
+            margin-top: 0px
+        }
+
+        ul.report-icons li div {
+            cursor: pointer;
+            text-align: center
+        }
+
+        ul.report-icons li p {
+            font-weight: 500;
+            line-height: 1em
+        }
+
     .modal h4 {
         border-bottom: 3px solid #ff5722;
         margin-bottom: 10px;
         padding-bottom: 10px
     }
+
     .modal p {
         margin-bottom: 30px
     }
+
     .modal .select-dropdown li img {
         height: 34px;
         width: 34px
     }
+
     .input-field .material-icons.prefix {
         padding-top: 10px
     }
+
     i.medium {
         font-size: 3.1rem
     }
 </style>
 
-<script>
-    var route = '';
-</script>
+<script>var route = '';</script>
 <script src="~/js/reports-index-script.js"></script>
 
 <h4>System Reports</h4>
@@ -217,6 +225,13 @@
                 <div class="waves-effect waves-light modal-trigger multiple-trigger" data-target="modal32" data-trigger="/reports/wetstock/detailed/">
                     <i class="material-icons medium icon-demo">devices_other</i>
                     <p>Wetstock Report</p>
+                </div>
+            </li>
+
+            <li class="cyan-text">
+                <div class="waves-effect waves-light modal-trigger multiple-trigger" data-target="modal32" data-trigger="/reports/wetstock/summary/">
+                    <i class="material-icons medium icon-demo">devices</i>
+                    <p>Wetstock Monthly</p>
                 </div>
             </li>
 
@@ -476,6 +491,26 @@
                     <option value="amount">By Amount</option>
                 </select>
                 <label>Report Type</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
+        <a class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
+    </div>
+</div>
+
+<!--Column 8 Modals-->
+<div id="modal81" class="modal modal-fixed-footer" style="width: 500px">
+    <div class="modal-content">
+        <h4>Report Details</h4>
+        <p>Specify the below Parameters to generate the Report</p>
+        <div class="row">
+            <div class="input-field col s12">
+                <i class="material-icons prefix">local_gas_station</i>
+                @Html.DropDownListFor(model => model.Station.Code, Model.StationCodes, new { @class = "modal-station" })
+                <label>Select Station</label>
             </div>
         </div>
     </div>

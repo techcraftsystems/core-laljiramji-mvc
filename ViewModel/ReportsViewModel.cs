@@ -120,12 +120,14 @@ namespace Core.ViewModel
         public List<WetstockSummary> Wetstock { get; set; }
         public Stations Station { get; set; }
         public DateTime Date { get; set; }
+        public DateTime Stop { get; set; }
         public IEnumerable<SelectListItem> Stations { get; set; }
 
         public ReportWetstock() {
             Wetstock = new List<WetstockSummary>();
             Station = new Stations();
             Date = DateTime.Now;
+            Stop = DateTime.Now;
             Stations = new List<SelectListItem>();
         }
     }

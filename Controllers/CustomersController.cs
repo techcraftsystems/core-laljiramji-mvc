@@ -49,7 +49,7 @@ namespace Core.Controllers
             }
 
             Customer.UpdateBalance();
-            return LocalRedirect("/core/customers/" + Customer.Station.Code + "/" + Customer.Id + "#payment");
+            return LocalRedirect("/core/customers/" + Customer.Station.Code + "/" + Customer.Id);
         }
 
         public IActionResult DeleteCustomersPayment(int idnt, string code, StationsService service) {

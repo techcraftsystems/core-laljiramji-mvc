@@ -182,7 +182,7 @@ jq(function() {
                 Materialize.toast('<span>Successfully deleted customer payment</span><a class="btn-flat yellow-text pointer">Task Complete</a>', 3000);
 
                 setTimeout(function(){
-                    window.location.href = "/core/customers/" + xCode + "/" + xCust + "#payment";
+                    window.location.href = "/core/customers/" + xCode + "/" + xCust;
                 }, 3000);
             },
             error: function(xhr, ajaxOptions, thrownError) {
