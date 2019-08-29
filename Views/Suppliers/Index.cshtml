@@ -1,4 +1,4 @@
-﻿@model System.Collections.Generic.List<Core.Models.Suppliers>;
+﻿@model Core.ViewModel.SuppliersIndexViewModel;
 @{
     ViewData["Title"] = "Suppliers";
 }
@@ -13,30 +13,38 @@
         height: 2rem;
         width: auto;
     }
+
     .dataTables_wrapper .dataTables_filter input {
         margin-left: 0;
         height: 2rem !important;
     }
+
     .dataTables_length {
         display: none;
     }
+
     .dataTables_filter {
         margin-top: -40px;
     }
+
     .alight-right {
         text-align: right;
     }
+
     h3.header {
         margin-bottom: 0;
         padding-left: 10px;
     }
+
     table a {
         color: #333;
     }
-    table a:hover {
-        color: #00adef;
-    }
-    table.dataTable thead .sorting{
+
+        table a:hover {
+            color: #00adef;
+        }
+
+    table.dataTable thead .sorting {
         background-image: none;
     }
 </style>
@@ -52,7 +60,7 @@
                 </ol>
             </div>
             <div class="col s2 m6 l6">
-                <a class="btn btn-delivery dropdown-settings waves-effect waves-light breadcrumbs-btn right gradient-45deg-light-blue-cyan gradient-shadow pointer">
+                <a class="btn btn-delivery dropdown-settings waves-effect waves-light breadcrumbs-btn right gradient-45deg-light-blue-cyan gradient-shadow pointer modal-trigger" data-target="add-supplier-modal">
                     <span class="hide-on-small-only">ADD NEW</span>
                     <i class="material-icons right">add</i>
                 </a>
@@ -84,7 +92,7 @@
             </tr>
         </tfoot>
         <tbody>
-            @foreach (var supp in Model)
+            @foreach (var supp in Model.Suppliers)
             {
                 <tr data-idnt="@supp.Id">
                     <td><a class="blue-text" href="/core/suppliers/@(supp.Uuid)">@supp.Name</a></td>
@@ -96,4 +104,51 @@
             }
         </tbody>
     </table>
+</div>
+
+<div id="add-supplier-modal" class="modal modal-fixed-footer" style="width: 500px">
+    <div class="modal-content">
+        @using (Html.BeginForm("AddNewSuppliers", "Suppliers", FormMethod.Post, new { id = "add-supplier-form" }))
+        {
+            <h4>Supplier's Details</h4>
+            <p>Add Supplier Details Here</p>
+            <div class="row">
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">assignment_ind</i>
+                    @Html.TextBoxFor(model => model.Supplier.Name)
+                    <label>Names</label>
+                </div>
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">security</i>
+                    @Html.TextBoxFor(model => model.Supplier.Pin)
+                    <label>Pin</label>
+                </div>
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">perm_phone_msg</i>
+                    @Html.TextBoxFor(model => model.Supplier.Address)
+                    <label>Address</label>
+                </div>
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">home</i>
+                    @Html.TextBoxFor(model => model.Supplier.City)
+                    <label>City</label>
+                </div>
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">phone</i>
+                    @Html.TextBoxFor(model => model.Supplier.Telephone)
+                    <label>Telephone</label>
+                </div>
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">mail</i>
+                    @Html.TextBoxFor(model => model.Supplier.Email)
+                    <label>Email</label>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat btn-danger">Cancel</a>
+        <a class="modal-action modal-close modal-post waves-effect waves-green btn-flat btn-primary">Save</a>
+    </div>
 </div>

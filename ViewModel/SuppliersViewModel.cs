@@ -43,6 +43,16 @@ namespace Core.ViewModel {
         }
     }
 
+    public class SuppliersIndexViewModel {
+        public Suppliers Supplier { get; set; }
+        public List<Suppliers> Suppliers { get; set; }
+
+        public SuppliersIndexViewModel() {
+            Supplier = new Suppliers();
+            Suppliers = new List<Suppliers>();
+        }
+    }
+
     public class SuppliersPaymentsViewModel {
         public DateTime Date { get; set; }
         public List<SelectListItem> Months { get; set; }

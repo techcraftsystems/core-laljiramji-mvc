@@ -16,9 +16,10 @@ namespace Core.Controllers
         public SuppliersViewModel Input { get; set; }
 
         [Route("/core/suppliers")]
-        public IActionResult Index() {
+        public IActionResult Index(SuppliersIndexViewModel model) {
             Core.UpdateSupplierBalance();
-            return View(Core.GetSuppliers());
+            model.Suppliers = Core.GetSuppliers();
+            return View(model);
         }
 
         [Route("/core/suppliers/{uuid}")]
@@ -45,6 +46,14 @@ namespace Core.Controllers
             model.Schedule = Core.GetSuppliersPaymentSchedule(model.Date, model.Date.AddMonths(1).AddDays(-1), null);
 
             return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult AddNewSuppliers() {
+            Suppliers supp = Input.Supplier;
+            supp.Save();
+
+            return LocalRedirect("/core/suppliers/" + Core.GetSupplier(supp.Id).Uuid);
         }
 
         [HttpPost]

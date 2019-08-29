@@ -118,6 +118,30 @@ namespace Core.Services {
             return 0;
         }
 
+        public Suppliers GetSupplier(long idnt) {
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("SELECT sp_idnt, sp_uuid, sp_name, ISNULL(NULLIF(sp_pin,''),'—')sp_pin, sp_contacts, sp_city, sp_telephone, sp_balance, sp_fuel, sp_lubes, sp_gas, sp_soda, sp_icon FROM Suppliers WHERE sp_idnt=" + idnt);
+            if (dr.Read()) {
+                return new Suppliers {
+                    Id = Convert.ToInt64(dr[0]),
+                    Uuid = dr[1].ToString(),
+                    Name = dr[2].ToString(),
+                    Pin = dr[3].ToString(),
+                    Address = dr[4].ToString(),
+                    City = dr[5].ToString(),
+                    Telephone = dr[6].ToString(),
+                    Balance = Convert.ToInt64(dr[7]),
+                    Fuel = Convert.ToBoolean(dr[8]),
+                    Lube = Convert.ToBoolean(dr[9]),
+                    Gas = Convert.ToBoolean(dr[10]),
+                    Soda = Convert.ToBoolean(dr[11]),
+                    Icon = dr[12].ToString()
+                };
+            }
+
+            return null;
+        }
+
         public Suppliers GetSupplier(string uuid) {
             SqlServerConnection conn = new SqlServerConnection();
             SqlDataReader dr = conn.SqlServerConnect("SELECT sp_idnt, sp_uuid, sp_name, ISNULL(NULLIF(sp_pin,''),'—')sp_pin, sp_contacts, sp_city, sp_telephone, sp_balance, sp_fuel, sp_lubes, sp_gas, sp_soda, sp_icon FROM Suppliers WHERE sp_uuid COLLATE SQL_Latin1_General_CP1_CS_AS LIKE '" + uuid + "'");
