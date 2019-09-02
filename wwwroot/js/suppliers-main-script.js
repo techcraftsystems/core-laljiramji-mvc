@@ -65,6 +65,28 @@ jq(function() {
 
         jq('#payment-modal').modal('open');
     });
+	
+    jq('a.make-withholding').click(function(){
+        jq("#withholding-modal-table tr.whts").each(function(i, row) {
+            if (i == 0){
+                jq(this).removeClass('hide');
+            }
+            else{
+                if (!jq(this).hasClass('hide')){
+                    jq(this).addClass('hide');
+                }
+            }
+
+            jq(this).find('td:eq(1) input').val('KRAWHTWON0');
+            jq(this).find('td:eq(2) input').val('');
+            jq(this).find('td:eq(3) input').val('');
+            jq(this).find('td:eq(5) input').val('0.00');
+            jq(this).find('td:eq(6) input').val('N/A');
+            jq(this).find('td:eq(7) input.idnt-data').val(0);
+        });
+
+        jq('#withholding-modal').modal('open');
+    });
 
     jq('a.make-invoice').click(function(){
         jq("#invoice-modal-table tr.invs").each(function(i, row) {
@@ -107,9 +129,11 @@ jq(function() {
 
         jq('#credits-modal').modal('open');
     });
-
-    jq('a.add-pymt-rows').click(function(){
-        jq("#payment-modal-table tr.itms").each(function() {
+	
+    jq('a.add-rows').click(function(){
+		var tbody = jq(this).parent().find('table tbody tr');
+		
+        tbody.each(function() {
             if (jq(this).hasClass('hide')){
                 jq(this).removeClass('hide');
                 return false;
@@ -117,44 +141,11 @@ jq(function() {
         });
     });
 
-    jq('a.add-invs-rows').click(function(){
-        jq("#invoice-modal-table tr.invs").each(function() {
-            if (jq(this).hasClass('hide')){
-                jq(this).removeClass('hide');
-                return false;
-            }
-        });
-    });
-
-    jq('a.add-credit-rows').click(function(){
-        jq("#credits-modal-table tr.notes").each(function() {
-            if (jq(this).hasClass('hide')){
-                jq(this).removeClass('hide');
-                return false;
-            }
-        });
-    });
-
-    jq('a.remove-pymt-row').click(function(){
+    jq('a.remove-row').click(function() {
+		var table = jq(this).closest('table');
         jq(this).closest('tr').remove();
-
-        jq("#payment-modal-table tr.itms").each(function(i, row) {
-            jq(this).find('td:eq(0)').text(eval(i+1) + '.');
-        });
-    });
-
-    jq('a.remove-invs-row').click(function(){
-        jq(this).closest('tr').remove();
-
-        jq("#invoice-modal-table tr.invs").each(function(i, row) {
-            jq(this).find('td:eq(0)').text(eval(i+1) + '.');
-        });
-    });
-
-    jq('a.remove-credit-row').click(function(){
-        jq(this).closest('tr').remove();
-
-        jq("#credits-modal-table tr.notes").each(function(i, row) {
+        
+		table.find('tbody tr').each(function(i, row) {
             jq(this).find('td:eq(0)').text(eval(i+1) + '.');
         });
     });
@@ -176,7 +167,6 @@ jq(function() {
                     return false;
                 }
             }
-
         });
 
         if (err_count > 0){
@@ -184,6 +174,32 @@ jq(function() {
         }
 
         jq('#payment-form').submit();
+    });
+	
+    jq('#withholding-modal a.modal-post').click(function(){
+        var err_count = 0;
+
+        jq("#withholding-modal-table tbody tr.whts").each(function(i, $row) {
+            if (!jq(this).hasClass('hide')){
+                if (jq(this).find('td:eq(3) input').val().trim() == '') {
+                    Materialize.toast('<span>Cheque number in row ' + eval(i+1) + ' cannot be blank</span><a class="btn-flat yellow-text pointer">FIX IT</a>', 3000)
+                    err_count++;
+                    return false;
+                }
+
+                if (!eval(jq(this).find('td:eq(5) input').val()) > 0) {
+                    Materialize.toast('<span>Invalid withholding amount in row ' + eval(i+1) + '</span><a class="btn-flat yellow-text" href="#!">Correct that</a>', 3000)
+                    err_count++;
+                    return false;
+                }
+            }
+        });
+
+        if (err_count > 0){
+            return false;
+        }
+
+        jq('#withholding-form').submit();
     });
 
     jq('#invoice-modal a.modal-post').click(function(){
@@ -257,20 +273,17 @@ jq(function() {
             return false;
         }
 
-        jq('#edit-form').submit();
-		
-		Materialize.toast('<span>Updated Successfully</span>', 5000)
-		return true;
-    });
-	
+        jq('#edit-form').submit();		
+		Materialize.toast('<span>Updated Successfully</span>', 3000);
+    });	
 
     jq('#payment-table tbody').on('click', 'i.edit-payment', function(){
         if (isadmin == 'false'){
             Materialize.toast('<span>You do not have permission to perform this task</span><a class="btn-flat red-text pointer">Access Denied</a>', 3000);
             return false;
         }
-
-        jq("tr.itms").each(function(i, row) {
+		
+        jq("#payment-modal-table tr.itms").each(function(i, row) {
             if (i == 0){
                 jq(this).removeClass('hide');
             }
@@ -278,16 +291,15 @@ jq(function() {
                 if (!jq(this).hasClass('hide')){
                     jq(this).addClass('hide');
                 }
-
-                jq(this).find('td:eq(1) input').val('');
-                jq(this).find('td:eq(3) input').val(0);
-                jq(this).find('td:eq(4) input').val(0);
-                jq(this).find('td:eq(5) input').val(0);
-                jq(this).find('td:eq(7) input').val('N/A');
-                jq(this).find('td:eq(8) input.json-data').val('"PettyCash":[]}');
-                jq(this).find('td:eq(8) input.idnt-data').val(0);
             }
-        });
+
+            jq(this).find('td:eq(1) input').val('');
+            jq(this).find('td:eq(2) input').val('');
+            jq(this).find('td:eq(4) input').val('');
+            jq(this).find('td:eq(5) input').val('0.00');
+            jq(this).find('td:eq(6) input').val('N/A');
+            jq(this).find('td:eq(7) input.idnt-data').val(0);
+        });		
 
         var row = jq('#payment-modal-table tbody tr:eq(0)');
 
@@ -315,6 +327,60 @@ jq(function() {
             },
             complete: function() {
                 jq('#payment-modal').modal('open');
+            }
+        });
+    });
+	
+    jq('#payment-table tbody').on('click', 'i.edit-withholding', function(){
+        if (isadmin == 'false'){
+            Materialize.toast('<span>You do not have permission to perform this task</span><a class="btn-flat red-text pointer">Access Denied</a>', 3000);
+            return false;
+        }
+
+        jq("#withholding-modal-table tr.whts").each(function(i, row) {
+            if (i == 0){
+                jq(this).removeClass('hide');
+            }
+            else{
+                if (!jq(this).hasClass('hide')){
+                    jq(this).addClass('hide');
+                }
+
+	            jq(this).find('td:eq(1) input').val('KRAWHTWON0');
+	            jq(this).find('td:eq(2) input').val('');
+	            jq(this).find('td:eq(3) input').val('');
+	            jq(this).find('td:eq(5) input').val('0.00');
+	            jq(this).find('td:eq(6) input').val('N/A');
+	            jq(this).find('td:eq(7) input.idnt-data').val(0);
+            }
+        });
+
+        var row = jq('#withholding-modal-table tbody tr:eq(0)');
+
+        jq.ajax({
+            dataType: "json",
+            url: '/Suppliers/GetSuppliersWithholding',
+            data: {
+                "idnt": jq(this).data('idnt')
+            },
+            success: function(pymt) {
+                jq('#Date').val(pymt.dateString);
+
+                row.find('td:eq(1) input').val(pymt.receipt);
+                row.find('td:eq(2) input').val(pymt.invoice);
+                row.find('td:eq(3) input').val(pymt.cheque);
+                row.find('td:eq(4) select').val(pymt.bank.id);
+                row.find('td:eq(4) input').val(pymt.bank.name);
+                row.find('td:eq(5) input').val(pymt.amount);
+                row.find('td:eq(6) input').val(pymt.description);
+                row.find('td:eq(7) input.idnt-data').val(pymt.id);
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                console.log(xhr.status);
+                console.log(thrownError);
+            },
+            complete: function() {
+                jq('#withholding-modal').modal('open');
             }
         });
     });
@@ -454,6 +520,34 @@ jq(function() {
             }
         });
     });
+	
+    jq('#payment-table tbody').on('click', 'i.delete-withholding', function(){
+        if (isadmin == 'false'){
+            Materialize.toast('<span>You do not have permission to perform this task</span><a class="btn-flat red-text pointer">Access Denied</a>', 3000);
+            return false;
+        }
+
+        line = jq(this).data('idnt');
+
+        jq.ajax({
+            dataType: "json",
+            url: '/Suppliers/GetSuppliersWithholding',
+            data: {
+                "idnt": line
+            },
+            success: function(delv) {
+                jq('#delete-withholding-modal p.modal-field').html('Confirm deleting WHT <code class="language-css"> ' + delv.receipt + '</code> dated <code class="language-css">' + delv.dateString + '</code> for <code class="language-css">Kes ' + delv.amount.toString().toAccounting() + '</code>?');
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                console.log(xhr.status);
+                console.log(thrownError);
+            },
+            complete: function() {
+                jq('#delete-withholding-modal').modal('open');
+            }
+        });
+    });
+	
 
     jq('#invoice-table tbody').on('click', 'i.delete-invoice', function(){
         if (isadmin == 'false'){
@@ -520,9 +614,33 @@ jq(function() {
             },
             success: function(delv) {
                 Materialize.toast('<span>Successfully deleted supplier payment</span><a class="btn-flat yellow-text pointer">Task Complete</a>', 3000);
-
                 setTimeout(function(){
-                    window.location.href = "/core/suppliers/" + xUuid;
+					GetSuppliersPayment();
+					UpdateSupplierBalance();
+                }, 3000);
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                console.log(xhr.status);
+                console.log(thrownError);
+                Materialize.toast('<span>Error ' + xhr.status + '. ' + thrownError + '</span><a class="btn-flat red-text pointer">Delete Failed</a>', 3000);
+            }
+        });
+    });
+	
+    jq('#delete-withholding-modal a.modal-post').click(function(){
+        jq('#delete-withholding-modal').modal('close');
+        jq.ajax({
+            type: "post",
+            url: '/Suppliers/DeleteSuppliersWithholding',
+            data: {
+                "idnt": line,
+                "supp": xSupp
+            },
+            success: function(delv) {
+                Materialize.toast('<span>Successfully deleted witholding payment</span><a class="btn-flat yellow-text pointer">Task Complete</a>', 3000);
+                setTimeout(function(){
+					GetSuppliersPayment();
+					UpdateSupplierBalance();
                 }, 3000);
             },
             error: function(xhr, ajaxOptions, thrownError) {
@@ -544,9 +662,9 @@ jq(function() {
             },
             success: function(delv) {
                 Materialize.toast('<span>Successfully deleted supplier payment</span><a class="btn-flat yellow-text pointer">Task Complete</a>', 3000);
-
                 setTimeout(function(){
-                    window.location.href = "/core/suppliers/" + xUuid;
+					GetSuppliersPayment();
+					UpdateSupplierBalance();
                 }, 3000);
             },
             error: function(xhr, ajaxOptions, thrownError) {
@@ -570,7 +688,8 @@ jq(function() {
                 Materialize.toast('<span>Successfully deleted supplier credits</span><a class="btn-flat yellow-text pointer">Task Complete</a>', 3000);
 
                 setTimeout(function(){
-                    window.location.href = "/core/suppliers/" + xUuid;
+					GetSuppliersPayment();
+					UpdateSupplierBalance();
                 }, 3000);
             },
             error: function(xhr, ajaxOptions, thrownError) {
@@ -579,10 +698,6 @@ jq(function() {
                 Materialize.toast('<span>Error ' + xhr.status + '. ' + thrownError + '</span><a class="btn-flat red-text pointer">Delete Failed</a>', 3000);
             }
         });
-    });
-	
-    jq('#edit-modal a.modal-post').click(function(){
-        
     });
 	
 	jq('a.payment-ledger').click(function(){
@@ -595,6 +710,19 @@ jq(function() {
 		window.location.href = url + month + '/' + jq('#reports-modal input.modal-year').val();
 	});
 });
+
+function UpdateSupplierBalance() {
+    jq.ajax({
+        dataType: "json",
+        url: '/Suppliers/GetSupplierBalance',
+        data: {
+            "idnt": xSupp
+        },
+        success: function(balance) {
+			jq('span.bals').html('Ksh ' + balance.toString().toAccounting());
+		}
+    });
+}
 
 function GetSupplierExpenses(){
     jq.ajax({
@@ -677,22 +805,24 @@ function GetSuppliersPayment(){
 
                 var row = "<tr data-idnt='" + entry.id + "'>";
                 row += "<td>" + entry.dateString + "</td>";
+                row += "<td>" + entry.receipt + "</td>";
                 row += "<td>" + entry.cheque + "</td>";
+                row += "<td>" + entry.bank.name + "</td>";
                 row += "<td>" + entry.invoices + "</td>";
-                row += "<td>" + entry.description + "</td>";
-                row += "<td class='bold-text'>" + entry.amount.toString().toAccounting() + "</td>";
-                row += "<td><i class='material-icons blue-text edit-payment left pointer' style='font-size:1em;' data-idnt='" + entry.id + "'>border_color</i><i class='material-icons red-text delete-payment right pointer' style='font-size:1.2em;' data-idnt='" + entry.id + "'>delete_forever</i></td>";
+                row += "<td>" + (entry.type == 1 ? "WITHHOLDING TAX" : entry.description) + "</td>";
+                row += "<td class='right-text bold-text'>" + entry.amount.toString().toAccounting() + "</td>";
+                row += "<td><i class='material-icons blue-text " + (entry.type == 0 ? "edit-payment" : "edit-withholding") + " left pointer' style='font-size:1em;' data-idnt='" + entry.id + "'>border_color</i><i class='material-icons red-text " + (entry.type == 0 ? "delete-payment" : "delete-withholding") + " right pointer' style='font-size:1.2em;' data-idnt='" + entry.id + "'>delete_forever</i></td>";
                 row += "</tr>";
 
                 jq('#payment-table tbody').append(row);
             })
 
             if(results.length == 0){
-                jq('#payment-table tbody').append("<tr><td colspan='6'>NO PAYMENTS FOUND</td></tr>");
+                jq('#payment-table tbody').append("<tr><td colspan='8'>NO PAYMENTS FOUND</td></tr>");
             }
 
             var footr = "<tr>";
-            footr += "<td class='bold-text' colspan='4'>&nbsp;SUMMARY</td>";
+            footr += "<td class='bold-text' colspan='6'>&nbsp;SUMMARY</td>";
             footr += "<td class='bold-text right'>" + cumm.toString().toAccounting() + "</td>";
             footr += "<td>&nbsp;</td>";
             footr += "</tr>";

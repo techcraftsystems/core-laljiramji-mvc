@@ -166,6 +166,16 @@ namespace Core.Services {
             return null;
         }
 
+        public double GetSupplierBalance(Suppliers supplier) {
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("SELECT sp_balance FROM Suppliers WHERE sp_idnt=" + supplier.Id);
+            if (dr.Read()) {
+                return Convert.ToDouble(dr[0]);
+            }
+
+            return 0;
+        }
+
         public List<Suppliers> GetSuppliers(string filter = "") {
             List<Suppliers> suppliers = new List<Suppliers>();
 
@@ -222,7 +232,36 @@ namespace Core.Services {
             return null;
         }
 
-        public List<SuppliersPayment> GetSuppliersPayment(DateTime start, DateTime stop, Suppliers supplier, string filter = "") {
+        public SuppliersWithholding GetSuppliersWithholding(long idnt) {
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("SELECT sw_idnt, sw_date, sw_receipt, sw_cheque, sw_invoice, sw_description, sw_amount, sw_supp, sp_uuid, sp_name, ISNULL(sw_bank,0)sp_bank, ISNULL(bk_code,'')bk_code, ISNULL(bk_bank,'CASH')bk_bank FROM SuppliersWithholding LEFT OUTER JOIN BankAccounts ON sw_bank=bk_idnt LEFT OUTER JOIN Suppliers sp ON sw_supp=sp.sp_idnt WHERE sw_idnt=" + idnt);
+            if (dr.Read()) {
+                return new SuppliersWithholding {
+                    Id = Convert.ToInt64(dr[0]),
+                    Date = Convert.ToDateTime(dr[1]),
+                    DateString = Convert.ToDateTime(dr[1]).ToString("d MMMM, yyyy"),
+                    Receipt = dr[2].ToString(),
+                    Cheque = dr[3].ToString(),
+                    Invoice = dr[4].ToString(),
+                    Description = dr[5].ToString(),
+                    Amount = Convert.ToDouble(dr[6]),
+                    Supplier = new Suppliers {
+                        Id = Convert.ToInt64(dr[7]),
+                        Uuid = dr[8].ToString(),
+                        Name = dr[9].ToString(),
+                    },
+                    Bank = new Bank {
+                        Id = Convert.ToInt64(dr[10]),
+                        Code = dr[11].ToString(),
+                        Name = dr[12].ToString(),
+                    }
+                };
+            }
+
+            return null;
+        }
+
+        public List<SuppliersPayment> GetSuppliersPayments(DateTime start, DateTime stop, Suppliers supplier, string filter = "") {
             List<SuppliersPayment> payments = new List<SuppliersPayment>();
 
             SqlServerConnection conn = new SqlServerConnection();
@@ -230,27 +269,28 @@ namespace Core.Services {
             if (supplier != null)
                 filterString += " AND sp_supp=" + supplier.Id;
 
-            SqlDataReader dr = conn.SqlServerConnect("SELECT p.sp_idnt, sp_date, sp_rcpt, sp_chqs, sp_invoice, sp_notes, sp_amount, sp_supp, sp_uuid, sp_name, ISNULL(sp_bank,0)sp_bank, ISNULL(bk_code,'')bk_code, ISNULL(bk_bank,'CASH')bk_bank FROM SuppliersPayments p LEFT OUTER JOIN BankAccounts ON sp_bank=bk_idnt LEFT OUTER JOIN Suppliers sp ON sp_supp=sp.sp_idnt " + filterString + " ORDER BY sp_date, sp_chqs, p.sp_idnt");
+            SqlDataReader dr = conn.SqlServerConnect("SELECT sp_idx, sp_typ, sp_date, sp_rcpt, sp_chqs, sp_invoice, sp_notes, sp_amount, sp_supp, sp_uuid, sp_name, ISNULL(sp_bank,0)sp_bank, ISNULL(bk_code,'')bk_code, ISNULL(bk_bank,'CASH')bk_bank FROM (SELECT sp_idnt sp_idx, 0 sp_typ, sp_supp, sp_date, sp_rcpt, sp_chqs, sp_invoice, sp_notes, sp_amount, sp_bank FROM SuppliersPayments UNION ALL SELECT sw_idnt sp_idx, 1 sw_typ, sw_supp, sw_date, sw_receipt, sw_cheque, sw_invoice, sw_description, sw_amount, sw_bank FROM SuppliersWithholding) As Foo LEFT OUTER JOIN BankAccounts ON sp_bank=bk_idnt LEFT OUTER JOIN Suppliers sp ON sp_supp=sp.sp_idnt " + filterString + " ORDER BY sp_date, sp_chqs, sp_typ, sp_idx");
             if (dr.HasRows) {
                 while (dr.Read()) {
                     payments.Add(new SuppliersPayment {
                         Id = Convert.ToInt64(dr[0]),
-                        Date = Convert.ToDateTime(dr[1]),
-                        DateString = Convert.ToDateTime(dr[1]).ToString("dd/MM/yyyy"),
-                        Receipt = dr[2].ToString(),
-                        Cheque = dr[3].ToString(),
-                        Invoices = dr[4].ToString(),
-                        Description = dr[5].ToString(),
-                        Amount = Convert.ToDouble(dr[6]),
+                        Type = Convert.ToInt64(dr[1]),
+                        Date = Convert.ToDateTime(dr[2]),
+                        DateString = Convert.ToDateTime(dr[2]).ToString("dd/MM/yyyy"),
+                        Receipt = dr[3].ToString(),
+                        Cheque = dr[4].ToString(),
+                        Invoices = dr[5].ToString(),
+                        Description = dr[6].ToString(),
+                        Amount = Convert.ToDouble(dr[7]),
                         Supplier = new Suppliers {
-                            Id = Convert.ToInt64(dr[7]),
-                            Uuid = dr[8].ToString(),
-                            Name = dr[9].ToString(),
+                            Id = Convert.ToInt64(dr[8]),
+                            Uuid = dr[9].ToString(),
+                            Name = dr[10].ToString(),
                         },
                         Bank = new Bank {
-                            Id = Convert.ToInt64(dr[10]),
-                            Code = dr[11].ToString(),
-                            Name = dr[12].ToString(),
+                            Id = Convert.ToInt64(dr[11]),
+                            Code = dr[12].ToString(),
+                            Name = dr[13].ToString(),
                         }
                     });
                 }
@@ -996,6 +1036,13 @@ namespace Core.Services {
             return note;
         }
 
+        public SuppliersWithholding SaveSuppliersWithholding(SuppliersWithholding wht) {
+            SqlServerConnection conn = new SqlServerConnection();
+            wht.Id = conn.SqlServerUpdate("DECLARE @idnt INT=" + wht.Id + ", @supp INT=" + wht.Supplier.Id + ", @bank INT=" + wht.Bank.Id + ", @date DATE='" + wht.Date + "', @rcpt NVARCHAR(50)='" + wht.Receipt + "', @chqs NVARCHAR(50)='" + wht.Cheque + "', @invs NVARCHAR(250)='" + wht.Invoice + "', @note NVARCHAR(MAX)='" + wht.Description + "', @amts FLOAT=" + wht.Amount + ", @user INT=" + Actor + "; IF NOT EXISTS (SELECT sw_idnt FROM SuppliersWithholding WHERE sw_idnt=@idnt) BEGIN INSERT INTO SuppliersWithholding (sw_supp, sw_bank, sw_date, sw_receipt, sw_invoice, sw_cheque, sw_amount, sw_added_by, sw_description) output INSERTED.sw_idnt VALUES (@supp, @bank, @date, @rcpt, @invs, @chqs, @amts, @user, @note) END ELSE BEGIN UPDATE SuppliersWithholding SET sw_supp=@supp, sw_bank=@bank, sw_date=@date, sw_receipt=@rcpt, sw_invoice=@invs, sw_cheque=@chqs, sw_amount=@amts, sw_description=@note output INSERTED.sw_idnt WHERE sw_idnt=@idnt END");
+
+            return wht;
+        }
+
         //Updates
         public void UpdateCustomerBalance(Customers customer = null, Stations station = null) {
             string query = "";
@@ -1044,6 +1091,10 @@ namespace Core.Services {
 
         public void DeleteSuppliersPayment(SuppliersPayment payment) {
             new SqlServerConnection().SqlServerUpdate("DELETE FROM SuppliersPayments WHERE sp_idnt=" + payment.Id);
+        }
+ 
+        public void DeleteSuppliersWithholding(SuppliersWithholding wht) {
+            new SqlServerConnection().SqlServerUpdate("DELETE FROM SuppliersWithholding WHERE sw_idnt=" + wht.Id);
         }
 
         public void DeleteSuppliersCredit(SuppliersCredits credit) {

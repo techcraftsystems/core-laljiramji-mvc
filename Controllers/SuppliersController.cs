@@ -89,6 +89,30 @@ namespace Core.Controllers
         }
 
         [HttpPost]
+        public IActionResult PostWithholdingTax() {
+            DateTime date = DateTime.Parse(Input.Date);
+            Suppliers supp = Input.Supplier;
+
+            foreach (var wht in Input.Withhold) {
+                if (!string.IsNullOrEmpty(wht.Cheque) && wht.Amount > 0 ) {
+                    wht.Supplier = supp;
+                    wht.Date = date;
+                    wht.Save(HttpContext);
+                }
+            }
+
+            Core.UpdateSupplierBalance(supp);
+            return LocalRedirect("/core/suppliers/" + supp.Uuid);
+        }
+
+        [HttpPost]
+        public IActionResult DeleteSuppliersWithholding(int idnt, int supp) {
+            new SuppliersWithholding(idnt).Delete();
+            Core.UpdateSupplierBalance(new Suppliers(supp));
+            return Ok("success");
+        }
+
+        [HttpPost]
         public IActionResult PostSupplierInvoice() {
             DateTime date = DateTime.Parse(Input.Date);
             Suppliers supp = Input.Supplier;
@@ -105,6 +129,7 @@ namespace Core.Controllers
             return LocalRedirect("/core/suppliers/" + supp.Uuid);
         }
 
+        [HttpPost]
         public IActionResult DeleteSuppliersInvoice(int idnt, int supp) {
             new StationsExpenses(idnt).Delete();
             Core.UpdateSupplierBalance(new Suppliers(supp));
@@ -134,16 +159,24 @@ namespace Core.Controllers
             return Ok("success");
         }
 
-        public SuppliersPayment GetSuppliersPayment(int idnt) {
+        public SuppliersPayment GetSuppliersPayment(long idnt) {
             return Core.GetSuppliersPayment(idnt);
+        }
+
+        public SuppliersWithholding GetSuppliersWithholding(long idnt) {
+            return Core.GetSuppliersWithholding(idnt);
         }
 
         public StationsExpenses GetSuppliersInvoice(int idnt) {
             return Core.GetStationsExpenses(idnt);
         }
 
-        public SuppliersCredits GetSuppliersCredit(int idnt)         {
+        public SuppliersCredits GetSuppliersCredit(int idnt) {
             return Core.GetSuppliersCredit(idnt);
+        }
+
+        public double GetSupplierBalance(long idnt) {
+            return Core.GetSupplierBalance(new Suppliers(idnt));
         }
 
         public JsonResult GetSupplierExpenses(long supp, string start, string stop, string filter = "") {
@@ -155,7 +188,7 @@ namespace Core.Controllers
         public JsonResult GetSuppliersPayments(long supp, string start, string stop, string filter = "") {
             if (string.IsNullOrWhiteSpace(filter))
                 filter = "";
-            return Json(Core.GetSuppliersPayment(DateTime.Parse(start), DateTime.Parse(stop), new Suppliers(supp), filter));
+            return Json(Core.GetSuppliersPayments(DateTime.Parse(start), DateTime.Parse(stop), new Suppliers(supp), filter));
         }
 
         public JsonResult GetSuppliersCredits(long supp, string start, string stop, string filter = "") {

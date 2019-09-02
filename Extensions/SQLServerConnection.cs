@@ -4,14 +4,16 @@ using System.Data.SqlClient;
 namespace Core.Extensions
 {
     public class SqlServerConnection {
+        public string Database { get; set; }
         public string Server { get; set; }
         private string SConn { get; set; }
         private SqlConnection Conn { get; set; }
         protected SqlCommand comm = new SqlCommand();
 
         public SqlServerConnection() {
-            Server = "core_system";
-            SConn = "Data Source=192.168.1.11;Initial Catalog=" + Server + ";User ID=ct;Password=ct-2011;Max Pool Size=200;";
+            Database = "core_system";
+            Server = "41.90.127.203";
+            SConn = "Data Source=" + Server + ";Initial Catalog=" + Database + ";User ID=ct;Password=ct-2011;Max Pool Size=200;";
             Conn = new SqlConnection(SConn);
         }
 
@@ -27,7 +29,7 @@ namespace Core.Extensions
             }
         }
 
-        public Int64 SqlServerUpdate(string SqlString) {
+        public long SqlServerUpdate(string SqlString) {
             try {
                 SqlCommand command = new SqlCommand(SqlString, Conn);
                 command.Connection.Open();
