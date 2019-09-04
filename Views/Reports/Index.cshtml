@@ -208,6 +208,13 @@
                     <p>Transfers Ledger</p>
                 </div>
             </li>
+
+            <li class="light-blue-text">
+                <div class="waves-effect waves-light modal-trigger redirect-trigger" data-route="/sales/transfers/compare">
+                    <i class="material-icons medium icon-demo">all_inclusive</i>
+                    <p>Transfers Compare</p>
+                </div>
+            </li>
         </ul>
     </div>
 
@@ -470,7 +477,6 @@
                 @Html.DropDownListFor(model => model.Station.Code, Model.StationCodes, new { @class = "modal-station" })
                 <label>Select Station</label>
             </div>
-
 
             <div class="input-field col m7 s12">
                 <i class="material-icons prefix">date_range</i>

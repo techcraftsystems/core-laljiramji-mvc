@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Core.DataModel;
 using Core.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json.Linq;
@@ -53,6 +54,16 @@ namespace Core.ViewModel
         public SalesTransferLedgerViewModel() {
             Ledger = new List<ProductsTransfer>();
             Date = DateTime.Now;
+        }
+    }
+
+    public class SalesTransferCompareViewModel {
+        public List<ProductsTransferCompare> Compare { get; set; }
+        public DateTime Date { get; set; }
+
+        public SalesTransferCompareViewModel() {
+            Date = DateTime.Now;
+            Compare = new List<ProductsTransferCompare>();
         }
     }
 }

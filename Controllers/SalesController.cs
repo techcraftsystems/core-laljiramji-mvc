@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Core.Models;
 using Core.Services;
 using Core.ViewModel;
@@ -32,8 +31,16 @@ namespace Core.Controllers
 
         [Route("sales/transfers/ledger")]
         public IActionResult TransfersLedger(SalesTransferLedgerViewModel model) {
-            DateTime Date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-            model.Ledger = new StationsService().GetProductsTransfers(Date, DateTime.Now);
+            model.Date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            model.Ledger = new StationsService().GetProductsTransfers(model.Date, DateTime.Now);
+
+            return View(model);
+        }
+
+        [Route("sales/transfers/compare")]
+        public IActionResult TransfersCompare(SalesTransferCompareViewModel model) {
+            model.Date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            model.Compare = new StationsService().GetProductsTransferCompare(model.Date, DateTime.Now);
 
             return View(model);
         }
@@ -75,6 +82,12 @@ namespace Core.Controllers
             if (string.IsNullOrWhiteSpace(filter))
                 filter = "";
             return Json(service.GetProductsTransfers(DateTime.Parse(start), DateTime.Parse(stop), filter));
+        }
+
+        public JsonResult GetProductsTransferCompare(string start, string stop, string filter = "") {
+            if (string.IsNullOrWhiteSpace(filter))
+                filter = "";
+            return Json(new StationsService().GetProductsTransferCompare(DateTime.Parse(start), DateTime.Parse(stop), filter));
         }
     }
 }

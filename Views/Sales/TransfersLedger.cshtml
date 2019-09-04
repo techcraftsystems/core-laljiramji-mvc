@@ -1,8 +1,6 @@
 ﻿@model Core.ViewModel.SalesTransferLedgerViewModel;
 @{
     ViewData["Title"] = "Transfer Ledger";
-
-    DateTime start = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
     var ledger = new ProductsTransfer();
 }
 
@@ -30,7 +28,7 @@
 <div class="row" style="margin-top: 10px; margin-bottom: 0px;">
     <div class="input-field col-md-2">
         <i class="material-icons prefix">date_range</i>
-        <input id="start" type="text" class="datepicker" value="@start.ToString("d MMMM, yyyy")">
+        <input id="start" type="text" class="datepicker" value="@Model.Date.ToString("d MMMM, yyyy")">
     </div>
 
     <div class="input-field col-md-2">

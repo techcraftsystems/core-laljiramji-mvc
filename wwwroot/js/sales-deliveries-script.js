@@ -52,7 +52,7 @@ jq(function() {
                 jq(this).find('td:eq(4) input').val(0);
                 jq(this).find('td:eq(5) input').val(0);
                 jq(this).find('td:eq(7) input').val('N/A');
-                jq(this).find('td:eq(8) input.json-data').val('"PettyCash":[]}');
+                jq(this).find('td:eq(8) input.json-data').val('{"PettyCash":[]}');
                 jq(this).find('td:eq(8) input.idnt-data').val(0);
             }
         });
@@ -160,7 +160,10 @@ jq(function() {
         var count = 0;
         jq.each(code.PettyCash, function(key,value) {
             var row = "<tr class='exps'><td>" + eval(count+1) + ".</td>";
-            row += "<td class='width-120px'><input class='autocomplete' type='text' value='" + value.account + "'></td>";
+            row += "<td class='width-80px'><input type='text' value='" + value.voucher + "'></td>";
+            row += "<td class='width-80px'><input type='text' value='" + value.receipt + "'></td>";
+            row += "<td class='width-130px'><input class='autocomplete' type='text' value='" + value.account + "'></td>";
+            row += "<td class='width-130px'><input type='text' value='" + value.supplier + "'></td>";
             row += "<td><input class='input-opts' type='text' value='" + value.description + "'></td>";
             row += "<td class='width-100px'><input type='number' class='right-text input-amts' value='" + value.amount + "'></td>";
             row += "<td><input type='hidden' value='" + value.id + "'><a class='red-text' style='font-size:0.7em'><i class='material-icons pointer'>delete_forever</i></a></td>";
@@ -168,7 +171,7 @@ jq(function() {
 
             jq('#expense-table tbody').append(row);
 
-            jq('#expense-table tbody tr:last td:eq(1) input').autocomplete({
+            jq('#expense-table tbody tr:last td:eq(3) input').autocomplete({
                 data: petty_accounts,
                 limit: 10,
                 minLength: 1
@@ -240,20 +243,38 @@ jq(function() {
 
         jq("#expense-table tbody tr.exps").each(function(i, $row) {
             if (jq(this).find('td:eq(1) input').val().trim() == '') {
+                Materialize.toast('<span>Expense voucher in row ' + eval(i+1) + ' cannot be blank</span><a class="btn-flat yellow-text" href="#!">Correct that</a>', 3000)
+                err_count++;
+                return false;
+            }
+			
+            if (jq(this).find('td:eq(2) input').val().trim() == '') {
+                Materialize.toast('<span>Expense receipt in row ' + eval(i+1) + ' cannot be blank</span><a class="btn-flat yellow-text" href="#!">Correct that</a>', 3000)
+                err_count++;
+                return false;
+            }
+			
+            if (jq(this).find('td:eq(3) input').val().trim() == '') {
                 Materialize.toast('<span>Expense Account in row ' + eval(i+1) + ' cannot be blank</span><a class="btn-flat yellow-text" href="#!">Correct that</a>', 3000)
                 err_count++;
                 return false;
             }
+			
+            if (jq(this).find('td:eq(4) input').val().trim() == '') {
+                Materialize.toast('<span>Expense supplier in row ' + eval(i+1) + ' cannot be blank</span><a class="btn-flat yellow-text" href="#!">Correct that</a>', 3000)
+                err_count++;
+                return false;
+            }
 
-            if (!eval(jq(this).find('td:eq(3) input').val()) > 0) {
+            if (!eval(jq(this).find('td:eq(6) input').val()) > 0) {
                 Materialize.toast('<span>Expense Amount in row ' + eval(i+1) + ' cannot be blank</span><a class="btn-flat yellow-text" href="#!">Correct that</a>', 3000)
                 err_count++;
                 return false;
             }
 
-            json += '{"account":"' + jq(this).find('td:eq(1) input').val().trim() + '", "description":"' + jq(this).find('td:eq(2) input').val().trim() + '", "amount":"' + eval(jq(this).find('td:eq(3) input').val()) + '", "id":"' + eval(jq(this).find('td:eq(4) input').val()) + '"},';
-            idnt += jq(this).find('td:eq(4) input').val() + ',';
-            amts += eval(jq(this).find('td:eq(3) input').val());
+            json += '{"voucher":"' + jq(this).find('td:eq(1) input').val().trim() + '", "receipt":"' + jq(this).find('td:eq(2) input').val().trim() + '", "account":"' + jq(this).find('td:eq(3) input').val().trim() + '", "supplier":"' + jq(this).find('td:eq(4) input').val().trim() + '", "description":"' + jq(this).find('td:eq(5) input').val().trim() + '", "amount":"' + eval(jq(this).find('td:eq(6) input').val()) + '", "id":"' + eval(jq(this).find('td:eq(7) input').val()) + '"},';
+            idnt += jq(this).find('td:eq(7) input').val() + ',';
+            amts += eval(jq(this).find('td:eq(6) input').val());
         });
 
         if (err_count > 0){
@@ -290,7 +311,7 @@ function FormatRowNumbers(){
 
     jq("tr.exps").each(function(i, $row) {
         jq(this).find('td:eq(0)').text(eval(i+1)+'.');
-        total += eval(jq(this).find('td:eq(3) input').val());
+        total += eval(jq(this).find('td:eq(6) input').val());
     });
 
     jq('#expense-modal tfoot tr').find('th.right-align').text(total.toString().toAccounting());
@@ -300,7 +321,7 @@ function ExpenseCummulativeCount(){
     var total = 0;
 
     jq("tr.exps").each(function() {
-        total += eval(jq(this).find('td:eq(3) input').val());
+        total += eval(jq(this).find('td:eq(6) input').val());
     });
 
     jq('#expense-modal tfoot tr').find('th.right-align').text(total.toString().toAccounting());
@@ -310,7 +331,10 @@ function ExpenseAddRow(jsondata){
     count = jq('#expense-table tr.exps').length;
 
     var row = "<tr class='exps'><td>" + eval(count+1) + ".</td>";
-    row += "<td class='width-120px'><input class='autocomplete' type='text'></td>";
+    row += "<td class='width-80px'><input type='text'></td>";
+    row += "<td class='width-80px'><input type='text'></td>";
+    row += "<td class='width-130px'><input class='autocomplete' type='text'></td>";
+    row += "<td class='width-130px'><input type='text'></td>";
     row += "<td><input class='input-opts' type='text' value='N/A'></td>";
     row += "<td class='width-100px'><input type='number' class='right-text input-amts' value='0.00'></td>";
     row += "<td><input type='hidden' value='0' /><a class='red-text' style='font-size:0.7em'><i class='material-icons pointer'>delete_forever</i></a></td>";
@@ -318,7 +342,7 @@ function ExpenseAddRow(jsondata){
 
     jq('#expense-table tbody').append(row);
 
-    jq('#expense-table tbody tr:last td:eq(1) input').autocomplete({
+    jq('#expense-table tbody tr:last td:eq(3) input').autocomplete({
         data: petty_accounts,
         limit: 10,
         minLength: 1

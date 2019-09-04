@@ -6,6 +6,7 @@ using Core.Extensions;
 using Core.ViewModel;
 using Core.ReportModel;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Core.DataModel;
 
 namespace Core.Services
 {
@@ -880,6 +881,45 @@ namespace Core.Services
             }
 
             return ledger;
+        }
+
+        public List<ProductsTransferCompare> GetProductsTransferCompare(DateTime start, DateTime stop, string filter = "") {
+            List<ProductsTransferCompare> compare = new List<ProductsTransferCompare>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("DECLARE @start DATE='" + start.Date + "', @stop DATE='" + stop.Date + "'; SELECT tr_item, Items, SUM(tr_git)tr_git, SUM(tr_kg)tr_kg, SUM(tr_kr)tr_kr, SUM(tr_nkb)tr_nkb, SUM(dlv_git)dlv_git, SUM(dlv_kg)dlv_kg, SUM(dlv_kr)dlv_kr, SUM(dlv_nkb)dlv_nkb FROM vTransfersCompare INNER JOIN shell_kinoru.dbo.pProducts ON id_=tr_item " + conn.GetQueryString(filter, "Items", "tr_date BETWEEN @start AND @stop") + " GROUP BY tr_item, Items ORDER BY Items");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    ProductsTransferCompare comp = new ProductsTransferCompare {
+                        Load = new ProductsTransfer {
+                            Product = new Products {
+                                Id = Convert.ToInt64(dr[0]),
+                                Name = dr[1].ToString()
+                            },
+                            Gitimbine = Convert.ToDouble(dr[2]),
+                            Kaaga = Convert.ToDouble(dr[3]),
+                            Kirunga = Convert.ToDouble(dr[4]),
+                            Nkubu = Convert.ToDouble(dr[5])
+                        },
+                        Delv = new ProductsTransfer {
+                            Gitimbine = Convert.ToDouble(dr[6]),
+                            Kaaga = Convert.ToDouble(dr[7]),
+                            Kirunga = Convert.ToDouble(dr[8]),
+                            Nkubu = Convert.ToDouble(dr[9])
+                        }
+                    };
+
+                    comp.Load.Total = comp.Load.Gitimbine + comp.Load.Kaaga + comp.Load.Kirunga + comp.Load.Nkubu;
+                    comp.Delv.Total = comp.Delv.Gitimbine + comp.Delv.Kaaga + comp.Delv.Kirunga + comp.Delv.Kirunga;
+
+                    if (!comp.Load.Gitimbine.Equals(comp.Delv.Gitimbine) || !comp.Load.Kaaga.Equals(comp.Delv.Kaaga) || !comp.Load.Kirunga.Equals(comp.Delv.Kirunga) || !comp.Load.Kirunga.Equals(comp.Delv.Kirunga))
+                        comp.Error++;
+
+                    compare.Add(comp);
+                }
+            }
+
+            return compare;
         }
 
         public List<ProductsSales> GetFuelSales(Stations station, DateTime start, DateTime stop) {
