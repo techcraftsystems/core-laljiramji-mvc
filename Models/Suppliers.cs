@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Http;
 
 namespace Core.Models
 {
-    public class Suppliers {
+    public class Suppliers
+    {
         public long Id { get; set; }
         public string Uuid { get; set; }
         public string Name { get; set; }
@@ -20,7 +21,8 @@ namespace Core.Models
         public bool Gas { get; set; }
         public bool Soda { get; set; }
 
-        public Suppliers() {
+        public Suppliers()
+        {
             Id = 0;
             Uuid = "";
             Name = "";
@@ -32,21 +34,25 @@ namespace Core.Models
             Email = "";
         }
 
-        public Suppliers(long idnt) : this() {
+        public Suppliers(long idnt) : this()
+        {
             Id = idnt;
         }
 
-        public Suppliers(long idnt, string name) : this() {
+        public Suppliers(long idnt, string name) : this()
+        {
             Id = idnt;
             Name = name;
         }
 
-        public Suppliers Save() {
+        public Suppliers Save()
+        {
             return new CoreService().SaveSuppliers(this);
         }
     }
 
-    public class SuppliersPayment {
+    public class SuppliersPayment
+    {
         public long Id { get; set; }
         public long Type { get; set; }
         public DateTime Date { get; set; }
@@ -60,7 +66,8 @@ namespace Core.Models
         public Bank Bank { get; set; }
         public Users User { get; set; }
 
-        public SuppliersPayment() {
+        public SuppliersPayment()
+        {
             Id = 0;
             Type = 0;
             Date = DateTime.Now;
@@ -74,20 +81,24 @@ namespace Core.Models
             User = new Users();
         }
 
-        public SuppliersPayment(long idnt) : this() {
+        public SuppliersPayment(long idnt) : this()
+        {
             Id = idnt;
         }
 
-        public SuppliersPayment Save(HttpContext Context) {
+        public SuppliersPayment Save(HttpContext Context)
+        {
             return new CoreService(Context).SaveSuppliersPayment(this);
         }
 
-        public void Delete() {
+        public void Delete()
+        {
             new CoreService().DeleteSuppliersPayment(this);
         }
     }
 
-    public class SuppliersCredits {
+    public class SuppliersCredits
+    {
         public long Id { get; set; }
         public DateTime Date { get; set; }
         public string DateString { get; set; }
@@ -100,7 +111,8 @@ namespace Core.Models
         public Users AddedBy { get; set; }
         public DateTime AddedOn { get; set; }
 
-        public SuppliersCredits() {
+        public SuppliersCredits()
+        {
             Id = 0;
             Date = DateTime.Now;
             DateString = Date.ToString("dd/MM/yyyy");
@@ -114,35 +126,42 @@ namespace Core.Models
             AddedOn = DateTime.Now;
         }
 
-        public SuppliersCredits(long idnt) : this() {
+        public SuppliersCredits(long idnt) : this()
+        {
             Id = idnt;
         }
 
-        public SuppliersCredits Save(HttpContext Context) {
+        public SuppliersCredits Save(HttpContext Context)
+        {
             return new CoreService(Context).SaveCreditNote(this);
         }
 
-        public void Delete() {
+        public void Delete()
+        {
             new CoreService().DeleteSuppliersCredit(this);
         }
     }
 
-    public class SuppliersCreditsType {
+    public class SuppliersCreditsType
+    {
         public long Id { get; set; }
         public string Code { get; set; }
         public string Name { get; set; }
 
-        public SuppliersCreditsType() {
+        public SuppliersCreditsType()
+        {
             Id = 0;
             Code = "";
             Name = "";
         }
     }
 
-    public class SuppliersWithholding {
+    public class SuppliersWithholding
+    {
         public long Id { get; set; }
         public Suppliers Supplier { get; set; }
         public Bank Bank { get; set; }
+        public Types Type { get; set; }
         public Users User { get; set; }
         public DateTime Date { get; set; }
         public string DateString { get; set; }
@@ -152,7 +171,8 @@ namespace Core.Models
         public string Description { get; set; }
         public double Amount { get; set; }
 
-        public SuppliersWithholding() {
+        public SuppliersWithholding()
+        {
             Id = 0;
             Date = DateTime.Now;
             DateString = Date.ToString("dd/MM/yyyy");
@@ -163,17 +183,21 @@ namespace Core.Models
             Amount = 0;
             Supplier = new Suppliers();
             User = new Users();
+            Type = new Types();
         }
 
-        public SuppliersWithholding(long idnt) : this() {
+        public SuppliersWithholding(long idnt) : this()
+        {
             Id = idnt;
         }
 
-        public SuppliersWithholding Save(HttpContext Context) {
+        public SuppliersWithholding Save(HttpContext Context)
+        {
             return new CoreService(Context).SaveSuppliersWithholding(this);
         }
 
-        public void Delete() {
+        public void Delete()
+        {
             new CoreService().DeleteSuppliersWithholding(this);
         }
     }

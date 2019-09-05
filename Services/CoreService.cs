@@ -1015,9 +1015,9 @@ namespace Core.Services {
 
         public CustomersPayments SaveCustomersPayments(CustomersPayments pt) {
             SqlServerConnection conn = new SqlServerConnection();
-            pt.Id = conn.SqlServerUpdate("USE " + pt.Customer.Station.Prefix.Replace(".dbo.", "") + "; DECLARE @output INT=0, @idnt INT=" + pt.Id + ", @cust INT=" + pt.Customer.Id + ", @date DATE='" + pt.PostDate + "', @rcpt INT=" + pt.Receipt + ", @chqs INT=" + pt.Cheque + ", @note NVARCHAR(MAX)='" + pt.Notes + "', @amts FLOAT=" + pt.Amount + ", @user NVARCHAR(50)='" + Username + "'; IF NOT EXISTS (SELECT im_idnt FROM InvoicePayment WHERE im_idnt=@idnt) BEGIN INSERT INTO InvoicePayment (im_date, im_cust, im_paid, im_change, im_tendered, im_user) VALUES(@date, @cust, @amts, @rcpt, @chqs, @user) SELECT @output=SCOPE_IDENTITY() END ELSE BEGIN UPDATE InvoicePayment SET im_date=@date, im_cust=@cust, im_paid=@amts, im_change=@rcpt, im_tendered=@chqs WHERE im_idnt=@idnt SELECT @output=@idnt END SELECT @output");
+            pt.Id = conn.SqlServerUpdate("USE " + pt.Customer.Station.Prefix.Replace(".dbo.", "") + "; DECLARE @idnt INT=" + pt.Id + ", @cust INT=" + pt.Customer.Id + ", @date DATE='" + pt.PostDate + "', @rcpt INT=" + pt.Receipt + ", @chqs INT=" + pt.Cheque + ", @note NVARCHAR(MAX)='" + pt.Notes + "', @amts FLOAT=" + pt.Amount + ", @user NVARCHAR(50)='" + Username + "'; IF NOT EXISTS (SELECT im_idnt FROM InvoicePayment WHERE im_idnt=@idnt) BEGIN INSERT INTO InvoicePayment (im_date, im_cust, im_paid, im_change, im_tendered, im_user) VALUES(@date, @cust, @amts, @rcpt, @chqs, @user) SELECT @idnt=SCOPE_IDENTITY() END ELSE BEGIN UPDATE InvoicePayment SET im_date=@date, im_cust=@cust, im_paid=@amts, im_change=@rcpt, im_tendered=@chqs WHERE im_idnt=@idnt END; SELECT @idnt");
 
-            this.UpdateMoneyTransactions(pt.Customer.Station, pt.Id, pt.PostDate, 3, (pt.Cheque == 0 ? 0 : 1), 1, pt.Cheque.ToString(), pt.Amount, pt.Notes);
+            this.UpdateMoneyTransactions(pt.Customer.Station, pt.Id, pt.PostDate, 3, (int.Parse(pt.Cheque) == 0 ? 0 : 1), 1, pt.Cheque, pt.Amount, pt.Notes);
 
             return pt;
         }
@@ -1036,9 +1036,16 @@ namespace Core.Services {
             return note;
         }
 
+        public CustomersWithholding SaveCustomersWithholding(CustomersWithholding wht) {
+            SqlServerConnection conn = new SqlServerConnection();
+            wht.Id = conn.SqlServerUpdate("USE " + wht.Customer.Station.Prefix.Replace(".dbo.", "") + "; DECLARE @idnt INT=" + wht.Id + ", @cust INT=" + wht.Customer.Id + ", @date DATE='" + wht.Date + "', @type INT=" + wht.Type.Id + ", @rcpt NVARCHAR(50)='" + wht.Receipt + "', @invs NVARCHAR(250)='" + wht.Invoice + "', @note NVARCHAR(MAX)='" + wht.Description + "', @amts FLOAT=" + wht.Amount + ", @user NVARCHAR(50)='" + Username + "'; IF NOT EXISTS (SELECT cw_idnt FROM CustomersWithholding WHERE cw_idnt=@idnt) BEGIN INSERT INTO CustomersWithholding (cw_cust, cw_type, cw_date, cw_receipt, cw_invoice, cw_amount, cw_added_by, cw_description) VALUES (@cust, @type, @date, @rcpt, @invs, @amts, @user, @note) SELECT @idnt=SCOPE_IDENTITY() END ELSE BEGIN UPDATE CustomersWithholding SET cw_cust=@cust, cw_type=@type, cw_date=@date, cw_receipt=@rcpt, cw_invoice=@invs, cw_amount=@amts, cw_description=@note WHERE cw_idnt=@idnt END; SELECT @idnt");
+
+            return wht;
+        }
+
         public SuppliersWithholding SaveSuppliersWithholding(SuppliersWithholding wht) {
             SqlServerConnection conn = new SqlServerConnection();
-            wht.Id = conn.SqlServerUpdate("DECLARE @idnt INT=" + wht.Id + ", @supp INT=" + wht.Supplier.Id + ", @bank INT=" + wht.Bank.Id + ", @date DATE='" + wht.Date + "', @rcpt NVARCHAR(50)='" + wht.Receipt + "', @chqs NVARCHAR(50)='" + wht.Cheque + "', @invs NVARCHAR(250)='" + wht.Invoice + "', @note NVARCHAR(MAX)='" + wht.Description + "', @amts FLOAT=" + wht.Amount + ", @user INT=" + Actor + "; IF NOT EXISTS (SELECT sw_idnt FROM SuppliersWithholding WHERE sw_idnt=@idnt) BEGIN INSERT INTO SuppliersWithholding (sw_supp, sw_bank, sw_date, sw_receipt, sw_invoice, sw_cheque, sw_amount, sw_added_by, sw_description) output INSERTED.sw_idnt VALUES (@supp, @bank, @date, @rcpt, @invs, @chqs, @amts, @user, @note) END ELSE BEGIN UPDATE SuppliersWithholding SET sw_supp=@supp, sw_bank=@bank, sw_date=@date, sw_receipt=@rcpt, sw_invoice=@invs, sw_cheque=@chqs, sw_amount=@amts, sw_description=@note output INSERTED.sw_idnt WHERE sw_idnt=@idnt END");
+            wht.Id = conn.SqlServerUpdate("DECLARE @idnt INT=" + wht.Id + ", @supp INT=" + wht.Supplier.Id + ", @bank INT=" + wht.Bank.Id + ", @date DATE='" + wht.Date + "', @type INT=" + wht.Type.Id + ", @rcpt NVARCHAR(50)='" + wht.Receipt + "', @chqs NVARCHAR(50)='" + wht.Cheque + "', @invs NVARCHAR(250)='" + wht.Invoice + "', @note NVARCHAR(MAX)='" + wht.Description + "', @amts FLOAT=" + wht.Amount + ", @user INT=" + Actor + "; IF NOT EXISTS (SELECT sw_idnt FROM SuppliersWithholding WHERE sw_idnt=@idnt) BEGIN INSERT INTO SuppliersWithholding (sw_supp, sw_type, sw_bank, sw_date, sw_receipt, sw_invoice, sw_cheque, sw_amount, sw_added_by, sw_description) output INSERTED.sw_idnt VALUES (@supp, @type, @bank, @date, @rcpt, @invs, @chqs, @amts, @user, @note) END ELSE BEGIN UPDATE SuppliersWithholding SET sw_supp=@supp, sw_typw=@type, sw_bank=@bank, sw_date=@date, sw_receipt=@rcpt, sw_invoice=@invs, sw_cheque=@chqs, sw_amount=@amts, sw_description=@note output INSERTED.sw_idnt WHERE sw_idnt=@idnt END");
 
             return wht;
         }
@@ -1093,6 +1100,10 @@ namespace Core.Services {
             new SqlServerConnection().SqlServerUpdate("DELETE FROM SuppliersPayments WHERE sp_idnt=" + payment.Id);
         }
  
+        public void DeleteCustomersWithholding(CustomersWithholding wht) {
+            new SqlServerConnection().SqlServerUpdate("USE " + wht.Customer.Station.Prefix.Replace(".dbo.", "") + "; DELETE FROM CustomersWithholding WHERE cw_idnt=" + wht.Id);
+        }
+
         public void DeleteSuppliersWithholding(SuppliersWithholding wht) {
             new SqlServerConnection().SqlServerUpdate("DELETE FROM SuppliersWithholding WHERE sw_idnt=" + wht.Id);
         }

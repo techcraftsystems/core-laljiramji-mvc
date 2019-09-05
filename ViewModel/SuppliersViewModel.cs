@@ -18,6 +18,7 @@ namespace Core.ViewModel {
         public IEnumerable<SelectListItem> CreditsTypes { get; set; }
         public IEnumerable<SelectListItem> Stations { get; set; }
         public IEnumerable<SelectListItem> Category { get; set; }
+        public IEnumerable<SelectListItem> Types { get; set; }
 
         public SuppliersViewModel() {
             Supplier = new Suppliers();
@@ -43,6 +44,11 @@ namespace Core.ViewModel {
                 Invoices.Add(new StationsExpenses());
                 Withhold.Add(new SuppliersWithholding());
             }
+
+            Types = new List<SelectListItem> {
+                new SelectListItem { Value = "1", Text = "WHT VAT"},
+                new SelectListItem { Value = "2", Text = "WHT TAX"}
+            };
         }
     }
 

@@ -44,19 +44,43 @@ jq(function() {
         jq('#payment-modal').modal('open');
     });
 	
-    jq('a.add-pymt-rows').click(function(){
-        jq("#payment-modal-table tr.itms").each(function() {
+    jq('a.make-withholding').click(function(){
+        jq("#withholding-modal-table tr.whts").each(function(i, row) {
+            if (i == 0){
+                jq(this).removeClass('hide');
+            }
+            else{
+                if (!jq(this).hasClass('hide')){
+                    jq(this).addClass('hide');
+                }
+            }
+
+            jq(this).find('td:eq(1) input').val('KRAWHTWON0');
+            jq(this).find('td:eq(3) input').val('');
+            jq(this).find('td:eq(4) input').val('0.00');
+            jq(this).find('td:eq(5) input').val('N/A');
+            jq(this).find('td:eq(6) input.idnt-data').val(0);
+        });
+
+        jq('#withholding-modal').modal('open');
+    });
+	
+    jq('a.add-rows').click(function(){
+		var tbody = jq(this).parent().find('table tbody tr');
+		
+        tbody.each(function() {
             if (jq(this).hasClass('hide')){
                 jq(this).removeClass('hide');
                 return false;
             }
         });
     });
-	
-    jq('a.remove-pymt-row').click(function(){
-        jq(this).closest('tr').remove();
 
-        jq("#payment-modal-table tr.itms").each(function(i, row) {
+    jq('a.remove-row').click(function() {
+		var table = jq(this).closest('table');
+        jq(this).closest('tr').remove();
+        
+		table.find('tbody tr').each(function(i, row) {
             jq(this).find('td:eq(0)').text(eval(i+1) + '.');
         });
     });
@@ -88,6 +112,38 @@ jq(function() {
         jq('#payment-form').submit();
     });
 	
+    jq('#withholding-modal a.modal-post').click(function(){
+        var err_count = 0;
+
+        jq("#withholding-modal-table tbody tr.whts").each(function(i, $row) {
+            if (!jq(this).hasClass('hide')){
+                if (jq(this).find('td:eq(1) input').val().trim() == '') {
+                    Materialize.toast('<span>KRA receipt number in row ' + eval(i+1) + ' cannot be blank</span><a class="btn-flat yellow-text pointer">FIX IT</a>', 3000)
+                    err_count++;
+                    return false;
+                }
+				
+                if (jq(this).find('td:eq(3) input').val().trim() == '') {
+                    Materialize.toast('<span>Invoice number in row ' + eval(i+1) + ' cannot be blank</span><a class="btn-flat yellow-text pointer">FIX IT</a>', 3000)
+                    err_count++;
+                    return false;
+                }
+
+                if (!eval(jq(this).find('td:eq(4) input').val()) > 0) {
+                    Materialize.toast('<span>Invalid withholding amount in row ' + eval(i+1) + '</span><a class="btn-flat yellow-text" href="#!">Correct that</a>', 3000)
+                    err_count++;
+                    return false;
+                }
+            }
+        });
+
+        if (err_count > 0){
+            return false;
+        }
+
+        jq('#withholding-form').submit();
+    });
+	
     jq('#payment-table tbody').on('click', 'i.edit-payment', function(){
         if (isadmin == 'false'){
             Materialize.toast('<span>You do not have permission to perform this task</span><a class="btn-flat red-text pointer">Access Denied</a>', 3000);
@@ -103,13 +159,11 @@ jq(function() {
                     jq(this).addClass('hide');
                 }
 
-                jq(this).find('td:eq(1) input').val('');
-                jq(this).find('td:eq(3) input').val(0);
-                jq(this).find('td:eq(4) input').val(0);
-                jq(this).find('td:eq(5) input').val(0);
-                jq(this).find('td:eq(7) input').val('N/A');
-                jq(this).find('td:eq(8) input.json-data').val('"PettyCash":[]}');
-                jq(this).find('td:eq(8) input.idnt-data').val(0);
+	            jq(this).find('td:eq(1) input').val('');
+	            jq(this).find('td:eq(2) input').val('');
+	            jq(this).find('td:eq(3) input').val('0.00');
+	            jq(this).find('td:eq(4) input').val('N/A');
+	            jq(this).find('td:eq(5) input.idnt-data').val(0);
             }
         });
 
@@ -141,6 +195,59 @@ jq(function() {
         });
     });
 	
+    jq('#payment-table tbody').on('click', 'i.edit-withholding', function(){
+        if (isadmin == 'false'){
+            Materialize.toast('<span>You do not have permission to perform this task</span><a class="btn-flat red-text pointer">Access Denied</a>', 3000);
+            return false;
+        }
+
+        jq("#withholding-modal-table tbody tr.whts").each(function(i, row) {
+            if (i == 0){
+                jq(this).removeClass('hide');
+            }
+            else{
+                if (!jq(this).hasClass('hide')){
+                    jq(this).addClass('hide');
+                }
+
+	            jq(this).find('td:eq(1) input').val('KRAWHTWON0');
+	            jq(this).find('td:eq(3) input').val('');
+	            jq(this).find('td:eq(4) input').val('0.00');
+	            jq(this).find('td:eq(5) input').val('N/A');
+	            jq(this).find('td:eq(6) input.idnt-data').val(0);
+            }
+        });
+
+        var row = jq('#withholding-modal-table tbody tr:eq(0)');
+
+        jq.ajax({
+            dataType: "json",
+            url: '/Customers/GetCustomersWithholding',
+            data: {
+                "idnt": jq(this).data('idnt'),
+				"code": xCode
+            },
+            success: function(wht) {
+                jq('#Date').val(wht.dateString);
+
+                row.find('td:eq(1) input').val(wht.receipt);
+                row.find('td:eq(2) input').val(wht.type.name);
+                row.find('td:eq(2) select').val(wht.type.id);
+                row.find('td:eq(3) input').val(wht.invoice);
+                row.find('td:eq(4) input').val(wht.amount);
+                row.find('td:eq(5) input').val(wht.description);
+                row.find('td:eq(6) input.idnt-data').val(wht.id);
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                console.log(xhr.status);
+                console.log(thrownError);
+            },
+            complete: function() {
+                jq('#withholding-modal').modal('open');
+            }
+        });
+    });
+	
     jq('#payment-table tbody').on('click', 'i.delete-payment', function(){
         if (isadmin == 'false'){
             Materialize.toast('<span>You do not have permission to perform this task</span><a class="btn-flat red-text pointer">Access Denied</a>', 3000);
@@ -157,7 +264,7 @@ jq(function() {
 				"code": xCode
             },
             success: function(delv) {
-                jq('#delete-modal-field').html('Confirm deleting payment receipt <code class="language-css"> ' + delv.receipt + '</code> dated <code class="language-css">' + delv.date + '</code> for <code class="language-css">Kes ' + delv.amount.toString().toAccounting() + '</code>?');
+                jq('#delete-payment-modal p.modal-field').html('Confirm deleting payment receipt <code class="language-css"> ' + delv.receipt + '</code> dated <code class="language-css">' + delv.date + '</code> for <code class="language-css">Kes ' + delv.amount.toString().toAccounting() + '</code>?');
             },
             error: function(xhr, ajaxOptions, thrownError) {
                 console.log(xhr.status);
@@ -165,6 +272,34 @@ jq(function() {
             },
             complete: function() {
                 jq('#delete-payment-modal').modal('open');
+            }
+        });
+    });
+	
+    jq('#payment-table tbody').on('click', 'i.delete-withholding', function(){
+        if (isadmin == 'false'){
+            Materialize.toast('<span>You do not have permission to perform this task</span><a class="btn-flat red-text pointer">Access Denied</a>', 3000);
+            return false;
+        }
+
+        line = jq(this).data('idnt');
+
+        jq.ajax({
+            dataType: "json",
+            url: '/Customers/GetCustomersWithholding',
+            data: {
+                "idnt": line,
+				"code": xCode
+            },
+            success: function(delv) {
+                jq('#delete-withholding-modal p.modal-field').html('Confirm deleting tax receipt <code class="language-css"> ' + delv.receipt + '</code> dated <code class="language-css">' + delv.dateString + '</code> for <code class="language-css">Kes ' + delv.amount.toString().toAccounting() + '</code>?');
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                console.log(xhr.status);
+                console.log(thrownError);
+            },
+            complete: function() {
+                jq('#delete-withholding-modal').modal('open');
             }
         });
     });
@@ -183,7 +318,31 @@ jq(function() {
 
                 setTimeout(function(){
                     window.location.href = "/core/customers/" + xCode + "/" + xCust;
-                }, 3000);
+                }, 2500);
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                console.log(xhr.status);
+                console.log(thrownError);
+                Materialize.toast('<span>Error ' + xhr.status + '. ' + thrownError + '</span><a class="btn-flat red-text pointer">Delete Failed</a>', 3000);
+            }
+        });
+    });
+	
+    jq('#delete-withholding-modal a.modal-post').click(function(){
+        jq('#delete-withholding-modal').modal('close');
+        jq.ajax({
+            type: "post",
+            url: '/Customers/DeleteCustomersWithholding',
+            data: {
+                "idnt": line,
+				"code": xCode
+            },
+            success: function(delv) {
+                Materialize.toast('<span>Successfully deleted customer payment</span><a class="btn-flat yellow-text pointer">Task Complete</a>', 3000);
+
+                setTimeout(function(){
+                    window.location.href = "/core/customers/" + xCode + "/" + xCust;
+                }, 2500);
             },
             error: function(xhr, ajaxOptions, thrownError) {
                 console.log(xhr.status);
@@ -252,13 +411,12 @@ function GetLedgerEntries(){
 function GetCustomerPayments() {
     jq.ajax({
         dataType: "json",
-        url: '/Stations/GetCustomerPayments',
+        url: '/Customers/GetCustomerPayments',
         data: {
-            "date1":        jq("#paymentStartDate").val(),
-            "date2":        jq("#paymentStopsDate").val(),
-            "stations":     xStid,
-            "customers":    xCust,
-            "filter":       jq('#paymentFilter').val()
+            "code": 	xCode,
+            "start": 	jq("#paymentStartDate").val(),
+            "stop": 	jq("#paymentStopsDate").val(),
+            "filter": 	jq('#paymentFilter').val()
         },
         beforeSend: function() {
             $('body').removeClass('loaded');
@@ -273,10 +431,11 @@ function GetCustomerPayments() {
                 var row = "<tr>";
                 row += "<td>" + pt.date + "</td>";
                 row += "<td>" + pt.receipt + "</td>";
+                row += "<td>" + pt.type.name + "</td>";
                 row += "<td>" + pt.notes + "</td>";
-                row += "<td>" + (pt.cheque == 0?' &mdash;':pt.cheque)  + "</td>";
+                row += "<td>" + (pt.cheque == '0'? '&mdash;' : pt.cheque)  + "</td>";
                 row += "<td class='bold-text' style='text-align:right;padding-right:15px;'>" + pt.amount.toString().toAccounting() + "</td>";
-				row += "<td><i class='material-icons blue-text edit-payment left pointer' style='font-size:1em;' data-idnt='" + pt.id + "'>border_color</i><i class='material-icons red-text delete-payment right pointer' style='font-size:1.2em;' data-idnt='" + pt.id + "'>delete_forever</i></td>";
+				row += "<td><i class='material-icons blue-text " + (pt.type.name == 'PAYMENT' ? 'edit-payment' : 'edit-withholding') + " left pointer' style='font-size:1em;' data-idnt='" + pt.id + "'>border_color</i><i class='material-icons red-text " + (pt.type.name == 'PAYMENT' ? 'delete-payment' : 'delete-withholding') + " right pointer' style='font-size:1.2em;' data-idnt='" + pt.id + "'>delete_forever</i></td>";
                 row += "</tr>";
 
                 total += pt.amount;
@@ -289,7 +448,7 @@ function GetCustomerPayments() {
 			}
 
             var footr = "<tr>";
-            footr += "<td class='bold-text' colspan='4'>PAYMENT SUMMARY</td>";
+            footr += "<td class='bold-text' colspan='5'>PAYMENT SUMMARY</td>";
             footr += "<td class='bold-text' style='text-align:right;padding-right:15px;'>" + total.toString().toAccounting() + "</td>";
             footr += "</tr>";
 

@@ -628,17 +628,16 @@ namespace Core.Services
 
         public CustomersPayments GetCustomerPayment(long idnt, Stations station) {
             SqlServerConnection conn = new SqlServerConnection();
-
             SqlDataReader dr = conn.SqlServerConnect("SELECT im_idnt, im_type, im_date, rcpt, imcq, mm_notes, im_paid, st_idnt, st_code, st_name, st_database, im_cust, CASE im_type WHEN 4 THEN 'LIPA NA MPESA' WHEN 3 THEN BankName+(CASE WHEN BankName IN ('CFC', 'KCB', 'EQUITY') THEN ' VISA' ELSE '' END) ELSE ISNULL(Names,'N/A') END NameX FROM (SELECT im_st, im_idnt, im_cust, 0 im_type, im_date, rcpt, imcq, mm_notes, im_paid FROM vCustomersPayment UNION ALL SELECT aw_st, aw_idnt, aw_account, aw_type, aw_date, 88, aw_chqs, aw_notes, aw_amount FROM vAccountsWithdraw) As Foo INNER JOIN Stations ON im_st=st_idnt LEFT OUTER JOIN vBankAccounts ON im_cust=BankID AND im_st=BankSt LEFT OUTER JOIN vCustomers ON im_cust=Custid AND im_st=Sts WHERE st_code='" + station.Code + "' AND im_idnt=" + idnt);
             if (dr.HasRows) {
                 while (dr.Read()) {
                     return new CustomersPayments {
                         Id = Convert.ToInt64(dr[0]),
-                        Type = Convert.ToInt64(dr[1]),
+                        Type = new Types { Id = Convert.ToInt64(dr[1]) },
                         Date = Convert.ToDateTime(dr[2]).ToString("d MMMM, yyyy"),
                         PostDate = Convert.ToDateTime(dr[2]),
-                        Receipt = Convert.ToInt32(dr[3]),
-                        Cheque = Convert.ToInt32(dr[4]),
+                        Receipt = dr[3].ToString(),
+                        Cheque = dr[4].ToString(),
                         Notes = dr[5].ToString(),
                         Amount = Convert.ToDouble(dr[6]),
                         Station = new Stations {
@@ -658,8 +657,37 @@ namespace Core.Services
             return null;
         }
 
-        public List<CustomersPayments> GetCustomerPayments(DateTime start, DateTime stop, string stations, string customers, string filter = "")
-        {
+        public CustomersWithholding GetCustomersWithholding(long idnt, Stations station) {
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("USE " + station.Prefix.Replace(".dbo.", "") + "; SELECT cw_idnt, cw_date, cw_receipt, cw_invoice, cw_description, cw_amount, cw_added_by, cw_type, CASE WHEN cw_type=1 THEN 'WHT VAT' ELSE 'WHT TAX' END cw_types, Custid, Names FROM CustomersWithholding INNER JOIN Customers ON cw_cust=Custid WHERE cw_idnt=" + idnt);
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    return new CustomersWithholding {
+                        Id = Convert.ToInt64(dr[0]),
+                        Date = Convert.ToDateTime(dr[1]),
+                        DateString = Convert.ToDateTime(dr[1]).ToString("d MMMM, yyyy"),
+                        Receipt = dr[2].ToString(),
+                        Invoice = dr[3].ToString(),
+                        Description = dr[4].ToString(),
+                        Amount = Convert.ToDouble(dr[5]),
+                        User = new Users { Username = dr[6].ToString() },
+                        Type = new Types {
+                            Id = Convert.ToInt64(dr[7]),
+                            Name = dr[8].ToString(),
+                        },
+                        Customer = new Customers {
+                            Id = Convert.ToInt64(dr[9]),
+                            Name = dr[10].ToString(),
+                            Station = station
+                        }
+                    };
+                }
+            }
+
+            return null;
+        }
+
+        public List<CustomersPayments> GetCustomerPayments(DateTime start, DateTime stop, string stations, string customers, string filter = "") {
             List<CustomersPayments> payments = new List<CustomersPayments>();
 
             SqlServerConnection conn = new SqlServerConnection();
@@ -677,11 +705,11 @@ namespace Core.Services
                 while (dr.Read()) {
                     CustomersPayments pymt = new CustomersPayments {
                         Id = Convert.ToInt64(dr[0]),
-                        Type = Convert.ToInt64(dr[1]),
+                        Type = new Types { Id = Convert.ToInt64(dr[1]) },
                         Date = Convert.ToDateTime(dr[2]).ToString("dd/MM/yyyy"),
                         PostDate = Convert.ToDateTime(dr[2]),
-                        Receipt = Convert.ToInt32(dr[3]),
-                        Cheque = Convert.ToInt32(dr[4]),
+                        Receipt = dr[3].ToString(),
+                        Cheque = dr[4].ToString(),
                         Notes = dr[5].ToString(),
                         Amount = Convert.ToDouble(dr[6])
                     };
@@ -703,6 +731,37 @@ namespace Core.Services
             }
 
             return payments;
+        }
+
+        public List<CustomersPayments> GetCustomerPayments(Stations station, DateTime start, DateTime stop, string filter = "") {
+            List<CustomersPayments> payment = new List<CustomersPayments>();
+            SqlServerConnection conn = new SqlServerConnection();
+
+            SqlDataReader dr = conn.SqlServerConnect("USE " + station.Prefix.Replace(".dbo.", "") + "; DECLARE @start DATE='" + start + "', @stop DATE='" + stop + "'; SELECT im_idnt, im_date, im_rcpt, im_chqs, im_notes, im_paid, im_type, im_type_name, im_cust, Names FROM (SELECT im_cust, im_idnt, im_date, 0 im_type, 'PAYMENT' im_type_name, CAST(CAST(im_change AS INT)AS NVARCHAR) im_rcpt, CAST(CAST(im_tendered AS INT) AS NVARCHAR)im_chqs, im_paid, N'N/A' im_notes FROM InvoicePayment WHERE im_date BETWEEN @start AND @stop UNION ALL SELECT cw_cust, cw_idnt, cw_date, cw_type, CASE WHEN cw_type=1 THEN 'WHT VAT' ELSE 'WHT TAX' END, cw_receipt, '-', cw_amount, cw_description FROM CustomersWithholding WHERE cw_date BETWEEN @start AND @stop) As Foo INNER JOIN Customers ON im_cust=Custid " + conn.GetQueryString(filter, "Names+'-'+im_type_name+'-'+im_notes+'-'+im_rcpt+'-'+im_chqs+'-'+CAST(im_paid AS NVARCHAR)") + "ORDER BY im_date, im_idnt");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    payment.Add(new CustomersPayments {
+                        Id = Convert.ToInt64(dr[0]),
+                        Date = Convert.ToDateTime(dr[1]).ToString("dd/MM/yyyy"),
+                        PostDate = Convert.ToDateTime(dr[1]),
+                        Receipt = dr[2].ToString(),
+                        Cheque = dr[3].ToString(),
+                        Notes = dr[4].ToString(),
+                        Amount = Convert.ToDouble(dr[5]),
+                        Type = new Types {
+                            Id = Convert.ToInt64(dr[6]),
+                            Name = dr[7].ToString(),
+                        },
+                        Customer = new Customers {
+                            Id = Convert.ToInt64(dr[8]),
+                            Name = dr[9].ToString(),
+                        },
+                        Station = station
+                    });
+                }
+            }
+
+            return payment;
         }
 
         public List<StationsMonthlySummary> GetStationsMonthlySummary(Stations station, int month, int year) {

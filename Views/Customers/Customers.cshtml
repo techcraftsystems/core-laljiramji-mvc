@@ -56,13 +56,13 @@
         padding: 5px;
     }
 
-        table td a {
-            color: #333;
-        }
+    table td a {
+        color: #333;
+    }
 
-            table td a:hover {
-                color: #448AFF;
-            }
+    table td a:hover {
+        color: #448AFF;
+    }
 
     td i.material-icons {
         height: 0px;
@@ -74,6 +74,9 @@
     #invoice-table th:nth-child(7),
     #invoice-table td:nth-child(7) {
         text-align: right;
+    }
+    div.modal table input {
+        margin: 0!important;
     }
 </style>
 
@@ -136,6 +139,9 @@
             </li>
             <li class="collection-item">
                 <i class="material-icons left blue-text">format_indent_increase</i><a class="blue-text credit-note pointer">Credit Note</a>
+            </li>
+            <li class="collection-item">
+                <i class="material-icons left blue-text">flip</i><a class="blue-text make-withholding pointer">Withholding Tax</a>
             </li>
         </ul>
 
@@ -233,6 +239,7 @@
                             <tr>
                                 <th>DATE</th>
                                 <th>RECEIPT</th>
+                                <th>TYPE</th>
                                 <th>DESCRIPTION</th>
                                 <th>CHQ.NO</th>
                                 <th class="right-text" style="padding-right:15px;">AMOUNT</th>
@@ -295,7 +302,7 @@
                             <td class="width-100px">@Html.TextBoxFor(model => model.Payments[i].Amount, new { @type = "number", @class = "pymt-a right-align" })</td>
                             <td>@Html.TextBoxFor(model => model.Payments[i].Notes)</td>
                             <td>
-                                <a class="red-text remove-pymt-row" style="font-size:0.7em">
+                                <a class="red-text remove-row" style="font-size:0.7em">
                                     <i class="material-icons pointer" style="padding-top:20px">delete_forever</i>
                                 </a>
 
@@ -313,7 +320,7 @@
 
         <hr style="margin: 10px 0" />
 
-        <a class="add-pymt-rows btn-floating waves-effect waves-light gradient-45deg-light-blue-cyan">
+        <a class="add-rows btn-floating waves-effect waves-light gradient-45deg-light-blue-cyan">
             <i class="material-icons">exposure_plus_1</i>
         </a>
     </div>
@@ -328,7 +335,93 @@
     <div class="modal-content">
         <h4>DELETE PAYMENT</h4>
         <hr style="margin: 5px 0" />
-        <p id="delete-modal-field"></p>
+        <p class="modal-field"></p>
+        <input type="hidden" />
+    </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat">CANCEL</a>
+        <a class="modal-action modal-post waves-effect waves-green btn-flat">DELETE</a>
+    </div>
+</div>
+
+<!-- Withholding Modal -->
+<div id="withholding-modal" class="modal modal-fixed-footer" style="width: 900px">
+    <div class="modal-content">
+        @using (Html.BeginForm("PostWithholdingTax", "Customers", FormMethod.Post, new { id = "withholding-form" }))
+        {
+            <h4>WITHHOLDING TAX</h4>
+            <hr style="margin: 5px 0" />
+            <div class="row">
+                <div class="input-field col-md-3">
+                    <i class="material-icons prefix">event</i>
+                    @Html.TextBoxFor(model => model.Date, new { @class = "datepicker" })
+                    <label>Select Date</label>
+                </div>
+
+                <div class="input-field col-md-5 input-station">
+                    <i class="material-icons prefix">format_quote</i>
+                    @Html.TextBoxFor(model => model.Note)
+                    <label>Summary</label>
+                </div>
+            </div>
+            <table id="withholding-modal-table">
+                <thead>
+                    <tr>
+                        <th>&nbsp;</th>
+                        <th>RCPT</th>
+                        <th>TYPE</th>
+                        <th>INVOICE</th>
+                        <th class="right-align">AMOUNT</th>
+                        <th>DESCRIPTION</th>
+                        <th>&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Withhold.Count; i++)
+                    {
+                        <tr class="whts @(i == 0 ? "":"hide")">
+                            <td style="width:1px;">@(i + 1).</td>
+                            <td class="width-180px">@Html.TextBoxFor(model => model.Withhold[i].Receipt)</td>
+                            <td class="width-100px">@Html.DropDownListFor(model => model.Withhold[i].Type.Id, Model.Types)</td>
+                            <td class="width-150px">@Html.TextBoxFor(model => model.Withhold[i].Invoice)</td>
+                            <td class="width-100px">@Html.TextBoxFor(model => model.Withhold[i].Amount, new { @type = "number", @class = "pymt-a right-align" })</td>
+                            <td>@Html.TextBoxFor(model => model.Withhold[i].Description)</td>
+                            <td>
+                                <a class="red-text remove-row" style="font-size:0.7em">
+                                    <i class="material-icons pointer" style="padding-top:20px">delete_forever</i>
+                                </a>
+
+                                @Html.HiddenFor(model => model.Withhold[i].Id, new { @class = "idnt-data" })
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @Html.HiddenFor(model => model.Customer.Id);
+            @Html.HiddenFor(model => model.Customer.Station.Code);
+            @Html.HiddenFor(model => model.Customer.Station.Prefix);
+        }
+
+        <hr style="margin: 10px 0" />
+
+        <a class="add-rows btn-floating waves-effect waves-light gradient-45deg-light-blue-cyan">
+            <i class="material-icons">exposure_plus_1</i>
+        </a>
+    </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat">Disagree</a>
+        <a class="modal-action modal-post waves-effect waves-green btn-flat">Agree</a>
+    </div>
+</div>
+
+<div id="delete-withholding-modal" class="modal" style="width:700px;">
+    <div class="modal-content">
+        <h4>DELETE WITHHOLDING TAX</h4>
+        <hr style="margin: 5px 0" />
+        <p class="modal-field"></p>
         <input type="hidden" />
     </div>
 

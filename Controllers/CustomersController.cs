@@ -41,7 +41,7 @@ namespace Core.Controllers
             Customers Customer = Input.Customer;
 
             foreach (var payment in Input.Payments) {
-                if (payment.Receipt > 0) {
+                if (int.Parse(payment.Receipt) > 0) {
                     payment.Customer = Customer;
                     payment.PostDate = date;
                     payment.Save(HttpContext);
@@ -52,12 +52,47 @@ namespace Core.Controllers
             return LocalRedirect("/core/customers/" + Customer.Station.Code + "/" + Customer.Id);
         }
 
+        [HttpPost]
+        public IActionResult PostWithholdingTax() {
+            DateTime date = DateTime.Parse(Input.Date);
+            Customers cust = Input.Customer;
+
+            foreach (var wht in Input.Withhold) {
+                if (!string.IsNullOrEmpty(wht.Receipt) && wht.Amount > 0) {
+                    wht.Customer = cust;
+                    wht.Date = date;
+                    wht.Save(HttpContext);
+                }
+            }
+
+            cust.UpdateBalance();
+            return LocalRedirect("/core/customers/" + cust.Station.Code + "/" + cust.Id);
+        }
+
+        [HttpPost]
         public IActionResult DeleteCustomersPayment(int idnt, string code, StationsService service) {
             CustomersPayments payment =  service.GetCustomerPayment(idnt, service.GetStation(code));
             payment.Delete();
             payment.Customer.UpdateBalance();
 
             return Ok("success");
+        }
+
+        [HttpPost]
+        public IActionResult DeleteCustomersWithholding(int idnt, string code, StationsService service) {
+            CustomersWithholding wht = service.GetCustomersWithholding(idnt, service.GetStation(code));
+            wht.Delete();
+            wht.Customer.UpdateBalance();
+
+            return Ok("success");
+        }
+
+        public JsonResult GetCustomerPayments(string code, string start, string stop, string filter = "") {
+            StationsService Service = new StationsService();
+            if (string.IsNullOrEmpty(filter))
+                filter = "";
+
+            return Json(Service.GetCustomerPayments(Service.GetStation(code), DateTime.Parse(start), DateTime.Parse(stop), filter));
         }
 
         public JsonResult GetLedgerEntries(long custid, long stid, string start, string stop, string filter, StationsService svc) {
@@ -70,6 +105,10 @@ namespace Core.Controllers
 
         public CustomersPayments GetCustomersPayment(long idnt, string code, StationsService service) {
             return service.GetCustomerPayment(idnt, service.GetStation(code));
+        }
+
+        public CustomersWithholding GetCustomersWithholding(long idnt, string code, StationsService service) {
+            return service.GetCustomersWithholding(idnt, service.GetStation(code));
         }
     }
 }
