@@ -12,7 +12,7 @@ namespace Core.Extensions
 
         public SqlServerConnection() {
             Database = "core_system";
-            Server = "41.90.127.203";
+            Server = "lrstations.ddns.net";
             SConn = "Data Source=" + Server + ";Initial Catalog=" + Database + ";User ID=ct;Password=ct-2011;Max Pool Size=200;";
             Conn = new SqlConnection(SConn);
         }

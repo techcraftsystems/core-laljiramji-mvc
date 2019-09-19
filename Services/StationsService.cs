@@ -326,7 +326,7 @@ namespace Core.Services
                         Transport = Convert.ToDouble(dr[6])
                     };
 
-                    recon.Balance = recon.Amount - recon.Payment - recon.Uprna - recon.Debt - recon.Transport + recon.Discount;
+                    recon.Balance = recon.Amount - recon.Payment - recon.Uprna - recon.Debt - recon.Transport - recon.Discount;
                     reconciles.Add(recon);
                 }
             }
