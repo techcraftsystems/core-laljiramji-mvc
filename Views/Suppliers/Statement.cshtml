@@ -3,12 +3,22 @@
     ViewData["Title"] = "Statement";
     double total = 0;
     string format = "#,##0.00;(#,##0.00)";
+
+    string Start = Model.Start.ToString("d MMMM, yyyy");
+    string Stops = Model.Start.AddMonths(1).AddDays(-1).ToString("d MMMM, yyyy");
 }
+
 <style>
     table.custom tbody tr td {
         padding: 3px 5px;
     }
 </style>
+
+<script type="text/javascript">
+    var xSupp = @Model.Supplier.Id;
+    var xUuid = '@Model.Supplier.Uuid';
+</script>
+<script src="~/js/suppliers-main-script.js"></script>
 
 <div id="breadcrumbs-wrapper">
     <div class="container">
@@ -21,7 +31,7 @@
                 </ol>
             </div>
             <div class="col s2 m6 l6">
-                <a class="btn dropdown-settings waves-effect waves-light breadcrumbs-btn right gradient-45deg-light-blue-cyan gradient-shadow pointer modal-trigger" data-target="modal61">
+                <a class="btn dropdown-settings waves-effect waves-light breadcrumbs-btn right gradient-45deg-light-blue-cyan gradient-shadow pointer modal-trigger" data-target="statement-modal">
                     <i class="material-icons hide-on-med-and-up">settings</i>
                     <span class="hide-on-small-onl">CHANGE</span>
                     <i class="material-icons right">arrow_drop_down</i>
@@ -45,7 +55,8 @@
         </tr>
     </thead>
     <tbody style="">
-        @foreach (var ledger in Model.Statement) {
+        @foreach (var ledger in Model.Statement)
+        {
             total += ledger.Statement.Amount;
 
             <tr>
@@ -58,6 +69,15 @@
                 <td class="right-text bold-text">@total.ToString(format)</td>
             </tr>
         }
+
+        @if (Model.Statement.Count == 0)
+        {
+            <tr>
+                <td colspan="5">NO TRANSACTIONS FOUND</td>
+                <td class="right-text">0.00</td>
+                <td class="right-text bold-text">0.00</td>
+            </tr>
+        }
     </tbody>
     <tfoot class="">
         <tr class="black-text">
@@ -67,3 +87,30 @@
         </tr>
     </tfoot>
 </table>
+
+<!--Statement Modal-->
+<div id="statement-modal" class="modal modal-fixed-footer" style="width: 600px">
+    <div class="modal-content">
+        <h4 class="zero-padding">Supplier Statement</h4>
+        <p>Provide the details below to generate the statement for @Model.Supplier.Name</p>
+        <hr />
+        <div class="row">
+            <div class="input-field col s12">
+                <i class="material-icons prefix">event_note</i>
+                @Html.TextBoxFor(model => Start, new { @class = "datepicker modal-start" })
+                <label class="zero-padding">From</label>
+            </div>
+
+            <div class="input-field col s12">
+                <i class="material-icons prefix">event_note</i>
+                @Html.TextBoxFor(model => Stops, new { @class = "datepicker modal-stop" })
+                <label class="zero-padding">To</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
+        <a class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
+    </div>
+</div>
