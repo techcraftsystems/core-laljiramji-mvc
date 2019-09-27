@@ -1,0 +1,69 @@
+﻿@model Core.ViewModel.SuppliersViewModel;
+@{
+    ViewData["Title"] = "Statement";
+    double total = 0;
+    string format = "#,##0.00;(#,##0.00)";
+}
+<style>
+    table.custom tbody tr td {
+        padding: 3px 5px;
+    }
+</style>
+
+<div id="breadcrumbs-wrapper">
+    <div class="container">
+        <div class="row zero-margin">
+            <div class="col s10 m6 l6">
+                <ol class="breadcrumbs">
+                    <li><a href="/core/suppliers">Suppliers</a></li>
+                    <li><a href="/core/suppliers/@(Model.Supplier.Uuid)">@Model.Supplier.Name</a></li>
+                    <li class="active">Statement</li>
+                </ol>
+            </div>
+            <div class="col s2 m6 l6">
+                <a class="btn dropdown-settings waves-effect waves-light breadcrumbs-btn right gradient-45deg-light-blue-cyan gradient-shadow pointer modal-trigger" data-target="modal61">
+                    <i class="material-icons hide-on-med-and-up">settings</i>
+                    <span class="hide-on-small-onl">CHANGE</span>
+                    <i class="material-icons right">arrow_drop_down</i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="clear:both; margin-top:85px;"></div>
+
+<table id="ledger-table" class="custom bordered" data-loaded="0" style="margin-top:-20px">
+    <thead>
+        <tr class="black-text">
+            <th>DATE</th>
+            <th>TYPE</th>
+            <th>RECEIPT</th>
+            <th>DETAILS</th>
+            <th>DESCRIPTION</th>
+            <th class="right-text">AMOUNT</th>
+            <th class="right-text">CUMMULATIVE</th>
+        </tr>
+    </thead>
+    <tbody style="">
+        @foreach (var ledger in Model.Statement) {
+            total += ledger.Statement.Amount;
+
+            <tr>
+                <td>@ledger.Statement.Date.ToString("dd/MM/yyyy")</td>
+                <td>@ledger.Statement.Transaction</td>
+                <td>@ledger.Statement.Receipt</td>
+                <td>@ledger.Statement.Details</td>
+                <td>N/A</td>
+                <td class="right-text">@ledger.Statement.Amount.ToString(format)</td>
+                <td class="right-text bold-text">@total.ToString(format)</td>
+            </tr>
+        }
+    </tbody>
+    <tfoot class="">
+        <tr class="black-text">
+            <th colspan="5">@(Model.Supplier.Name) SUMMARY</th>
+            <th class="right-text bold-text">@total.ToString(format)</th>
+            <th class="right-text bold-text">@total.ToString(format)</th>
+        </tr>
+    </tfoot>
+</table>

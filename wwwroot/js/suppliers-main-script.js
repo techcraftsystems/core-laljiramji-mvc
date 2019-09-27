@@ -275,7 +275,11 @@ jq(function() {
 
         jq('#edit-form').submit();		
 		Materialize.toast('<span>Updated Successfully</span>', 3000);
-    });	
+    });
+
+    jq('#statement-modal a.modal-post').click(function(){
+        window.location.href = "/core/suppliers/statement?uuid=" + xUuid + "&from=" + jq('#statement-modal input.modal-start').val() + "&to=" + jq('#statement-modal input.modal-stop').val(); 
+    });
 
     jq('#payment-table tbody').on('click', 'i.edit-payment', function(){
         if (isadmin == 'false'){

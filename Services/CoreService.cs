@@ -120,7 +120,7 @@ namespace Core.Services {
 
         public Suppliers GetSupplier(long idnt) {
             SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("SELECT sp_idnt, sp_uuid, sp_name, ISNULL(NULLIF(sp_pin,''),'—')sp_pin, sp_contacts, sp_city, sp_telephone, sp_balance, sp_fuel, sp_lubes, sp_gas, sp_soda, sp_icon FROM Suppliers WHERE sp_idnt=" + idnt);
+            SqlDataReader dr = conn.SqlServerConnect("SELECT sp_idnt, sp_uuid, sp_name, ISNULL(NULLIF(sp_pin,''),'—')sp_pin, sp_contacts, sp_city, sp_telephone, sp_balance, sp_fuel, sp_lubes, sp_gas, sp_soda, sp_icon, sp_posfield FROM Suppliers WHERE sp_idnt=" + idnt);
             if (dr.Read()) {
                 return new Suppliers {
                     Id = Convert.ToInt64(dr[0]),
@@ -135,7 +135,8 @@ namespace Core.Services {
                     Lube = Convert.ToBoolean(dr[9]),
                     Gas = Convert.ToBoolean(dr[10]),
                     Soda = Convert.ToBoolean(dr[11]),
-                    Icon = dr[12].ToString()
+                    Icon = dr[12].ToString(),
+                    Tabs = dr[13].ToString()
                 };
             }
 
@@ -144,7 +145,7 @@ namespace Core.Services {
 
         public Suppliers GetSupplier(string uuid) {
             SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("SELECT sp_idnt, sp_uuid, sp_name, ISNULL(NULLIF(sp_pin,''),'—')sp_pin, sp_contacts, sp_city, sp_telephone, sp_balance, sp_fuel, sp_lubes, sp_gas, sp_soda, sp_icon FROM Suppliers WHERE sp_uuid COLLATE SQL_Latin1_General_CP1_CS_AS LIKE '" + uuid + "'");
+            SqlDataReader dr = conn.SqlServerConnect("SELECT sp_idnt, sp_uuid, sp_name, ISNULL(NULLIF(sp_pin,''),'—')sp_pin, sp_contacts, sp_city, sp_telephone, sp_balance, sp_fuel, sp_lubes, sp_gas, sp_soda, sp_icon, sp_posfield FROM Suppliers WHERE sp_uuid COLLATE SQL_Latin1_General_CP1_CS_AS LIKE '" + uuid + "'");
             if (dr.Read()) {
                 return new Suppliers {
                     Id = Convert.ToInt64(dr[0]),
@@ -159,7 +160,8 @@ namespace Core.Services {
                     Lube = Convert.ToBoolean(dr[9]),
                     Gas = Convert.ToBoolean(dr[10]),
                     Soda = Convert.ToBoolean(dr[11]),
-                    Icon = dr[12].ToString()
+                    Icon = dr[12].ToString(),
+                    Tabs = dr[13].ToString()
                 };
             }
 
@@ -180,7 +182,7 @@ namespace Core.Services {
             List<Suppliers> suppliers = new List<Suppliers>();
 
             SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("SELECT sp_idnt, sp_uuid, sp_name, ISNULL(NULLIF(sp_pin,''),'—')sp_pin, sp_contacts, sp_city, sp_telephone, sp_balance, sp_fuel, sp_lubes, sp_gas, sp_soda FROM Suppliers ORDER BY sp_name, sp_idnt");
+            SqlDataReader dr = conn.SqlServerConnect("SELECT sp_idnt, sp_uuid, sp_name, ISNULL(NULLIF(sp_pin,''),'—')sp_pin, sp_contacts, sp_city, sp_telephone, sp_balance, sp_fuel, sp_lubes, sp_gas, sp_soda, sp_icon, sp_posfield FROM Suppliers ORDER BY sp_name, sp_idnt");
             if (dr.HasRows) {
                 while (dr.Read()) {
                     suppliers.Add(new Suppliers {
@@ -195,7 +197,9 @@ namespace Core.Services {
                         Fuel = Convert.ToBoolean(dr[8]),
                         Lube = Convert.ToBoolean(dr[9]),
                         Gas = Convert.ToBoolean(dr[10]),
-                        Soda = Convert.ToBoolean(dr[11])
+                        Soda = Convert.ToBoolean(dr[11]),
+                        Icon = dr[12].ToString(),
+                        Tabs = dr[13].ToString()
                     });
                 }
             }
@@ -447,6 +451,30 @@ namespace Core.Services {
             }
 
             return ledger;
+        }
+
+        public List<SuppliersStatement> GetSuppliersStatement(Suppliers supplier, DateTime start, DateTime stop) {
+            List<SuppliersStatement> statement = new List<SuppliersStatement>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("DECLARE @supp INT=" + supplier.Id + ", @start DATE='" + start + "', @stop DATE='" + stop + "'; SELECT * FROM(SELECT sp_idnt, sp_date, sp_transc, sp_receipt, sp_notes, sp_amount FROM vSuppliersStatement WHERE sp_supp=@supp AND sp_date BETWEEN @start AND @stop UNION ALL SELECT 0, @start, 'OP BAL', '—', 'BALANCE B/F', SUM(sp_amount) FROM vSuppliersStatement WHERE sp_supp=@supp AND sp_date<@start GROUP BY sp_supp) AS Foo ORDER BY sp_date, sp_idnt");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    statement.Add(new SuppliersStatement {
+                        Id = Convert.ToInt64(dr[0]),
+                        Supplier = supplier,
+                        Statement = new Statement {
+                            Date = Convert.ToDateTime(dr[1]),
+                            Transaction = dr[2].ToString(),
+                            Receipt = dr[3].ToString(),
+                            Details = dr[4].ToString(),
+                            Amount = Convert.ToDouble(dr[5])
+                        }
+                    });
+                }
+            }
+
+            return statement;
         }
 
         public List<Wetstock> GetWetstocks(DateTime start, DateTime stop, Stations station) {
@@ -790,7 +818,7 @@ namespace Core.Services {
             SqlServerConnection conn = new SqlServerConnection();
             string filterString = conn.GetQueryString(filter, "xp_invoice+'-'+ec_category+'-'+xp_description+'-'+CAST(xp_amount AS NVARCHAR)+'-'+ISNULL(sp_name,'Unknown')+'-'+ISNULL(st_code,'')+'-'+ISNULL(st_name,'')", "xp_date BETWEEN '" + start.Date + "' AND '" + stop.Date + "'");
             if (supplier != null)
-                filterString += " AND xp_supplier IN (" + supplier.Id + ")";
+                filterString += " AND xp_supplier=" + supplier.Id;
 
             SqlDataReader dr = conn.SqlServerConnect("SELECT xp_idnt, xp_type, xp_date, xp_invoice, ec_category, xp_description, xp_amount, xp_vat_amts, xp_zero_rated, ISNULL(sp_idnt,0)spid,ISNULL(sp_uuid,'Y67WzS54')spuuid,ISNULL(sp_name,'Unknown')spname, ISNULL(st_idnt,0)stidnt, ISNULL(st_code,'')stcode, ISNULL(st_name,'')stname, xp_supplier FROM vExpensesLedger LEFT OUTER JOIN Suppliers ON sp_idnt=xp_supplier LEFT OUTER JOIN Stations ON st_idnt=xp_station " + filterString + " ORDER BY xp_date, xp_invoice, xp_idnt, xp_type");
             if (dr.HasRows) {

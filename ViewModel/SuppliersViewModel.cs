@@ -13,6 +13,7 @@ namespace Core.ViewModel {
         public List<StationsExpenses> Invoices { get; set; }
         public List<SuppliersCredits> Credits { get; set; }
         public List<SuppliersWithholding> Withhold { get; set; }
+        public List<SuppliersStatement> Statement { get; set; }
 
         public IEnumerable<SelectListItem> BankAccounts { get; set; }
         public IEnumerable<SelectListItem> CreditsTypes { get; set; }
@@ -37,6 +38,7 @@ namespace Core.ViewModel {
             Invoices = new List<StationsExpenses>();
             Credits = new List<SuppliersCredits>();
             Withhold = new List<SuppliersWithholding>();
+            Statement = new List<SuppliersStatement>();
 
             for (int i = 0; i < 10; i++) {
                 Credits.Add(new SuppliersCredits());

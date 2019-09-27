@@ -14,6 +14,9 @@
             Text = date.AddMonths(ix).ToString("MMMM")
         });
     }
+
+    string Start = Model.Start.ToString("d MMMM, yyyy");
+    string Stops = Model.Start.AddMonths(1).AddDays(-1).ToString("d MMMM, yyyy");
 }
 
 <style>
@@ -69,13 +72,13 @@
         padding: 5px;
     }
 
-    table td a {
-        color: #333;
-    }
+        table td a {
+            color: #333;
+        }
 
-    table td a:hover {
-        color: #448AFF;
-    }
+            table td a:hover {
+                color: #448AFF;
+            }
 
     td i.material-icons {
         height: 0px;
@@ -95,11 +98,11 @@
         padding: 2px;
     }
 
-    div.modal-content td input {
-        padding: 0;
-        margin: 0 !important;
-        height: 2rem;
-    }
+        div.modal-content td input {
+            padding: 0;
+            margin: 0 !important;
+            height: 2rem;
+        }
 </style>
 
 <script type="text/javascript">
@@ -157,7 +160,7 @@
 
         <ul id="profile-page-about-details" class="collection z-depth-1" style="margin-top:-10px;">
             <li class="collection-item">
-                <i class="material-icons left black-text">chrome_reader_mode</i><a class="black-text pointer view-statement" data-target="station-expense-modal">View Statement</a>
+                <i class="material-icons left black-text">chrome_reader_mode</i><a class="black-text pointer view-statement modal-trigger" data-target="statement-modal">View Statement</a>
             </li>
             <li class="collection-item">
                 <i class="material-icons left black-text">attachment</i><a class="black-text pointer payment-ledger" data-url="/core/suppliers/payments/ledger/">Payment Ledger</a>
@@ -175,7 +178,7 @@
                 <ul class="tabs">
                     <li class="tab summ"><a href="#summary" class="active">Summary</a></li>
                     <li class="tab invs"><a href="#invoice">Invoices</a></li>
-                    <li class="tab pos"><a href="#pos">P.O.S</a></li>
+                    <li class="tab @(Model.Supplier.Tabs == "" ? "hide" : "pos")"><a href="#pos">@Model.Supplier.Tabs</a></li>
                     <li class="tab note"><a href="#credit">Credit Note</a></li>
                     <li class="tab pymt"><a href="#payment">Payments</a></li>
                 </ul>
@@ -779,5 +782,32 @@
     <div class="modal-footer">
         <a class="modal-action modal-close waves-effect waves-red btn-flat">CANCEL</a>
         <a class="modal-action modal-post waves-effect waves-green btn-flat">DELETE</a>
+    </div>
+</div>
+
+<!--Statement Modal-->
+<div id="statement-modal" class="modal modal-fixed-footer" style="width: 600px">
+    <div class="modal-content">
+        <h4 class="zero-padding">Supplier Statement</h4>
+        <p>Provide the details below to generate the statement for @Model.Supplier.Name</p>
+        <hr />
+        <div class="row">
+            <div class="input-field col s12">
+                <i class="material-icons prefix">event_note</i>
+                @Html.TextBoxFor(model => Start, new { @class = "datepicker modal-start" })
+                <label class="zero-padding">From</label>
+            </div>
+
+            <div class="input-field col s12">
+                <i class="material-icons prefix">event_note</i>
+                @Html.TextBoxFor(model => Stops, new { @class = "datepicker modal-stop" })
+                <label class="zero-padding">To</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
+        <a class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
     </div>
 </div>

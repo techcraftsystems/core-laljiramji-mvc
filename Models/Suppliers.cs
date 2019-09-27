@@ -10,6 +10,7 @@ namespace Core.Models
         public string Uuid { get; set; }
         public string Name { get; set; }
         public string Icon { get; set; }
+        public string Tabs { get; set; }
         public string Pin { get; set; }
         public string Address { get; set; }
         public string City { get; set; }
@@ -21,12 +22,12 @@ namespace Core.Models
         public bool Gas { get; set; }
         public bool Soda { get; set; }
 
-        public Suppliers()
-        {
+        public Suppliers() {
             Id = 0;
             Uuid = "";
             Name = "";
             Icon = "";
+            Tabs = "";
             Pin = "";
             Address = "";
             City = "";
@@ -34,19 +35,16 @@ namespace Core.Models
             Email = "";
         }
 
-        public Suppliers(long idnt) : this()
-        {
+        public Suppliers(long idnt) : this() {
             Id = idnt;
         }
 
-        public Suppliers(long idnt, string name) : this()
-        {
+        public Suppliers(long idnt, string name) : this() {
             Id = idnt;
             Name = name;
         }
 
-        public Suppliers Save()
-        {
+        public Suppliers Save() {
             return new CoreService().SaveSuppliers(this);
         }
     }
@@ -156,8 +154,7 @@ namespace Core.Models
         }
     }
 
-    public class SuppliersWithholding
-    {
+    public class SuppliersWithholding {
         public long Id { get; set; }
         public Suppliers Supplier { get; set; }
         public Bank Bank { get; set; }
@@ -171,8 +168,7 @@ namespace Core.Models
         public string Description { get; set; }
         public double Amount { get; set; }
 
-        public SuppliersWithholding()
-        {
+        public SuppliersWithholding() {
             Id = 0;
             Date = DateTime.Now;
             DateString = Date.ToString("dd/MM/yyyy");
@@ -186,19 +182,28 @@ namespace Core.Models
             Type = new Types();
         }
 
-        public SuppliersWithholding(long idnt) : this()
-        {
+        public SuppliersWithholding(long idnt) : this() {
             Id = idnt;
         }
 
-        public SuppliersWithholding Save(HttpContext Context)
-        {
+        public SuppliersWithholding Save(HttpContext Context) {
             return new CoreService(Context).SaveSuppliersWithholding(this);
         }
 
-        public void Delete()
-        {
+        public void Delete() {
             new CoreService().DeleteSuppliersWithholding(this);
+        }
+    }
+
+    public class SuppliersStatement {
+        public long Id { get; set; }
+        public Suppliers Supplier { get; set; }
+        public Statement Statement { get; set; }
+
+        public SuppliersStatement() {
+            Id = 0;
+            Supplier = new Suppliers();
+            Statement = new Statement();
         }
     }
 }

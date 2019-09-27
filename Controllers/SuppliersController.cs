@@ -32,6 +32,14 @@ namespace Core.Controllers
             return View(model);
         }
 
+        [Route("/core/suppliers/statement")]
+        public IActionResult Statement(string uuid, string from, string to, SuppliersViewModel model) {
+            model.Supplier = Core.GetSupplier(uuid);
+            model.Statement = Core.GetSuppliersStatement(model.Supplier, DateTime.Parse(from), DateTime.Parse(to));
+
+            return View(model);
+        }
+
         [Route("/core/suppliers/payments/ledger/{month}/{year}")]
         public IActionResult PaymentLedger(int month, int year, SuppliersPaymentsViewModel model) {
             model.Date = new DateTime(year, month, 1);

@@ -106,6 +106,8 @@ ul.pending-push li small {
     right: 22px;
 }
 table.custom thead tr th:first-child,
+table.custom tfoot tr th:first-child,
+table.custom tfoot tr td:first-child,
 table.custom tbody tr td:first-child {
     padding-left: 20px;
 }
