@@ -87,12 +87,12 @@ namespace Core.Controllers
             return Ok("success");
         }
 
-        public JsonResult GetCustomerPayments(string code, string start, string stop, string filter = "") {
+        public JsonResult GetCustomerPayments(string code, int idnt, string start, string stop, string filter = "") {
             StationsService Service = new StationsService();
             if (string.IsNullOrEmpty(filter))
                 filter = "";
 
-            return Json(Service.GetCustomerPayments(Service.GetStation(code), DateTime.Parse(start), DateTime.Parse(stop), filter));
+            return Json(Service.GetCustomerPayments(Service.GetStation(code), DateTime.Parse(start), DateTime.Parse(stop), new Customers(idnt), filter));
         }
 
         public JsonResult GetLedgerEntries(long custid, long stid, string start, string stop, string filter, StationsService svc) {

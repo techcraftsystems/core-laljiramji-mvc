@@ -12,7 +12,7 @@ namespace Core.Extensions
 
         public SqlServerConnection() {
             Database = "core_system";
-            Server = "lrstations.ddns.net";
+            Server = "192.168.1.11";
             SConn = "Data Source=" + Server + ";Initial Catalog=" + Database + ";User ID=ct;Password=ct-2011;Max Pool Size=200;";
             Conn = new SqlConnection(SConn);
         }
@@ -57,7 +57,7 @@ namespace Core.Extensions
             if (!AndJoin)
                 JOIN = " OR ";
 
-            char[] Seps = new [] { '.', ' ', '*', '-', '+', '&', '%', '/', '$', '#' };
+            char[] Seps = { '.', ' ', '*', '-', '+', '&', '%', '/', '$', '#' };
             string[] MyInfo = filter.Split(Seps, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i <= (MyInfo.Length - 1); i++)
             {

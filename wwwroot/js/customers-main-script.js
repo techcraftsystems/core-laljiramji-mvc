@@ -414,6 +414,7 @@ function GetCustomerPayments() {
         url: '/Customers/GetCustomerPayments',
         data: {
             "code": 	xCode,
+            "idnt": 	xCust,
             "start": 	jq("#paymentStartDate").val(),
             "stop": 	jq("#paymentStopsDate").val(),
             "filter": 	jq('#paymentFilter').val()

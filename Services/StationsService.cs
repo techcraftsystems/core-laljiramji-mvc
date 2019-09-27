@@ -733,11 +733,15 @@ namespace Core.Services
             return payments;
         }
 
-        public List<CustomersPayments> GetCustomerPayments(Stations station, DateTime start, DateTime stop, string filter = "") {
+        public List<CustomersPayments> GetCustomerPayments(Stations station, DateTime start, DateTime stop, Customers customer, string filter = "") {
             List<CustomersPayments> payment = new List<CustomersPayments>();
             SqlServerConnection conn = new SqlServerConnection();
 
-            SqlDataReader dr = conn.SqlServerConnect("USE " + station.Prefix.Replace(".dbo.", "") + "; DECLARE @start DATE='" + start + "', @stop DATE='" + stop + "'; SELECT im_idnt, im_date, im_rcpt, im_chqs, im_notes, im_paid, im_type, im_type_name, im_cust, Names FROM (SELECT im_cust, im_idnt, im_date, 0 im_type, 'PAYMENT' im_type_name, CAST(CAST(im_change AS INT)AS NVARCHAR) im_rcpt, CAST(CAST(im_tendered AS INT) AS NVARCHAR)im_chqs, im_paid, N'N/A' im_notes FROM InvoicePayment WHERE im_date BETWEEN @start AND @stop UNION ALL SELECT cw_cust, cw_idnt, cw_date, cw_type, CASE WHEN cw_type=1 THEN 'WHT VAT' ELSE 'WHT TAX' END, cw_receipt, '-', cw_amount, cw_description FROM CustomersWithholding WHERE cw_date BETWEEN @start AND @stop) As Foo INNER JOIN Customers ON im_cust=Custid " + conn.GetQueryString(filter, "Names+'-'+im_type_name+'-'+im_notes+'-'+im_rcpt+'-'+im_chqs+'-'+CAST(im_paid AS NVARCHAR)") + "ORDER BY im_date, im_idnt");
+            string query = conn.GetQueryString(filter, "Names+'-'+im_type_name+'-'+im_notes+'-'+im_rcpt+'-'+im_chqs+'-'+CAST(im_paid AS NVARCHAR)");
+            if (customer != null)
+                query += " AND Custid=" + customer.Id;
+
+            SqlDataReader dr = conn.SqlServerConnect("USE " + station.Prefix.Replace(".dbo.", "") + "; DECLARE @start DATE='" + start + "', @stop DATE='" + stop + "'; SELECT im_idnt, im_date, im_rcpt, im_chqs, im_notes, im_paid, im_type, im_type_name, im_cust, Names FROM (SELECT im_cust, im_idnt, im_date, 0 im_type, 'PAYMENT' im_type_name, CAST(CAST(im_change AS INT)AS NVARCHAR) im_rcpt, CAST(CAST(im_tendered AS INT) AS NVARCHAR)im_chqs, im_paid, N'N/A' im_notes FROM InvoicePayment WHERE im_date BETWEEN @start AND @stop UNION ALL SELECT cw_cust, cw_idnt, cw_date, cw_type, CASE WHEN cw_type=1 THEN 'WHT VAT' ELSE 'WHT TAX' END, cw_receipt, '-', cw_amount, cw_description FROM CustomersWithholding WHERE cw_date BETWEEN @start AND @stop) As Foo INNER JOIN Customers ON im_cust=Custid " + query + "ORDER BY im_date, im_idnt");
             if (dr.HasRows) {
                 while (dr.Read()) {
                     payment.Add(new CustomersPayments {
