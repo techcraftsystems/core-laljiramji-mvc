@@ -50,14 +50,16 @@ namespace Core.ViewModel
 
     public class ReportsCustomerYearlyViewModel {
         public Stations station { get; set; }
-        public Int64 year { get; set; }
-        public String type { get; set; }
+        public long year { get; set; }
+        public string type { get; set; }
         public List<ReportCustomerYearly> report { get; set; }
+        public IEnumerable<SelectListItem> Codes { get; set; }
 
         public ReportsCustomerYearlyViewModel()
         {
             station = new Stations();
             year = DateTime.Now.Year;
+            Codes = new List<SelectListItem>();
             report = new List<ReportCustomerYearly>();
         }
     }

@@ -16,26 +16,46 @@
     double Oct = 0;
     double Nov = 0;
     double Dec = 0;
-    double Close = 0;
 }
 
 <style>
+    table thead th,
     table tbody td,
-    table tfoot td {
-        font-size: 0.7em;
-        text-align: center;
+    table tfoot th {
+        text-align: right;
     }
+    table thead th:first-child, 
     table tbody td:first-child, 
-    table tfoot td:first-child {
-        font-size: 0.8em;
-        font-weight: 400;
+    table tfoot th:first-child {
         text-align: left;
-        padding-left: 20px;
     }
-
 </style>
 
-<h5><i class="material-icons left">home</i> > Reports > Customer Summary</h5>
+<script>var route = '';</script>
+<script src="~/js/reports-index-script.js"></script>
+
+<h5><i class="material-icons left">home</i> > Reports > Customer Summary</h5><div id="breadcrumbs-wrapper">
+    <div class="container">
+        <div class="row zero-margin">
+            <div class="col s10 m6 l6">
+                <ol class="breadcrumbs">
+                    <li><a href="/reports">Reports</a></li>
+                    <li><a href="/core/customers/">Customers</a></li>
+                    <li><a href="">Summary</a></li>
+                    <li class="active">@Model.year</li>
+                </ol>
+            </div>
+            <div class="col s2 m6 l6">
+                <a class="btn dropdown-settings waves-effect waves-light breadcrumbs-btn right gradient-45deg-light-blue-cyan gradient-shadow pointer modal-trigger" data-target="modal22">
+                    <i class="material-icons hide-on-med-and-up">settings</i>
+                    <span class="hide-on-small-onl">CHANGE</span>
+                    <i class="material-icons right">arrow_drop_down</i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="clear:both; margin-top:15px;"></div>
 
 <div class="col-md-12 zero-margin">
     <div class="card zero-margin">
@@ -47,7 +67,7 @@
             </p>
         </div>
 
-        <table id="reading" class="custom bordered">
+        <table id="reading" class="custom bordered" style="font-size:0.7em">
             <thead class="deep-orange accent-2">
                 <tr>
                     <th>CUSTOMER</th>
@@ -64,7 +84,7 @@
                     <th>OCT</th>
                     <th>NOV</th>
                     <th>DEC</th>
-                    <th>BAL/CF</th>
+                    <th>CL/BAL</th>
                 </tr>
             </thead>
 
@@ -73,20 +93,20 @@
                 {
                     <tr>
                         <td>@rpt.Customer.Name</td>
-                        <td class="bold-text">@string.Format("{0:N}", rpt.Opening)</td>
-                        <td>@string.Format("{0:N}", rpt.Opening + rpt.Jan)</td>
-                        <td>@string.Format("{0:N}", rpt.Opening + rpt.Jan + rpt.Feb)</td>
-                        <td>@string.Format("{0:N}", rpt.Opening + rpt.Jan + rpt.Feb + rpt.Mar)</td>
-                        <td>@string.Format("{0:N}", rpt.Opening + rpt.Jan + rpt.Feb + rpt.Mar + rpt.Apr)</td>
-                        <td>@string.Format("{0:N}", rpt.Opening + rpt.Jan + rpt.Feb + rpt.Mar + rpt.Apr + rpt.May)</td>
-                        <td>@string.Format("{0:N}", rpt.Opening + rpt.Jan + rpt.Feb + rpt.Mar + rpt.Apr + rpt.May + rpt.Jun)</td>
-                        <td>@string.Format("{0:N}", rpt.Opening + rpt.Jan + rpt.Feb + rpt.Mar + rpt.Apr + rpt.May + rpt.Jun + rpt.Jul)</td>
-                        <td>@string.Format("{0:N}", rpt.Opening + rpt.Jan + rpt.Feb + rpt.Mar + rpt.Apr + rpt.May + rpt.Jun + rpt.Jul + rpt.Aug)</td>
-                        <td>@string.Format("{0:N}", rpt.Opening + rpt.Jan + rpt.Feb + rpt.Mar + rpt.Apr + rpt.May + rpt.Jun + rpt.Jul + rpt.Aug + rpt.Sep)</td>
-                        <td>@string.Format("{0:N}", rpt.Opening + rpt.Jan + rpt.Feb + rpt.Mar + rpt.Apr + rpt.May + rpt.Jun + rpt.Jul + rpt.Aug + rpt.Sep + rpt.Oct)</td>
-                        <td>@string.Format("{0:N}", rpt.Opening + rpt.Jan + rpt.Feb + rpt.Mar + rpt.Apr + rpt.May + rpt.Jun + rpt.Jul + rpt.Aug + rpt.Sep + rpt.Oct + rpt.Nov)</td>
-                        <td>@string.Format("{0:N}", rpt.Opening + rpt.Jan + rpt.Feb + rpt.Mar + rpt.Apr + rpt.May + rpt.Jun + rpt.Jul + rpt.Aug + rpt.Sep + rpt.Oct + rpt.Nov + rpt.Dec)</td>
-                        <td class="bold-text">@string.Format("{0:N}", rpt.Closing)</td>
+                        <td class="bold-text red-text">@string.Format("{0:N}", rpt.Opening)</td>
+                        <td>@string.Format("{0:N}", rpt.Jan)</td>
+                        <td>@string.Format("{0:N}", rpt.Feb)</td>
+                        <td>@string.Format("{0:N}", rpt.Mar)</td>
+                        <td>@string.Format("{0:N}", rpt.Apr)</td>
+                        <td>@string.Format("{0:N}", rpt.May)</td>
+                        <td>@string.Format("{0:N}", rpt.Jun)</td>
+                        <td>@string.Format("{0:N}", rpt.Jul)</td>
+                        <td>@string.Format("{0:N}", rpt.Aug)</td>
+                        <td>@string.Format("{0:N}", rpt.Sep)</td>
+                        <td>@string.Format("{0:N}", rpt.Oct)</td>
+                        <td>@string.Format("{0:N}", rpt.Nov)</td>
+                        <td>@string.Format("{0:N}", rpt.Dec)</td>
+                        <td class="red-text bold-text">@string.Format("{0:N}", rpt.Dec)</td>
                     </tr>
 
                     Open += rpt.Opening;
@@ -102,27 +122,26 @@
                     Oct += rpt.Oct;
                     Nov += rpt.Nov;
                     Dec += rpt.Dec;
-                    Close += rpt.Closing;
                 }
             </tbody>
 
-            <tfoot class="deep-orange accent-2">
+            <tfoot class="deep-orange accent-2 white-text">
                 <tr>
-                    <td>@Model.station.Name.ToUpper() SUMMARY</td>
-                    <td>@string.Format("{0:N}", Open)</td>
-                    <td>@string.Format("{0:N}", Jan)</td>
-                    <td>@string.Format("{0:N}", Feb)</td>
-                    <td>@string.Format("{0:N}", Mar)</td>
-                    <td>@string.Format("{0:N}", Apr)</td>
-                    <td>@string.Format("{0:N}", May)</td>
-                    <td>@string.Format("{0:N}", Jun)</td>
-                    <td>@string.Format("{0:N}", Jul)</td>
-                    <td>@string.Format("{0:N}", Aug)</td>
-                    <td>@string.Format("{0:N}", Sep)</td>
-                    <td>@string.Format("{0:N}", Oct)</td>
-                    <td>@string.Format("{0:N}", Nov)</td>
-                    <td>@string.Format("{0:N}", Dec)</td>
-                    <td>@string.Format("{0:N}", Close)</td>
+                    <th>SUMMARY</th>
+                    <th>@string.Format("{0:N}", Open)</th>
+                    <th>@string.Format("{0:N}", Jan)</th>
+                    <th>@string.Format("{0:N}", Feb)</th>
+                    <th>@string.Format("{0:N}", Mar)</th>
+                    <th>@string.Format("{0:N}", Apr)</th>
+                    <th>@string.Format("{0:N}", May)</th>
+                    <th>@string.Format("{0:N}", Jun)</th>
+                    <th>@string.Format("{0:N}", Jul)</th>
+                    <th>@string.Format("{0:N}", Aug)</th>
+                    <th>@string.Format("{0:N}", Sep)</th>
+                    <th>@string.Format("{0:N}", Oct)</th>
+                    <th>@string.Format("{0:N}", Nov)</th>
+                    <th>@string.Format("{0:N}", Dec)</th>
+                    <th>@string.Format("{0:N}", Dec)</th>
                 </tr>
             </tfoot>
         </table>
@@ -130,3 +149,28 @@
 </div>
 
 <div class="clear both"></div>
+
+<div id="modal22" class="modal modal-fixed-footer" style="width: 500px">
+    <div class="modal-content">
+        <h4>Customer Balances</h4>
+        <p>Specify the below Parameters to generate the Summary</p>
+        <div>
+            <div class="input-field">
+                <i class="material-icons prefix">local_gas_station</i>
+                @Html.DropDownListFor(model => model.station.Code, Model.Codes, new { @class = "modal-station" })
+                <label>Select Station</label>
+            </div>
+
+            <div class="input-field">
+                <i class="material-icons prefix">event_note</i>
+                <input class="modal-year validate" type="number" value="@DateTime.Now.Year" />
+                <label>Specify Year</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <a href="#!" class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
+        <a href="#!" class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
+    </div>
+</div>
