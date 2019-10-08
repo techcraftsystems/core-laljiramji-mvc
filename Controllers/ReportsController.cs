@@ -44,6 +44,18 @@ namespace Core.Controllers
             return View(model);
         }
 
+        [Route("reports/customers/balances/{code}")]
+        public IActionResult CustomerPeriod(string code, string from, string to, ReportsCustomerPeriodicViewModel model, StationsService svc)
+        {
+            model.Station = svc.GetStation(code);
+            model.Start = DateTime.Parse(from);
+            model.Stop = DateTime.Parse(to);
+            model.Codes = svc.GetStationCodesIEnumerable();
+            model.Report = svc.GetCustomerPeriodicLedger(model.Station, model.Start, model.Stop);
+
+            return View(model);
+        }
+
         [Route("reports/vat/{code}/{month}/{year}")]
         public IActionResult VATStationBreakdown(string code, int month, int year, VatStationBreakdownViewModel model, StationsService svc)
         {

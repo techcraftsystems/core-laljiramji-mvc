@@ -1,74 +1,60 @@
 ﻿@model Core.ViewModel.CustomerViewModel;
 @{
     ViewData["Title"] = Model.Customer.Name;
+    DateTime date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
 }
 
 <style>
     h4 {
         padding-left: 12px;
     }
-
     .card .card-title {
         font-size: 20px;
         font-weight: 300;
     }
-
     .card-title.activator.grey-text.text-darken-4.truncate {
         padding-top: 10px;
         margin-bottom: 0px;
     }
-
     .activator.grey-text.text-darken-1 {
         font-size: 1.1em;
     }
-
     #profile-card .card-content p {
         color: #555;
         font-size: 1.1em;
         margin: 4px 0;
     }
-
     .card-content p span {
         vertical-align: super;
     }
-
     #profile-card .card-content {
         padding: 15px 20px 5px 20px;
     }
-
     .preview .body .col-md-1 {
         width: 5%;
     }
-
     .preview .body .col-md-3 {
         width: 29%;
     }
-
     .preview .body .col-md-5 {
         width: 37%;
     }
-
     nav .input-field input:focus, nav .input-field input[type=text]:valid, nav .input-field input[type=password]:valid, nav .input-field input[type=email]:valid, nav .input-field input[type=url]:valid, nav .input-field input[type=date]:valid {
         border-bottom: 1px solid #9e9e9e;
     }
-
     table td {
         padding: 5px;
     }
-
     table td a {
         color: #333;
     }
-
     table td a:hover {
         color: #448AFF;
     }
-
     td i.material-icons {
         height: 0px;
         line-height: 0px;
     }
-
     #invoice-table th:nth-child(6),
     #invoice-table td:nth-child(6),
     #invoice-table th:nth-child(7),
@@ -162,6 +148,7 @@
                 <ul class="tabs">
                     <li class="tab summ"><a href="#summary" class="active">Summary</a></li>
                     <li class="tab invs"><a href="#invoice">Invoices</a></li>
+                    <li class="tab note"><a href="#credit">Credits</a></li>
                     <li class="tab pymt"><a href="#payment">Payments</a></li>
                 </ul>
 
@@ -212,11 +199,50 @@
                 </div>
 
                 <!-- PAYMENTS TAB -->
+                <div id="note" class="body">
+                    <div class="row" style="margin-top: 10px;">
+                        <div class="input-field col-md-3">
+                            <i class="material-icons prefix">date_range</i>
+                            <input id="noteStartDate" type="text" class="datepicker" value="@date.ToString("d MMMM, yyyy")" />
+                        </div>
+
+                        <div class="input-field col-md-3">
+                            <i class="material-icons prefix">date_range</i>
+                            <input id="noteStopsDate" type="text" class="datepicker" value="@DateTime.Now.ToString("d MMMM, yyyy")" />
+                        </div>
+
+                        <div class="input-field col-md-5">
+                            <i class="material-icons prefix">filter_list</i>
+                            <input id="noteFilter" type="text" placeholder="Filter Invoices" />
+                        </div>
+
+                        <div class="col-md-1 get-notes">
+                            <a class="btn btn-floating pulse btn gradient-45deg-amber-amber right"><i class="material-icons" style="line-height: 42px">search</i></a>
+                        </div>
+                    </div>
+
+                    <table id="notes-table" class="bordered" data-loaded="0" style="margin-top:-20px">
+                        <thead>
+                            <tr>
+                                <th>DATE</th>
+                                <th>TYPE</th>
+                                <th>RECEIPT</th>
+                                <th>DESCRIPTION</th>
+                                <th class="right-text">AMOUNT</th>
+                                <th width="55px">&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                        <tfoot></tfoot>
+                    </table>
+                </div>
+
+                <!-- PAYMENTS TAB -->
                 <div id="payment" class="body">
                     <div class="row" style="margin-top: 10px;">
                         <div class="input-field col-md-3">
                             <i class="material-icons prefix">date_range</i>
-                            <input id="paymentStartDate" type="text" class="datepicker" value="@DateTime.Now.AddDays(-1).ToString("d MMMM, yyyy")">
+                            <input id="paymentStartDate" type="text" class="datepicker" value="@date.ToString("d MMMM, yyyy")">
                         </div>
 
                         <div class="input-field col-md-3">

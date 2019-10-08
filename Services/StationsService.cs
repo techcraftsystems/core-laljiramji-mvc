@@ -198,7 +198,7 @@ namespace Core.Services
             return summaries;
         }
 
-        public List<ReportCustomerYearly> GetCustomerYearlyReport(Int64 year, Int64 stid, String type){
+        public List<ReportCustomerYearly> GetCustomerYearlyReport(long year, long stid, string type){
             List<ReportCustomerYearly> entries = new List<ReportCustomerYearly>();
             String additionalQuery = "";
 
@@ -211,12 +211,10 @@ namespace Core.Services
 
 
             SqlServerConnection conn = new SqlServerConnection();
-            //SqlDataReader dr = conn.SqlServerConnect("DECLARE @yr INT=" + year + ", @st INT=" + stid + "; SELECT Cust, Names, SUM(CASE WHEN Mnths=0 THEN Amts ELSE 0 END) OPN, SUM(CASE WHEN Mnths=1 THEN Amts ELSE 0 END) JAN, SUM(CASE WHEN Mnths=2 THEN Amts ELSE 0 END) FEB, SUM(CASE WHEN Mnths=3 THEN Amts ELSE 0 END) MAR, SUM(CASE WHEN Mnths=4 THEN Amts ELSE 0 END) APR, SUM(CASE WHEN Mnths=5 THEN Amts ELSE 0 END) MAY, SUM(CASE WHEN Mnths=6 THEN Amts ELSE 0 END) JUN, SUM(CASE WHEN Mnths=7 THEN Amts ELSE 0 END) JUL, SUM(CASE WHEN Mnths=8 THEN Amts ELSE 0 END) AUG, SUM(CASE WHEN Mnths=9 THEN Amts ELSE 0 END) SEP, SUM(CASE WHEN Mnths=10 THEN Amts ELSE 0 END) OCT, SUM(CASE WHEN Mnths=11 THEN Amts ELSE 0 END) NOV, SUM(CASE WHEN Mnths=12 THEN Amts ELSE 0 END) DEC, SUM(Amts) TTL FROM (SELECT Stns, Cust, MONTH(Dates) Mnths, (Invs-Pymt) Amts FROM vCustomerStatements WHERE Stns=@st AND YEAR(Dates)=@yr " + additionalQuery + " UNION ALL SELECT Stns, Cust, 0, (Invs-Pymt) Amts FROM vCustomerStatements WHERE Stns=@st AND YEAR(Dates)<@yr) As Foo INNER JOIN vCustomers ON [Custid]=[Cust] AND [Stns]=[Sts] GROUP BY Stns, Names, Cust ORDER BY Names");
             SqlDataReader dr = conn.SqlServerConnect("DECLARE @yr INT=" + year + ", @st INT=" + stid + "; SELECT [Type], Cust, CASE WHEN [Type]=4 THEN 'LIPA NA MPESA' WHEN [Type]=3 THEN BankName+(CASE WHEN BankName IN ('EQUITY','CFC') THEN ' VISA' ELSE '' END) ELSE Names END Names, SUM(CASE WHEN Mnths=0 THEN Amts ELSE 0 END) OPN, SUM(CASE WHEN Mnths=1 THEN Amts ELSE 0 END) JAN, SUM(CASE WHEN Mnths=2 THEN Amts ELSE 0 END) FEB, SUM(CASE WHEN Mnths=3 THEN Amts ELSE 0 END) MAR, SUM(CASE WHEN Mnths=4 THEN Amts ELSE 0 END) APR, SUM(CASE WHEN Mnths=5 THEN Amts ELSE 0 END) MAY, SUM(CASE WHEN Mnths=6 THEN Amts ELSE 0 END) JUN, SUM(CASE WHEN Mnths=7 THEN Amts ELSE 0 END) JUL, SUM(CASE WHEN Mnths=8 THEN Amts ELSE 0 END) AUG, SUM(CASE WHEN Mnths=9 THEN Amts ELSE 0 END) SEP, SUM(CASE WHEN Mnths=10 THEN Amts ELSE 0 END) OCT, SUM(CASE WHEN Mnths=11 THEN Amts ELSE 0 END) NOV, SUM(CASE WHEN Mnths=12 THEN Amts ELSE 0 END) DEC, SUM(Amts) TTL FROM (SELECT Stns, 0 [Type], Cust, MONTH(Dates) Mnths, (Invs-Pymt) Amts FROM vCustomerStatements WHERE Stns=@st AND YEAR(Dates)=@yr " + additionalQuery + " UNION ALL SELECT Stns, 0, Cust, 0, (Invs-Pymt) Amts FROM vCustomerStatements WHERE Stns=@st AND YEAR(Dates)<@yr UNION ALL SELECT mm_st, mm_type, mm_account, MONTH(mm_date)mm_mnth, (mm_invs-mm_pymt)mm_amts FROM vAccountsStatements WHERE mm_st=@st AND YEAR(mm_date)=@yr " + additionalQuery + " UNION ALL SELECT mm_st, mm_type, mm_account, 0, (mm_invs-mm_pymt)mm_amts FROM vAccountsStatements WHERE mm_st=@st AND YEAR(mm_date)<@yr) As Foo LEFT OUTER JOIN vCustomers ON [Custid]=[Cust] AND [Stns]=[Sts] AND [Type]=0 LEFT OUTER JOIN vBankAccounts ON BankID=Cust AND BankSt=Stns GROUP BY Stns, Names, BankName, [Type], Cust ORDER BY Names");
             if (dr.HasRows)
             {
-                while (dr.Read())
-                {
+                while (dr.Read()) {
                     ReportCustomerYearly entry = new ReportCustomerYearly();
                     entry.Customer.Id = Convert.ToInt64(dr[1]);
                     entry.Customer.Name = dr[2].ToString();
@@ -242,6 +240,33 @@ namespace Core.Services
 
             return entries;
             
+        }
+
+        public List<ReportCustomerPeriodic> GetCustomerPeriodicLedger(Stations station, DateTime start, DateTime stop, string filter = "") {
+            List<ReportCustomerPeriodic> ledger = new List<ReportCustomerPeriodic>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("USE " + station.Prefix.Replace(".dbo.", "") + "; DECLARE @start DATE='" + start + "', @stop DATE='" + stop + "'; SELECT ISNULL(op_amts,0) OP, ISNULL(cl_invs,0) INVS, ISNULL(cl_cred,0) CRED, ISNULL(cl_pymt,0) PYMT, Custid, Names, KRA_PIN FROM Customers LEFT OUTER JOIN (SELECT CUST op_cust, SUM(CASE WHEN psc_direction=0 THEN AMOUNT ELSE 0-AMOUNT END) op_amts FROM pCustomersStatements INNER JOIN CustomersStatementSources ON SOURCE=psc_idnt AND DATE<@start GROUP BY CUST) As Op ON op_cust=Custid LEFT OUTER JOIN (SELECT CUST cl_cust, SUM(CASE WHEN SOURCE=2 THEN AMOUNT ELSE 0 END) cl_invs, SUM(CASE WHEN SOURCE=4 THEN AMOUNT ELSE 0 END) cl_cred, SUM(CASE WHEN SOURCE IN (3,5) THEN AMOUNT ELSE 0 END) cl_pymt FROM pCustomersStatements WHERE DATE BETWEEN @start AND @stop GROUP BY CUST) As Curr ON cl_cust=Custid WHERE Names LIKE '%' ORDER BY Names");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    ReportCustomerPeriodic ldg = new ReportCustomerPeriodic {
+                        Opening = Convert.ToDouble(dr[0]),
+                        Invoice = Convert.ToDouble(dr[1]),
+                        Credits = Convert.ToDouble(dr[2]),
+                        Payment = Convert.ToDouble(dr[3]),
+                        Customer = new Customers {
+                            Id = Convert.ToInt64(dr[4]),
+                            Name = dr[5].ToString(),
+                            KraPin = dr[6].ToString()
+                        }
+                    };
+
+                    ldg.Closing = ldg.Opening + ldg.Invoice - ldg.Credits - ldg.Payment;
+                    ledger.Add(ldg);
+                }
+            }
+
+            return ledger;
         }
 
         public LedgerTotals GetLedgerTotals(Stations st, DateTime date){
@@ -309,11 +334,11 @@ namespace Core.Services
             return totals;
         }
 
-        public List<StationsReconcile> GetStationsReconciles(Int64 stid, Int64 year, Int64 mnth){
+        public List<StationsReconcile> GetStationsReconciles(long stid, long year, long mnth){
             List<StationsReconcile> reconciles = new List<StationsReconcile>();
 
             SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("DECLARE @st INT=" + stid + ", @year INT=" + year + ", @mnth INT=" + mnth + "; SELECT Dates, SUM(Amts)Amts, SUM(Pd)Pd, SUM(Uprna)Uprna, SUM(Debt)Debt, SUM(Disc)Disc, SUM(Transp)Transp FROM ( SELECT pcol_date Dates, pcol_amts Amts, 0 Pd, 0 Uprna, 0 Debt, 0 Disc, 0 Transp FROM vDailySales WHERE pcol_station=@st AND YEAR(pcol_date)=@year AND MONTH(pcol_date)=@mnth UNION ALL SELECT ar_date, 0, ar_cash,0,0,0,0 FROM vLedgerCash WHERE ar_st=@st AND YEAR(ar_date)=@year AND MONTH(ar_date)=@mnth UNION ALL SELECT sr_date, CASE sr_overpump when 1 THEN sr_amts-(sr_discount) ELSE 0 END, 0,0,sr_amts, sr_discount,0 FROM vInvoicesLedger WHERE sr_st=@st AND YEAR(sr_date)=@year AND MONTH(sr_date)=@mnth UNION ALL SELECT am_date, 0,0,0,am_amts,0,0 FROM vAccounts WHERE am_st=@st AND YEAR(am_date)=@year AND MONTH(am_date)=@mnth UNION ALL SELECT ex_date, 0,ex_amts,0,0,0,0 FROM vLedgerExpenses WHERE ex_st=@st AND YEAR(ex_date)=@year AND MONTH(ex_date)=@mnth UNION ALL SELECT pt_date,0,0,0,0,0, pt_amount FROM vTransport WHERE pt_st=@st AND YEAR(pt_date)=@year AND MONTH(pt_date)=@mnth UNION ALL SELECT cd_date, 0,0,0,0, cd_disc, 0 FROM vDiscounts WHERE cd_st=@st AND YEAR(cd_date)=@year AND MONTH(cd_date)=@mnth) As Foo GROUP BY Dates ORDER BY Dates");
+            SqlDataReader dr = conn.SqlServerConnect("DECLARE @st INT=" + stid + ", @year INT=" + year + ", @mnth INT=" + mnth + "; SELECT Dates, SUM(Amts)Amts, SUM(Pd)Pd, SUM(Uprna)Uprna, SUM(Debt)Debt, SUM(Disc)Disc, SUM(Transp)Transp FROM (SELECT pcol_station, Dates, Amts, Pd, Uprna, Debt, Disc, Transp FROM vStationsReconcile WHERE pcol_station=@st AND YEAR(Dates)=@year AND MONTH(Dates)=@mnth) As Foo GROUP BY Dates ORDER BY Dates");
             if (dr.HasRows) {
                 while (dr.Read()) {
                     StationsReconcile recon = new StationsReconcile {

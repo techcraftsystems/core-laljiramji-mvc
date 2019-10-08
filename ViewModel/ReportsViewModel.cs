@@ -62,6 +62,23 @@ namespace Core.ViewModel
         }
     }
 
+    public class ReportsCustomerPeriodicViewModel
+    {
+        public Stations Station { get; set; }
+        public DateTime Start { get; set; }
+        public DateTime Stop { get; set; }
+        public List<ReportCustomerPeriodic> Report { get; set; }
+        public IEnumerable<SelectListItem> Codes { get; set; }
+
+        public ReportsCustomerPeriodicViewModel() {
+            Station = new Stations();
+            Start = DateTime.Now;
+            Stop = DateTime.Now;
+            Codes = new List<SelectListItem>();
+            Report = new List<ReportCustomerPeriodic>();
+        }
+    }
+
     public class ReportProductsViewModel {
         public IEnumerable<SelectListItem> Stations { get; set; }
         public List<Products> Products { get; set; }

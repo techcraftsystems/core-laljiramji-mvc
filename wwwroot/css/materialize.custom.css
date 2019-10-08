@@ -260,3 +260,6 @@ a.material-icons.tiny-red:hover {
 #breadcrumbs-wrapper .breadcrumbs-btn {
     top: 10px;
 }
+ol.breadcrumbs li a {
+    color: #2196F3;
+}

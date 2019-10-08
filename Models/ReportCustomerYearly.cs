@@ -4,24 +4,23 @@ namespace Core.Models
     public class ReportCustomerYearly
     {
         public Customers Customer { get; set; }
-        public Double Opening { get; set; }
-        public Double Jan { get; set; }
-        public Double Feb { get; set; }
-        public Double Mar { get; set; }
-        public Double Apr { get; set; }
-        public Double May { get; set; }
-        public Double Jun { get; set; }
-        public Double Jul { get; set; }
-        public Double Aug { get; set; }
-        public Double Sep { get; set; }
-        public Double Oct { get; set; }
-        public Double Nov { get; set; }
-        public Double Dec { get; set; }
-        public Double Total { get; set; }
-        public Double Closing { get; set; }
+        public double Opening { get; set; }
+        public double Jan { get; set; }
+        public double Feb { get; set; }
+        public double Mar { get; set; }
+        public double Apr { get; set; }
+        public double May { get; set; }
+        public double Jun { get; set; }
+        public double Jul { get; set; }
+        public double Aug { get; set; }
+        public double Sep { get; set; }
+        public double Oct { get; set; }
+        public double Nov { get; set; }
+        public double Dec { get; set; }
+        public double Total { get; set; }
+        public double Closing { get; set; }
 
-        public ReportCustomerYearly()
-        {
+        public ReportCustomerYearly() {
             Customer = new Customers();
             Opening = 0;
             Jan = 0;
@@ -37,6 +36,24 @@ namespace Core.Models
             Nov = 0;
             Dec = 0;
             Total = 0;
+            Closing = 0;
+        }
+    }
+
+    public class ReportCustomerPeriodic {
+        public Customers Customer { get; set; }
+        public double Opening { get; set; }
+        public double Invoice { get; set; }
+        public double Credits { get; set; }
+        public double Payment { get; set; }
+        public double Closing { get; set; }
+
+        public ReportCustomerPeriodic() {
+            Customer = new Customers();
+            Opening = 0;
+            Invoice = 0;
+            Credits = 0;
+            Payment = 0;
             Closing = 0;
         }
     }
