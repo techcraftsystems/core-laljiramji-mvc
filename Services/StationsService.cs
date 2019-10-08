@@ -198,7 +198,7 @@ namespace Core.Services
             return summaries;
         }
 
-        public List<ReportCustomerYearly> GetCustomerYearlySummary(Stations station, DateTime year, string type = "") {
+        public List<ReportCustomerYearly> GetCustomerYearlySummary(Stations station, DateTime year) {
             List<ReportCustomerYearly> ledger = new List<ReportCustomerYearly>();
 
             SqlServerConnection conn = new SqlServerConnection();
@@ -225,6 +225,57 @@ namespace Core.Services
                         Nov = Convert.ToDouble(dr[14]),
                         Dec = Convert.ToDouble(dr[15])
                     });
+                }
+            }
+
+            return ledger;
+        }
+
+        public List<ReportCustomerYearly> GetCustomerYearlyLedger(Stations station, DateTime year, string type = "")
+        {
+            List<ReportCustomerYearly> ledger = new List<ReportCustomerYearly>();
+            string query = "";
+
+            if (type.Equals("invoices"))
+                query = "AND [SOURCE]=2";
+            else if (type.Equals("credits"))
+                query = "AND [SOURCE]=4";
+            else if (type.Equals("whts"))
+                query = "AND [SOURCE]=5";
+            else if (type.Equals("payments"))
+                query = "AND [SOURCE] IN (3,5)";
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("USE " + station.Prefix.Replace(".dbo.", "") + "; DECLARE @date DATE='" + year + "'; SELECT Custid, Names, KRA_PIN, ISNULL(OP,0)OP, ISNULL(JAN,0)JAN, ISNULL(FEB,0)FEB, ISNULL(MAR,0)MAR, ISNULL(APR,0)APR, ISNULL(MAY,0)MAY, ISNULL(JUN,0)JUN, ISNULL(JUL,0)JUL, ISNULL(AUG,0)AUG, ISNULL(SEP,0)SEP, ISNULL(OCT,0)OCT, ISNULL(NOV,0)NOV, ISNULL([DEC],0)[DEC] FROM Customers LEFT OUTER JOIN (SELECT CUST, SUM(CASE WHEN [DATE]<@date THEN AMTS ELSE 0 END) OP, SUM(CASE WHEN [DATE]>@date AND MONTH([DATE])=1 THEN AMTS ELSE 0 END) JAN, SUM(CASE WHEN [DATE]>@date AND MONTH([DATE])=2 THEN AMTS ELSE 0 END) FEB, SUM(CASE WHEN [DATE]>@date AND MONTH([DATE])=3 THEN AMTS ELSE 0 END) MAR, SUM(CASE WHEN [DATE]>@date AND MONTH([DATE])=4 THEN AMTS ELSE 0 END) APR, SUM(CASE WHEN [DATE]>@date AND MONTH([DATE])=5 THEN AMTS ELSE 0 END) MAY, SUM(CASE WHEN [DATE]>@date AND MONTH([DATE])=6 THEN AMTS ELSE 0 END) JUN, SUM(CASE WHEN [DATE]>@date AND MONTH([DATE])=7 THEN AMTS ELSE 0 END) JUL, SUM(CASE WHEN [DATE]>@date AND MONTH([DATE])=8 THEN AMTS ELSE 0 END) AUG, SUM(CASE WHEN [DATE]>@date AND MONTH([DATE])=9 THEN AMTS ELSE 0 END) SEP, SUM(CASE WHEN [DATE]>@date AND MONTH([DATE])=10 THEN AMTS ELSE 0 END) OCT, SUM(CASE WHEN [DATE]>@date AND MONTH([DATE])=11 THEN AMTS ELSE 0 END) NOV, SUM(CASE WHEN [DATE]>@date AND MONTH([DATE])=12 THEN AMTS ELSE 0 END) [DEC] FROM(SELECT CUST, [DATE], CASE WHEN psc_direction=0 THEN AMOUNT ELSE 0-AMOUNT END AMTS FROM pCustomersStatements INNER JOIN CustomersStatementSources ON SOURCE=psc_idnt AND [DATE]<DATEADD(YEAR, 1, @date) " + query + ") As Foo GROUP BY CUST) As Bals ON CUST=Custid ORDER BY Names");
+            if (dr.HasRows)
+            {
+                while (dr.Read())
+                {
+                    var ldg = new ReportCustomerYearly
+                    {
+                        Customer = new Customers
+                        {
+                            Id = Convert.ToInt64(dr[0]),
+                            Name = dr[1].ToString(),
+                            KraPin = dr[2].ToString()
+                        },
+                        Opening = Convert.ToDouble(dr[3]),
+                        Jan = Convert.ToDouble(dr[4]),
+                        Feb = Convert.ToDouble(dr[5]),
+                        Mar = Convert.ToDouble(dr[6]),
+                        Apr = Convert.ToDouble(dr[7]),
+                        May = Convert.ToDouble(dr[8]),
+                        Jun = Convert.ToDouble(dr[9]),
+                        Jul = Convert.ToDouble(dr[10]),
+                        Aug = Convert.ToDouble(dr[11]),
+                        Sep = Convert.ToDouble(dr[12]),
+                        Oct = Convert.ToDouble(dr[13]),
+                        Nov = Convert.ToDouble(dr[14]),
+                        Dec = Convert.ToDouble(dr[15])
+                    };
+
+                    ldg.Closing = ldg.Opening + ldg.Jan + ldg.Feb + ldg.Mar + ldg.Apr + ldg.May + ldg.Jun + ldg.Jul + ldg.Aug + ldg.Sep + ldg.Oct + ldg.Nov + ldg.Dec;
+                    ledger.Add(ldg);
                 }
             }
 
