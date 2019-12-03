@@ -39,6 +39,13 @@ namespace Core.Controllers
             return View();
         }
 
+        [AllowAnonymous]
+        [Route("/core/tools")]
+        public IActionResult Tools()
+        {
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error() {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
