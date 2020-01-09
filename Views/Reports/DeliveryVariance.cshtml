@@ -24,7 +24,7 @@
                     <li><a href="/reports">Reports</a></li>
                     <li><a href="">Delivery</a></li>
                     <li><a href="">Variance</a></li>
-                    <li class="active">@Model.Station.Name &mdash; @Model.Date.ToString("MMMM yyyy")</li>
+                    <li class="active">@Model.Date.ToString("MMMM yyyy")</li>
                 </ol>
             </div>
             <div class="col s2 m6 l6">
@@ -41,10 +41,10 @@
 
 <div class="card zero-margin">
     <div class="card-content deep-orange accent-2 white-text table-card" style="border-radius: 0">
-        <h5 class="card-stats-number"><i class="material-icons left">add_shopping_cart</i>Unlinked Lubes</h5>
+        <h5 class="card-stats-number"><i class="material-icons left">add_shopping_cart</i>Delivery Variances</h5>
         <p class="card-stats-compare right">
-            <i class="material-icons left">history</i>
-            <span class="deep-orange-text text-lighten-5 opening-balance">Products</span>
+            <i class="material-icons left">local_gas_station</i>
+            <span class="deep-orange-text text-lighten-5 opening-balance">@Model.Station.Name</span>
         </p>
     </div>
 
