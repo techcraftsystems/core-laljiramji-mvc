@@ -1362,7 +1362,7 @@ namespace Core.Services
             List<DeliveryVariance> variance = new List<DeliveryVariance>();
 
             SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("USE " + station.Prefix.Replace(".dbo.", "") + "; DECLARE @start DATE='" + start.Date + "', @ended DATE='" + ended.Date + "', @st INT=" + station.Id + "; SELECT 0 dlv_idnt, ISNULL(dlv_date, ar_date)dlv_date, ISNULL(dlvr_rcpt,'X') dlv_rcpt, ISNULL(SUM(dlv_amount),0) dlv_amount, ISNULL(SUM(pc_amount),0) dlv_petty, ISNULL(SUM(dlv_amount),0)-ISNULL(SUM(pc_amount),0) dlv_bank, st_idnt, st_code, st_name, ISNULL(ar_cash,0)+ISNULL(ar_exps,0) st_amount, ISNULL(ar_exps,0) dlv_petty, ISNULL(ar_cash,0) st_bank FROM core_system.dbo.Delivery INNER JOIN core_system.dbo.Stations ON st_idnt=@st INNER JOIN core_system.dbo.vDeliveryReceipts ON dlv_date=dlvr_date AND dlvr_station=@st AND dlv_type=dlvr_type LEFT OUTER JOIN core_system.dbo.vDeliveryPettyCash ON dlv_idnt = pc_delv LEFT OUTER JOIN (SELECT ar_type, ar_date, SUM(ar_cash)ar_cash, SUM(ar_exps)ar_exps FROM (SELECT 1 ar_type, ar_date, ar_cash, 0 ar_exps FROM AttendantsReturns WHERE ar_date BETWEEN @start AND @ended UNION ALL SELECT 1, CAST(ex_date AS DATE), 0, ex_amount FROM Expenses WHERE CAST(ex_date AS DATE) BETWEEN @start AND @ended) As Foo GROUP BY ar_date, ar_type) As Foo ON ar_date=dlv_date WHERE dlv_type=1 AND dlv_station=@st AND dlv_date BETWEEN @start AND @ended GROUP BY dlv_date, dlvr_rcpt, ar_date, st_idnt, st_code, st_name, ar_cash, ar_exps ORDER BY ISNULL(dlv_date, ar_date)");
+            SqlDataReader dr = conn.SqlServerConnect("USE " + station.Prefix.Replace(".dbo.", "") + "; DECLARE @start DATE='" + start.Date + "', @ended DATE='" + ended.Date + "', @st INT=" + station.Id + "; SELECT 0 dlv_idnt, ISNULL(dlv_date, ar_date)dlv_date, ISNULL(dlvr_rcpt,'X') dlv_rcpt, ISNULL(SUM(dlv_amount),0) dlv_amount, ISNULL(SUM(pc_amount),0) dlv_petty, ISNULL(SUM(dlv_amount),0)-ISNULL(SUM(pc_amount),0) dlv_bank, st_idnt, st_code, st_name, ISNULL(ar_cash,0)+ISNULL(ar_exps,0) st_amount, ISNULL(ar_exps,0) dlv_petty, ISNULL(ar_cash,0) st_bank FROM core_system.dbo.Delivery INNER JOIN core_system.dbo.Stations ON st_idnt=@st INNER JOIN core_system.dbo.vDeliveryReceipts ON dlv_date=dlvr_date AND dlvr_station=@st AND dlv_type=dlvr_type LEFT OUTER JOIN core_system.dbo.vDeliveryPettyCash ON dlv_idnt = pc_delv FULL OUTER JOIN (SELECT ar_type, ar_date, SUM(ar_cash)ar_cash, SUM(ar_exps)ar_exps FROM (SELECT 1 ar_type, ar_date, ar_cash, 0 ar_exps FROM AttendantsReturns WHERE ar_date BETWEEN @start AND @ended UNION ALL SELECT 1, CAST(ex_date AS DATE), 0, ex_amount FROM Expenses WHERE CAST(ex_date AS DATE) BETWEEN @start AND @ended) As Foo GROUP BY ar_date, ar_type) As Foo ON ar_date=dlv_date WHERE dlv_type=1 AND dlv_station=@st AND dlv_date BETWEEN @start AND @ended GROUP BY dlv_date, dlvr_rcpt, ar_date, st_idnt, st_code, st_name, ar_cash, ar_exps ORDER BY ISNULL(dlv_date, ar_date)");
             if (dr.HasRows) {
                 while (dr.Read()) {
                     DeliveryVariance dv = new DeliveryVariance {
@@ -1387,6 +1387,45 @@ namespace Core.Services
                     };
 
                     if (!dv.Delivery.Amount.Equals(dv.Variance.Amount) || !dv.Delivery.Expense.Equals(dv.Variance.Expense))
+                        dv.HasVariance = true;
+
+                    variance.Add(dv);
+                }
+            }
+
+            return variance;
+        }
+
+        public List<DeliveryVariance> GetBankingVariances(Stations station, DateTime start, DateTime ended)
+        {
+            List<DeliveryVariance> variance = new List<DeliveryVariance>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("USE " + station.Prefix.Replace(".dbo.", "") + "; DECLARE @start DATE='" + start.Date + "', @ended DATE='" + ended.Date + "', @st INT=" + station.Id + "; SELECT 0 dlv_idnt, ISNULL(dlv_date, bk_date)dlv_date, ISNULL(dlvr_rcpt,'X') dlv_rcpt, ISNULL(SUM(CASE WHEN dlv_type=2 THEN dlv_amount ELSE 0 END),0) dlv_lubes, ISNULL(SUM(CASE WHEN dlv_type=3 THEN dlv_amount ELSE 0 END),0) dlv_soda, ISNULL(SUM(CASE WHEN dlv_type IN (4,5) THEN dlv_amount ELSE 0 END),0) dlv_gas, st_idnt, st_code, st_name, ISNULL(bk_lubes,0) bk_lubes, ISNULL(bk_soda,0) bk_soda, ISNULL(bk_gas,0) bk_gas FROM core_system.dbo.Delivery INNER JOIN core_system.dbo.Stations ON st_idnt=@st INNER JOIN core_system.dbo.vDeliveryReceiptsOthers ON dlv_date=dlvr_date AND dlvr_station=@st LEFT OUTER JOIN core_system.dbo.vDeliveryPettyCash ON dlv_idnt = pc_delv FULL OUTER JOIN (SELECT bk_date, SUM(bk_lubes)bk_lubes, SUM(bk_soda)bk_soda, SUM(bk_gas+bk_other_1)bk_gas FROM Banking WHERE bk_date BETWEEN @start AND @ended GROUP BY bk_date) As Foo ON bk_date=dlv_date WHERE dlv_type<>1 AND dlv_station=@st AND dlv_date BETWEEN @start AND @ended GROUP BY dlv_date, dlvr_rcpt, bk_date, st_idnt, st_code, st_name, bk_lubes, bk_gas, bk_soda ORDER BY ISNULL(dlv_date, bk_date)");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    DeliveryVariance dv = new DeliveryVariance {
+                        Delivery = new Delivery {
+                            Id = Convert.ToInt64(dr[0]),
+                            Date = Convert.ToDateTime(dr[1]),
+                            Receipt = dr[2].ToString(),
+                            Amount = Convert.ToDouble(dr[3]),
+                            Expense = Convert.ToDouble(dr[4]),
+                            Banking = Convert.ToDouble(dr[5]),
+                            Station = new Stations {
+                                Id = Convert.ToInt64(dr[6]),
+                                Code = dr[7].ToString(),
+                                Name = dr[8].ToString(),
+                            }
+                        },
+                        Variance = new Delivery {
+                            Amount = Convert.ToDouble(dr[9]),
+                            Expense = Convert.ToDouble(dr[10]),
+                            Banking = Convert.ToDouble(dr[11])
+                        }
+                    };
+
+                    if (!dv.Delivery.Amount.Equals(dv.Variance.Amount) || !dv.Delivery.Expense.Equals(dv.Variance.Expense) || !dv.Delivery.Banking.Equals(dv.Variance.Banking))
                         dv.HasVariance = true;
 
                     variance.Add(dv);

@@ -22,7 +22,7 @@ namespace Core.Controllers
             IProductService = product;
         }
 
-        [Route("reports")]
+        [Route("/reports")]
         public IActionResult Index(ReportIndexViewModel model, StationsService service) {
             model.Stations = new List<Stations>(service.GetStationsNames());
             model.StationIdnts = service.GetStationIdntsIEnumerable();
@@ -31,7 +31,7 @@ namespace Core.Controllers
             return View(model);
         }
 
-        [Route("reports/customers/summary/{code}/{year}/{type}")]
+        [Route("/reports/customers/summary/{code}/{year}/{type}")]
         public IActionResult CustomerYearly(string code, int year, string type, ReportsCustomerYearlyViewModel model, StationsService svc) {
             model.station = svc.GetStation(code);
             model.year = year;
@@ -42,7 +42,7 @@ namespace Core.Controllers
             return View(model);
         }
 
-        [Route("reports/customers/balances/{code}/{year}")]
+        [Route("/reports/customers/balances/{code}/{year}")]
         public IActionResult CustomerBalances(string code, int year, string type, ReportsCustomerYearlyViewModel model, StationsService svc) {
             model.station = svc.GetStation(code);
             model.year = year;
@@ -53,7 +53,7 @@ namespace Core.Controllers
             return View(model);
         }
 
-        [Route("reports/customers/balances/{code}")]
+        [Route("/reports/customers/balances/{code}")]
         public IActionResult CustomerPeriod(string code, string from, string to, ReportsCustomerPeriodicViewModel model, StationsService svc)
         {
             model.Station = svc.GetStation(code);
@@ -65,7 +65,7 @@ namespace Core.Controllers
             return View(model);
         }
 
-        [Route("reports/vat/{code}/{month}/{year}")]
+        [Route("/reports/vat/{code}/{month}/{year}")]
         public IActionResult VATStationBreakdown(string code, int month, int year, VatStationBreakdownViewModel model, StationsService svc)
         {
             DateTime date = new DateTime(year, month, 1);
@@ -195,6 +195,17 @@ namespace Core.Controllers
             model.Date = new DateTime(year, month, 1);
             model.Station = IStationsService.GetStation(code);
             model.Ledger = IStationsService.GetDeliveryVariances(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1));
+            model.Codes = IStationsService.GetStationCodesIEnumerable();
+
+            return View(model);
+        }
+
+        [Route("reports/banking/variance/{code}/{month}/{year}")]
+        public IActionResult BankingVariance(string code, int month, int year, DeliveryVarianceViewModel model)
+        {
+            model.Date = new DateTime(year, month, 1);
+            model.Station = IStationsService.GetStation(code);
+            model.Ledger = IStationsService.GetBankingVariances(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1));
             model.Codes = IStationsService.GetStationCodesIEnumerable();
 
             return View(model);
