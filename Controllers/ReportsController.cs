@@ -16,6 +16,7 @@ namespace Core.Controllers
     public class ReportsController : Controller
     {
         private readonly IProductService IProductService;
+        private readonly StationsService IStationsService = new StationsService();
 
         public ReportsController(IProductService product) {
             IProductService = product;
@@ -125,9 +126,6 @@ namespace Core.Controllers
         [Route("/reports/trucks/fuel-vat/{month}/{year}")]
         public IActionResult TrucksFuelVat(int month, int year) {
             List<TrucksFuelExpense> model = new List<TrucksFuelExpense>(new CoreService().GetTrucksFuelExpense(month, year));
-
-            
-
             return View(model);
         }
 
@@ -187,6 +185,17 @@ namespace Core.Controllers
             model.Banking = service.GetProductsBanking(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1), catg);
             model.Sales = service.GetProductsSales(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1), catg);
             model.StationCodes = service.GetStationCodesIEnumerable();
+
+            return View(model);
+        }
+
+        [Route("reports/delivery/variance/{code}/{month}/{year}")]
+        public IActionResult DeliveryVariance(string code, int month, int year, DeliveryVarianceViewModel model)
+        {
+            model.Date = new DateTime(year, month, 1);
+            model.Station = IStationsService.GetStation(code);
+            model.Ledger = IStationsService.GetDeliveryVariances(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1));
+            model.Codes = IStationsService.GetStationCodesIEnumerable();
 
             return View(model);
         }

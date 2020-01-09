@@ -149,6 +149,15 @@ table.station tbody tr td {
 .center-text {
     text-align: center;
 }
+.top-text {
+    vertical-align: top;
+}
+.middle-text {
+    vertical-align: middle;
+}
+.bottom-text {
+    vertical-align: bottom;
+}
 a.material-icons.tiny-box {
     display: block;
     font-size: 14px;

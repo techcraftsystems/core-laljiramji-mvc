@@ -70,4 +70,17 @@ namespace Core.Models {
             Name = "";
         }
     }
+
+    public class DeliveryVariance {
+        public bool HasVariance { get; set; }
+        public Delivery Delivery { get; set; }
+        public Delivery Variance { get; set; }
+
+        public DeliveryVariance()
+        {
+            HasVariance = false;
+            Delivery = new Delivery();
+            Variance = new Delivery();
+        }
+    }
 }
