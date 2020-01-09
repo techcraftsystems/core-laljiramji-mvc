@@ -108,4 +108,27 @@ namespace Core.Models
             Total = 0;
         }
     }
+
+    public class ProductsTransactions
+    {
+        public long Id { get; set; }
+        public Products Product { get; set; }
+        public string Date { get; set; }
+        public string Reference { get; set; }
+        public string Description { get; set; }
+        public DateTime CreatedOn { get; set; }
+        public double In { get; set; }
+        public double Out { get; set; }
+
+        public ProductsTransactions() {
+            Id = 0;
+            Product = new Products();
+            Date = "";
+            Reference = "";
+            Description = "";
+            CreatedOn = DateTime.Now;
+            In = 0;
+            Out = 0;
+        }
+    }
 }

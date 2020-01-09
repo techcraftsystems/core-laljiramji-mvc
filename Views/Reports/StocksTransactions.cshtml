@@ -1,5 +1,102 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model Core.ViewModel.ReportProductsStocksTransactions;
 @{
+    ViewData["Title"] = "Stock Transactions";
+    int count = 0;
+    double running = 0;
 }
+
+<script src="~/js/reports-stock-transaction.js"></script>
+<div id="breadcrumbs-wrapper">
+    <div class="container">
+        <div class="row zero-margin">
+            <div class="col s10 m6 l6">
+                <ol class="breadcrumbs">
+                    <li><a href="/reports">Reports</a></li>
+                    <li><a href="">Stocks</a></li>
+                    <li class="active">Transactions</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="clear:both; margin-top:55px;"></div>
+
+<div class="row" style="margin-top: 10px; margin-bottom: 0px;">
+    <div class="input-field col-md-3">
+        <i class="material-icons prefix">local_gas_station</i>
+        @Html.DropDownListFor(model => model.Station.Code, Model.Codes)
+    </div>
+
+    <div class="input-field col-md-5">
+        <i class="material-icons prefix">local_gas_station</i>
+        @Html.DropDownListFor(model => Model.Product.Id, Model.Items)
+    </div>
+
+    <div class="input-field col-md-2">
+        <i class="material-icons prefix">event</i>
+        @Html.TextBoxFor(model => Model.Start, new { @class = "datepicker" } )
+    </div>
+
+    <div class="input-field col-md-2">
+        <i class="material-icons prefix">event</i>
+        @Html.TextBoxFor(model => Model.Ended, new { @class = "datepicker" } )
+    </div>
+</div>
+
+
+<div class="card zero-margin">
+    <div class="card-content deep-orange accent-2 white-text table-card" style="border-radius: 0">
+        <h5 class="card-stats-number"><i class="material-icons left">format_line_spacing</i> Product Transactions</h5>
+        <p class="card-stats-compare right">&nbsp;</p>
+    </div>
+
+    <table id="ledger-table" class="custom bordered" data-loaded="0" style="margin-top:-20px">
+        <thead class="deep-orange accent-2">
+            <tr>
+                <th class="center-text">#</th>
+                <th>DATE</th>
+                <th>DESCRIPTION</th>
+                <th>CATEGORY</th>
+                <th>TRANSACTION</th>
+                <th class="center-text">REFERENCE</th>
+                <th class="center-text">INNS</th>
+                <th class="center-text">OUTS</th>
+                <th class="center-text">RUNNING</th>
+            </tr>
+
+        </thead>
+        <tbody style="">
+            @foreach(var itm in Model.Products)
+            {
+                count++;
+                running += itm.In - itm.Out;
+
+                <tr>
+                    <td class="center-text">@count</td>
+                    <td>@itm.Date</td>
+                    <td>@itm.Product.Name</td>
+                    <td>@itm.Product.Category</td>
+                    <td>@itm.Description</td>
+                    <td class="center-text">@itm.Reference</td>
+                    <td class="center-text">@string.Format("{0:N0}", itm.In)</td>
+                    <td class="center-text">@string.Format("{0:N0}", itm.Out)</td>
+                    <td class="center-text">@string.Format("{0:N0}", running)</td>
+                </tr>
+            }
+
+            @if (Model.Products.Count.Equals(0))
+            {
+                <tr>
+                    <td colspan="9" class="center-text">NO RECORDS FOUND</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot class="deep-orange accent-2 white-text">
+            <tr>
+                <th>&nbsp;</th>
+                <th colspan="7">CLOSING BALANCE</th>
+                <th class="center-text">@string.Format("{0:N0}", running)</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>

@@ -8,13 +8,19 @@ using Core.DataModel;
 using Core.Models;
 using Core.ReportModel;
 using System.Linq;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Core.Controllers
 {
     [Authorize]
     public class ReportsController : Controller
     {
-        // GET: /<controller>/
+        private readonly IProductService IProductService;
+
+        public ReportsController(IProductService product) {
+            IProductService = product;
+        }
+
         [Route("reports")]
         public IActionResult Index(ReportIndexViewModel model, StationsService service) {
             model.Stations = new List<Stations>(service.GetStationsNames());
@@ -71,7 +77,7 @@ namespace Core.Controllers
             return View(model);
         }
 
-        [Route("reports/vat/downloads/{month}/{year}")]
+        [Route("/reports/vat/downloads/{month}/{year}")]
         public IActionResult VATFilesDownloads(int month, int year, VatFilesDownloadViewModel model, PurchasesService Service) {
             model.Month = month;
             model.Year = year;
@@ -84,7 +90,7 @@ namespace Core.Controllers
             return View(model);
         }
 
-        [Route("reports/stations/summary/{code}/{month}/{year}")]
+        [Route("/reports/stations/summary/{code}/{month}/{year}")]
         public IActionResult StationsSummary(string code, int month, int year, ReportsStationsSummaryViewModel model, StationsService svc)
         {
             model.Date = new DateTime(year, month, 1);
@@ -94,7 +100,7 @@ namespace Core.Controllers
             return View(model);
         }
 
-        [Route("reports/etr/{code}/{month}/{year}")]
+        [Route("/reports/etr/{code}/{month}/{year}")]
         public IActionResult EtrSheet(string code, int month, int year, ReportsEtrSheetViewModel model, StationsService svc)
         {
             model.Date = new DateTime(year, month, 1);
@@ -104,19 +110,22 @@ namespace Core.Controllers
             return View(model);
         }
 
-        [Route("reports/trucks/fuel/{year}")]
+        [Route("/reports/trucks/fuel/{year}")]
         public IActionResult TrucksFuelMonthly(int year) {
             List<TrucksMonthlySummary> model = new CoreService().GetTrucksMonthlySummary(year);
             return View(model);
         }
 
-        [Route("reports/trucks/fuel-vat/{month}/{year}")]
+        [Route("/reports/trucks/fuel-vat/{month}/{year}")]
         public IActionResult TrucksFuelVat(int month, int year) {
             List<TrucksFuelExpense> model = new List<TrucksFuelExpense>(new CoreService().GetTrucksFuelExpense(month, year));
+
+            
+
             return View(model);
         }
 
-        [Route("reports/stocks/unlinked")]
+        [Route("/reports/stocks/unlinked")]
         public IActionResult StocksUnlinked(ReportProductsViewModel model, StationsService service) {
             model.Stations = service.GetStationCodesIEnumerable("WHERE st_idnt IN (2,3,6,9)");
             model.Products = service.GetProductsUnlinked();
@@ -124,10 +133,21 @@ namespace Core.Controllers
             return View(model);
         }
 
-        [Route("reports/stocks/linked")]
+        [Route("/reports/stocks/linked")]
         public IActionResult StocksLinked(ReportProductsLinkedViewModel model, StationsService service) {
             model.Products = service.GetProductsLinked();
 
+            return View(model);
+        }
+
+        [Route("/reports/stocks/transactions")]
+        public IActionResult StocksTransactions(ReportProductsStocksTransactions model, StationsService service) {
+            DateTime date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            model.Codes = service.GetStationCodesIEnumerable();
+            model.Station = service.GetStation(model.Codes.FirstOrDefault().Value);
+            model.Items = IProductService.GetProductsIEnumerable(model.Station);
+            model.Products = IProductService.GetProductsTransactions(model.Station, new Products { Id = Convert.ToInt64(model.Items.FirstOrDefault().Value) }, date, date.AddMonths(1).AddDays(-1));
+            //string x = model.Codes
             return View(model);
         }
 
@@ -247,6 +267,18 @@ namespace Core.Controllers
             if (string.IsNullOrWhiteSpace(filter))
                 filter = "";
             return Json(new StationsService().GetProductsLinked(filter));
+        }
+
+        public JsonResult GetProductsByStation(string code) {
+            Stations station = new StationsService().GetStation(code);
+            return Json(IProductService.GetProductsIEnumerable(station));
+        }
+
+        public JsonResult GetProductsTransactions(string code, int item, string from, string ends) {
+            Stations station = new StationsService().GetStation(code);
+            Products product = new Products { Id = item };
+
+            return Json(IProductService.GetProductsTransactions(station, product, DateTime.Parse(from), DateTime.Parse(ends)));
         }
     }
 }

@@ -14,7 +14,8 @@ namespace Core.ViewModel
         public DateTime StartDate { get; set; }
         public Stations Station { get; set; }
 
-        public ReportIndexViewModel() {
+        public ReportIndexViewModel()
+        {
             StartDate = new DateTime(DateTime.Now.Year, 1, 1);
 
             Station = new Stations();
@@ -24,31 +25,36 @@ namespace Core.ViewModel
         }
     }
 
-    public class ReportsStationsSummaryViewModel {
+    public class ReportsStationsSummaryViewModel
+    {
         public DateTime Date { get; set; }
         public Stations Station { get; set; }
         public List<StationsMonthlySummary> Report { get; set; }
 
-        public ReportsStationsSummaryViewModel() {
+        public ReportsStationsSummaryViewModel()
+        {
             Date = DateTime.Now;
             Station = new Stations();
             Report = new List<StationsMonthlySummary>();
         }
     }
 
-    public class ReportsEtrSheetViewModel {
+    public class ReportsEtrSheetViewModel
+    {
         public DateTime Date { get; set; }
         public Stations Station { get; set; }
         public List<EtrSheet> Report { get; set; }
 
-        public ReportsEtrSheetViewModel() {
+        public ReportsEtrSheetViewModel()
+        {
             Date = DateTime.Now;
             Station = new Stations();
             Report = new List<EtrSheet>();
         }
     }
 
-    public class ReportsCustomerYearlyViewModel {
+    public class ReportsCustomerYearlyViewModel
+    {
         public Stations station { get; set; }
         public long year { get; set; }
         public string type { get; set; }
@@ -72,7 +78,8 @@ namespace Core.ViewModel
         public List<ReportCustomerPeriodic> Report { get; set; }
         public IEnumerable<SelectListItem> Codes { get; set; }
 
-        public ReportsCustomerPeriodicViewModel() {
+        public ReportsCustomerPeriodicViewModel()
+        {
             Station = new Stations();
             Start = DateTime.Now;
             Stop = DateTime.Now;
@@ -81,35 +88,66 @@ namespace Core.ViewModel
         }
     }
 
-    public class ReportProductsViewModel {
+    public class ReportProductsViewModel
+    {
         public IEnumerable<SelectListItem> Stations { get; set; }
         public List<Products> Products { get; set; }
         public string Station { get; set; }
 
-        public ReportProductsViewModel() {
+        public ReportProductsViewModel()
+        {
             Station = "";
             Stations = new List<SelectListItem>();
             Products = new List<Products>();
         }
     }
 
-    public class ReportProductsLinkedViewModel {
+    public class ReportProductsLinkedViewModel
+    {
         public List<ProductsLinked> Products { get; set; }
 
-        public ReportProductsLinkedViewModel() {
+        public ReportProductsLinkedViewModel()
+        {
             Products = new List<ProductsLinked>();
         }
     }
 
+    public class ReportProductsStocksTransactions
+    {
+        public string Start { get; set; }
+        public string Ended { get; set; }
 
-    public class ReportProductSales {
+        public Stations Station { get; set; }
+        public Products Product { get; set; }
+        public List<ProductsTransactions> Products { get; set; }
+        public IEnumerable<SelectListItem> Codes { get; set; }
+        public IEnumerable<SelectListItem> Items { get; set; }
+
+        public ReportProductsStocksTransactions()
+        {
+            Products = new List<ProductsTransactions>();
+            Station = new Stations();
+            Product = new Products();
+            Codes = new List<SelectListItem>();
+            Items = new List<SelectListItem>();
+
+            Start = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).ToString("d MMMM, yyyy");
+            Ended = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(1).AddDays(-1).ToString("d MMMM, yyyy");
+        }
+        //public
+    }
+
+
+    public class ReportProductSales
+    {
         public List<ProductsSales> Sales { get; set; }
         public DateTime Date { get; set; }
         public Stations Station { get; set; }
         public ProductsBanking Banking { get; set; }
         public IEnumerable<SelectListItem> StationCodes { get; set; }
 
-        public ReportProductSales() {
+        public ReportProductSales()
+        {
             Date = DateTime.Now;
             Sales = new List<ProductsSales>();
             Station = new Stations();
@@ -118,7 +156,8 @@ namespace Core.ViewModel
         }
     }
 
-    public class ReportPurchaseVariance {
+    public class ReportPurchaseVariance
+    {
         public List<ProductsLedger> Diesel { get; set; }
         public List<ProductsLedger> Super { get; set; }
         public List<ProductsLedger> Vpower { get; set; }
@@ -128,14 +167,16 @@ namespace Core.ViewModel
         public Stations Station { get; set; }
         public IEnumerable<SelectListItem> Stations { get; set; }
 
-        public ReportPurchaseVariance() {
+        public ReportPurchaseVariance()
+        {
             Date = DateTime.Now;
             Station = new Stations();
             Stations = new List<SelectListItem>();
         }
     }
 
-    public class ReportWetstock {
+    public class ReportWetstock
+    {
         public List<WetstockSummary> Summary { get; set; }
         public List<Wetstock> Wetstock { get; set; }
         public Stations Station { get; set; }
@@ -143,7 +184,8 @@ namespace Core.ViewModel
         public DateTime Stop { get; set; }
         public IEnumerable<SelectListItem> Stations { get; set; }
 
-        public ReportWetstock() {
+        public ReportWetstock()
+        {
             Summary = new List<WetstockSummary>();
             Wetstock = new List<Wetstock>();
             Station = new Stations();

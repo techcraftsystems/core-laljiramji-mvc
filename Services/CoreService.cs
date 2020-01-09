@@ -40,6 +40,35 @@ namespace Core.Services {
             return enumarables;
         }
 
+        public List<SelectListItem> GetIEnumerableGroup(string group, string query) {
+            List<SelectListGroup> groups = new List<SelectListGroup>();
+            List<SelectListItem> enumarables = new List<SelectListItem>();
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect(group);
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    groups.Add(new SelectListGroup { Name = dr[0].ToString() });
+                }
+            }
+
+            conn = new SqlServerConnection();
+            dr = conn.SqlServerConnect(query);
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    SelectListItem option = new SelectListItem { 
+                        Value = dr[0].ToString(),
+                        Text = dr[1].ToString(),
+                        Group = groups.Find(a => a.Name.Equals(dr[2].ToString()))
+                    };
+
+                    enumarables.Add(option);
+                }
+            }
+
+            return enumarables;
+        }
+
         public Customers GetCustomer(string station, long id){
             SqlServerConnection conn = new SqlServerConnection();
             SqlDataReader dr = conn.SqlServerConnect("SELECT Custid, Names, Contacts, Telephone, KRA_PIN, AccountBalance, CreditLimit, DateJoined, ISNULL(sr_last,'1990-01-01')x, st_idnt, st_code, CASE st_idnt WHEN 12 THEN 'Shell Uhuru Highway' ELSE st_name END st_names, st_database FROM vCustomers INNER JOIN Stations ON Sts=st_idnt LEFT OUTER JOIN vLastInvoices ON sr_st=Sts AND sr_cust=Custid WHERE st_code='" + station + "' AND Custid=" + id);
