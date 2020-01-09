@@ -272,7 +272,7 @@ jq(function() {
                 return false;
             }
 
-            json += '{"voucher":"' + jq(this).find('td:eq(1) input').val().trim() + '", "receipt":"' + jq(this).find('td:eq(2) input').val().trim() + '", "account":"' + jq(this).find('td:eq(3) input').val().trim() + '", "supplier":"' + jq(this).find('td:eq(4) input').val().trim() + '", "description":"' + jq(this).find('td:eq(5) input').val().trim() + '", "amount":"' + eval(jq(this).find('td:eq(6) input').val()) + '", "id":"' + eval(jq(this).find('td:eq(7) input').val()) + '"},';
+            json += '{"voucher":"' + jq(this).find('td:eq(1) input').val().trim() + '", "receipt":"' + jq(this).find('td:eq(2) input').val().trim() + '", "account":"' + jq(this).find('td:eq(3) input').val().trim().replace(/'/g,"`").replace(/"/g, "``") + '", "supplier":"' + jq(this).find('td:eq(4) input').val().trim().replace(/'/g,"`").replace(/"/g, "``") + '", "description":"' + jq(this).find('td:eq(5) input').val().trim().replace(/'/g,"`").replace(/"/g, "``") + '", "amount":"' + eval(jq(this).find('td:eq(6) input').val()) + '", "id":"' + eval(jq(this).find('td:eq(7) input').val()) + '"},';
             idnt += jq(this).find('td:eq(7) input').val() + ',';
             amts += eval(jq(this).find('td:eq(6) input').val());
         });
@@ -286,8 +286,6 @@ jq(function() {
         jq("#Entries_" + line + "__JSonExpense").val(json);
         jq("#Entries_" + line + "__Expense").val(amts);
         jq("#Entries_" + line + "__Expense").change();
-
-        console.log(json);
 
         jq('#expense-modal').modal('close');
     });
