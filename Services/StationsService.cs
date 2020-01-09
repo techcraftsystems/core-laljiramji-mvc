@@ -550,6 +550,37 @@ namespace Core.Services
             return entries;
         }
 
+        public List<LedgerEntries> GetLedgerEntriesMissing() {
+            List<LedgerEntries> entries = new List<LedgerEntries>();
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("SELECT sr_idnt, sr_date, CASE sr_fuel WHEN 1 THEN 'LTS DIESEL' WHEN 2 THEN 'LTS SUPER' WHEN 3 THEN 'LTS VPOWER' WHEN 4 THEN 'LTS KEROSENE' ELSE 'OTHERS' END xdesc, sr_lpo, sr_invoice, sr_price, sr_amts, sr_cust, Names, sr_st, st_code, st_name FROM VatReports INNER JOIN vInvoicesLedger ON sr_date=vat_date AND sr_fuel=vat_item INNER JOIN Stations ON sr_st=st_idnt LEFT OUTER JOIN vPumpsPrices ON pp_date=vat_date AND pp_fuel=vat_item AND pp_st=sr_st LEFT OUTER JOIN vCustomers ON Custid=sr_cust and Sts=sr_st WHERE sr_amts>0 AND pp_price IS NULL");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    entries.Add(new LedgerEntries {
+                        Id = Convert.ToInt64(dr[0]),
+                        Date = Convert.ToDateTime(dr[1]).ToString("dd/MM/yyyy"),
+                        Description = dr[2].ToString(),
+                        Lpo = dr[3].ToString(),
+                        Invoice = dr[4].ToString(),
+                        Price = Convert.ToDouble(dr[5]),
+                        Amount = Convert.ToDouble(dr[6]),
+                        Quantity = Convert.ToDouble(dr[6]) / Convert.ToDouble(dr[5]),
+                        Customer = new Customers {
+                            Id = Convert.ToInt64(dr[7]),
+                            Name = dr[8].ToString()
+                        },
+                        Station = new Stations {
+                            Id = Convert.ToInt64(dr[9]),
+                            Code = dr[10].ToString(),
+                            Name = dr[11].ToString()
+                        }
+                    });
+                }
+            }
+
+            return entries;
+        }
+
         public List<Expenses> GetExpenditure(Int64 stid, DateTime start, DateTime stop, String filter){
             List<Expenses> expenses = new List<Expenses>();
 

@@ -90,6 +90,12 @@ namespace Core.Controllers
             return View(model);
         }
 
+        [Route("/reports/vat/missing-breakdowns")]
+        public IActionResult VATMissingBreakdowns(VATMissingBreakdownsViewModel model) {
+            model.Ledger = new StationsService().GetLedgerEntriesMissing();
+            return View(model);
+        }
+
         [Route("/reports/stations/summary/{code}/{month}/{year}")]
         public IActionResult StationsSummary(string code, int month, int year, ReportsStationsSummaryViewModel model, StationsService svc)
         {

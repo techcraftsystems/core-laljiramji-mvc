@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Core.DataModel;
+using Core.Models;
 
 namespace Core.ReportModel
 {
@@ -21,6 +22,15 @@ namespace Core.ReportModel
             Purchases00Perc = new List<VatDownloadEntries>();
             Purchases08Perc = new List<VatDownloadEntries>();
             Purchases16Perc = new List<VatDownloadEntries>();
+        }
+    }
+
+    public class VATMissingBreakdownsViewModel
+    {
+        public List<LedgerEntries> Ledger { get; set; }
+
+        public VATMissingBreakdownsViewModel() {
+            Ledger = new List<LedgerEntries>();
         }
     }
 }

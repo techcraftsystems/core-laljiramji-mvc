@@ -1,0 +1,69 @@
+﻿@model Core.ReportModel.VATMissingBreakdownsViewModel;
+@{
+    ViewData["Title"] = "Missing Breakdown";
+}
+
+<div id="breadcrumbs-wrapper">
+    <div class="container">
+        <div class="row zero-margin">
+            <div class="col s10 m6 l6">
+                <ol class="breadcrumbs">
+                    <li><a href="/reports">Reports</a></li>
+                    <li><a href="">VAT</a></li>
+                    <li class="active">Missing Breakdowns</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="clear:both; margin-top:55px;"></div>
+
+
+<div class="card zero-margin">
+    <div class="card-content deep-orange accent-2 white-text table-card" style="border-radius: 0">
+        <h5 class="card-stats-number"><i class="material-icons left">layers_clear</i> Missing Breakdowns</h5>
+        <p class="card-stats-compare right">&nbsp;</p>
+    </div>
+
+    <table id="ledger-table" class="custom bordered" data-loaded="0" style="margin-top:-20px">
+        <thead class="deep-orange accent-2">
+            <tr>
+                <th>DATE</th>
+                <th class="center-text">QNTY</th>
+                <th>DESCRIPTION</th>
+                <th>CUSTOMER</th>
+                <th>LPO</th>
+                <th>INVOICE</th>
+                <th class="right-text">PRICE</th>
+                <th class="right-text">AMOUNT</th>
+            </tr>
+
+        </thead>
+        <tbody style="">
+            @foreach(var itm in Model.Ledger)
+            {
+                <tr>
+                    <td>@itm.Date</td>
+                    <td class="center-text">@string.Format("{0:N2}", itm.Quantity)</td>
+                    <td>@itm.Description</td>
+                    <td>@itm.Customer.Name</td>
+                    <td>@itm.Lpo</td>
+                    <td>@itm.Invoice</td>
+                    <td class="center-text">@string.Format("{0:N2}", itm.Price)</td>
+                    <td class="center-text">@string.Format("{0:N2}", itm.Amount)</td>
+                </tr>
+            }
+
+            @if (Model.Ledger.Count.Equals(0)) {
+                <tr>
+                    <td colspan="8" class="center-text">NO RECORDS FOUND</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot class="deep-orange accent-2 white-text">
+            <tr>
+                <th colspan="8">&nbsp;</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
