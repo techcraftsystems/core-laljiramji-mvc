@@ -52,21 +52,14 @@ namespace Core.Controllers
 
             //DateTime.ParseExact(date1, "d MMM, yyyy", System.Globalization.CultureInfo.InvariantCulture);
             if (!string.IsNullOrEmpty(date1))
-            {
                 xdate1 = DateTime.Parse(date1);
-            }
 
             if (!string.IsNullOrEmpty(date2))
-            {
                 xdate2 = DateTime.Parse(date2);
-            }
 
             if (string.Equals(stats, "Select Stations"))
-            {
                 stats = "";
-            }
-            else
-            {
+            else {
                 string[] stations = stats.Split(',', StringSplitOptions.RemoveEmptyEntries);
                 stats = "";
 

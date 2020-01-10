@@ -428,8 +428,9 @@ function GetCustomerPayments() {
         dataType: "json",
         url: '/Stations/GetCustomerPayments',
         data: {
-            "date1": jq("#paymentStartDate").val(),
-            "date2": jq("#paymentStopsDate").val(),
+            "date1":  jq("#paymentStartDate").val(),
+            "date2":  jq("#paymentStopsDate").val(),
+            "filter": jq('#paymentFilter').val(),
             "stations": xIdnt,
         },
         beforeSend: function() {
