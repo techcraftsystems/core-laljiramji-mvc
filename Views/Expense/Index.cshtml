@@ -42,6 +42,27 @@
         margin: 0 !important;
         height: 2rem;
     }
+    div.body-filter div.col-md-1 {
+        width: 1%;
+        padding: 0;
+        padding-right: 1%;
+    }
+    div.body-filter div.col-md-3 {
+        width: 22%;
+        padding-right: 0;
+    }
+    div.body-filter div.col-md-5 {
+        width: 33%;
+        padding-right: 0;
+    }
+    div.body-filter .input-field .prefix ~ input,
+    div.body-filter .input-field .prefix ~ textarea,
+    div.body-filter .input-field .prefix ~ select,
+    div.body-filter .input-field .prefix ~ label,
+    div.body-filter .input-field .prefix ~ .validate ~ label,
+    div.body-filter .input-field .prefix ~ .autocomplete-content {
+        margin-left: 2.5rem;
+    }
 </style>
 <script src="~/js/expense-index-script.js"></script>
 
@@ -54,7 +75,7 @@
             </div>
         </div>
     </div>
-    <ul id="profile-page-about-details" class="collection z-depth-1 col s12 m3 l3" style="padding:0; margin-top:0">
+    <ul id="profile-page-about-details" class="collection z-depth-1 col s12 m3 l3" style="padding: 0; margin-top: 0 ">
         <li class="collection-item">
             <div class="">
                 <div class="col s12">
@@ -106,7 +127,7 @@
             </ul>
 
             <div id="general" class="body">
-                <div class="row" style="margin-top: 10px;">
+                <div class="row body-filter" style="margin-top: 10px;">
                     <div class="input-field col-md-3">
                         <i class="material-icons prefix">date_range</i>
                         <input id="expenseStartDate" type="text" class="datepicker" value="@Model.Date1x.ToString("d MMMM, yyyy")">
@@ -115,6 +136,15 @@
                     <div class="input-field col-md-3">
                         <i class="material-icons prefix">date_range</i>
                         <input id="expenseStopsDate" type="text" class="datepicker" value="@Model.Date2x.ToString("d MMMM, yyyy")">
+                    </div>
+
+                    <div class="input-field col-md-3">
+                        <i class="material-icons prefix">playlist_add_check</i>
+                        <select id="expenseType" class="modal-type">
+                            <option value="0">All Expenses</option>
+                            <option value="2">Expenses</option>
+                            <option value="1">Truck Fuel</option>
+                        </select>
                     </div>
 
                     <div class="input-field col-md-5">

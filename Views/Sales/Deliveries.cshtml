@@ -125,7 +125,7 @@
                     <td>@delv.Receipt</td>
                     <td>@delv.Type.Name</td>
                     <td><a class="blue-text" href="/bank/@(delv.Bank.Code)">@delv.Bank.Name.ToUpper()</a></td>
-                    <td><a class="blue-text" href="/core/stations/@(delv.Station.Code)">@delv.Station.Code.ToUpper()</a></td>
+                    <td><a class="blue-text" href="/core/stations/@(delv.Station.Code)">@delv.Station.Name.ToUpper()</a></td>
                     <td>@delv.Description</td>
                     <td class="right-text">@string.Format("{0:N}", delv.Amount)</td>
                     <td class="right-text">@string.Format("{0:N}", delv.Expense)</td>

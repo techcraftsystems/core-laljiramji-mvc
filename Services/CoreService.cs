@@ -672,11 +672,11 @@ namespace Core.Services {
             return null;
         }
 
-        public List<ExpensesCore> GetExpensesCore(DateTime start, DateTime stop, string filter = "") {
+        public List<ExpensesCore> GetExpensesCore(DateTime start, DateTime stop, string filter = "", int source = 0) {
             List<ExpensesCore> expenses = new List<ExpensesCore>();
 
             SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("SELECT tf_idnt, tf_source, tf_date, tr_registration, sp_name, tf_dev, tf_invoice, ISNULL(tf_station, xs_source), tf_qnty, tf_price, tf_amount FROM vExpensesCore INNER JOIN ExpensesSource ON tf_source=xs_idnt " + conn.GetQueryString(filter, "tr_registration+'-'+sp_name+'-'+tf_dev+'-'+tf_invoice+'-'+ISNULL(tf_station,xs_source)+'-'+CAST(tf_qnty AS NVARCHAR)+'-'+CAST(tf_price AS NVARCHAR)+'-'+CAST(tf_amount  AS NVARCHAR)", "tf_date BETWEEN '" + start.Date + "' AND '" + stop.Date + "'") + " ORDER BY tf_date, tf_source, tf_idnt");
+            SqlDataReader dr = conn.SqlServerConnect("SELECT tf_idnt, tf_source, tf_date, tr_registration, sp_name, tf_dev, tf_invoice, ISNULL(tf_station, xs_source), tf_qnty, tf_price, tf_amount FROM vExpensesCore INNER JOIN ExpensesSource ON tf_source=xs_idnt " + conn.GetQueryString(filter, "tr_registration+'-'+sp_name+'-'+tf_dev+'-'+tf_invoice+'-'+ISNULL(tf_station,xs_source)+'-'+CAST(tf_qnty AS NVARCHAR)+'-'+CAST(tf_price AS NVARCHAR)+'-'+CAST(tf_amount  AS NVARCHAR)", "tf_date BETWEEN '" + start.Date + "' AND '" + stop.Date + "'" + (source.Equals(0) ? "" : " AND tf_source=" + source)) + " ORDER BY tf_date, tf_source, tf_idnt");
             if (dr.HasRows) {
                 while (dr.Read()) {
                     expenses.Add(new ExpensesCore {

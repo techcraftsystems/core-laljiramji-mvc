@@ -201,9 +201,10 @@ function GetExpensesCore() {
         dataType: "json",
         url: '/Expense/GetExpensesCore',
         data: {
-            "start":        jq("#expenseStartDate").val(),
-            "stop":         jq("#expenseStopsDate").val(),
-            "filter":       jq('#expenseFilter').val()
+            "start":    jq("#expenseStartDate").val(),
+            "stops":    jq("#expenseStopsDate").val(),
+            "filter":   jq('#expenseFilter').val(),
+            "source":   jq('#expenseType').val()
         },
         beforeSend: function() {
             $('body').removeClass('loaded');

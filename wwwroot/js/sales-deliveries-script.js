@@ -374,7 +374,7 @@ function GetDeliveries() {
                 row += "<td>" + delv.receipt + "</td>";
                 row += "<td>" + delv.type.name + "</td>";
                 row += "<td><a class='blue-text' href='/bank/" + delv.bank.code + "'>" + delv.bank.name.toUpperCase() + "</td>";
-                row += "<td><a class='blue-text' href='/core/stations/" + delv.station.code + "'>" + delv.station.code.toUpperCase() + "</td>";
+                row += "<td><a class='blue-text' href='/core/stations/" + delv.station.code + "'>" + delv.station.name.toUpperCase() + "</td>";
                 row += "<td>" + delv.description + "</td>";
                 row += "<td class='right-text'>" + delv.amount.toString().toAccounting() + "</td>";
                 row += "<td class='right-text'>" + delv.expense.toString().toAccounting() + "</td>";

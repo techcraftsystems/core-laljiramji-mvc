@@ -3,12 +3,13 @@
     ViewData["Title"] = "Delivery Variance";
     DateTime dt = new DateTime(DateTime.Now.Year, 1, 1);
 
-    int month = DateTime.Now.Month - 1;
+    int month = (DateTime.Now.Month) - 1;
     var months = new List<SelectListItem>();
     for (int ix = 0; ix < 12; ix++) {
         months.Add(new SelectListItem {
             Value = ix.ToString(),
-            Text = dt.AddMonths(ix).ToString("MMMM")
+            Text = dt.AddMonths(ix).ToString("MMMM"),
+            Selected = dt.AddMonths(ix).Month.Equals(DateTime.Now.Month) ? true : false
         });
     }
 }
@@ -71,7 +72,7 @@
         <tbody style="font-size:1em">
             @foreach (var ldg in Model.Ledger) {
                 <tr class="@(ldg.HasVariance ? "red-text" : "")">
-                    <td>@ldg.Delivery.Date.ToString("dd")</td>
+                    <td>@ldg.Delivery.Date.ToString("dd MMM").ToUpper()</td>
                     <td>FUEL DELIVERY</td>
                     <td>@ldg.Delivery.Receipt</td>
                     <td>@ldg.Delivery.Station.Name.ToUpper()</td>

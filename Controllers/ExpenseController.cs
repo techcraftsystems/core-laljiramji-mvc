@@ -69,11 +69,11 @@ namespace Core.Controllers
             return LocalRedirect("/expenses/");
         }
 
-        public JsonResult GetExpensesCore(string start, string stop, string filter, CoreService core) {
+        public JsonResult GetExpensesCore(string start, string stops, string filter, int source, CoreService core) {
             if (string.IsNullOrWhiteSpace(filter))
                 filter = "";
 
-            return Json(core.GetExpensesCore(DateTime.Parse(start), DateTime.Parse(stop), filter));
+            return Json(core.GetExpensesCore(DateTime.Parse(start), DateTime.Parse(stops), filter, source));
         }
 
         public JsonResult GetStationsExpenses(string start, string stop, CoreService core, string stations = "", string filter = "") {

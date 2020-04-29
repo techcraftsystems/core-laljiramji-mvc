@@ -43,6 +43,16 @@
 </script>
 
 <style>
+    table.custom thead,
+    table.custom tfoot {
+        font-size: 0.8em;
+    }
+    table.custom tbody {
+        font-size: 0.7em;
+    }
+    th.br-wheat, td.br-wheat {
+        border-right: 1px solid #d0d0d0;
+    }
     footer, hr {
         display:none;
     }
@@ -50,37 +60,41 @@
 
 <table class="custom bordered" style="margin-top:10px;">
     <thead class="deep-orange accent-2">
-        <tr style="font-size:1.5em">
-            <th>&nbsp;</th>
-            <th colspan="5" class="center-align">CASH SALES</th>
-            <th colspan="5" class="center-align">CREDIT SALES</th>
-            <th colspan="5" class="center-align">CREDIT AND SUMMARIES</th>
-            <th colspan="6" class="center-align">PRODUCT SUMMARIES</th>
-            <th colspan="8" class="center-align">OTHER REVUENUE SOURCES</th>
+        <tr style="">
+            <th class="br-wheat">&nbsp;</th>
+            <th colspan="5" class="center-align br-wheat">CASH SALES</th>
+            <th colspan="5" class="center-align br-wheat">CREDIT SALES</th>
+            <th colspan="5" class="center-align br-wheat">CREDIT AND SUMMARIES</th>
+            <th colspan="6" class="center-align br-wheat">PRODUCT SUMMARIES</th>
+            <th colspan="8" class="center-align br-wheat">OTHER REVUENUE SOURCES</th>
         </tr>
         <tr>
-            <th>DATE</th>
+            <th class="br-wheat">DATE</th>
             <th class="right-align">DX</th>
             <th class="right-align">UX</th>
             <th class="right-align">IK</th>
             <th class="right-align">VP</th>
-            <th class="right-align">TOTAL</th>
+            <th class="right-align br-wheat">TOTAL</th>
+
             <th class="right-align">DX</th>
             <th class="right-align">UX</th>
             <th class="right-align">IK</th>
             <th class="right-align">VP</th>
-            <th class="right-align">TOTAL</th>
+            <th class="right-align br-wheat">TOTAL</th>
+
             <th class="right-align">CASH</th>
             <th class="right-align">DISC</th>
             <th class="right-align">CREDIT</th>
             <th class="right-align">TRANSPORT</th>
-            <th class="right-align">LESSES</th>
+            <th class="right-align br-wheat">LESSES</th>
+
             <th class="right-align">LUBE</th>
             <th class="right-align">CREDIT</th>
             <th class="right-align">GAS</th>
             <th class="right-align">GAS(VAT)</th>
             <th class="right-align">SODA</th>
-            <th class="right-align">TOTAL</th>
+            <th class="right-align br-wheat">TOTAL</th>
+
             <th class="right-align">RENT</th>
             <th class="right-align">CARWASH</th>
             <th class="right-align">CREDIT</th>
@@ -88,7 +102,7 @@
             <th class="right-align">CREDIT</th>
             <th class="right-align">PUNCTURE</th>
             <th class="right-align">CREDIT</th>
-            <th class="right-align">TOTAL</th>
+            <th class="right-align br-wheat">TOTAL</th>
         </tr>
     </thead>
     <tbody>
@@ -126,28 +140,32 @@
             tyre_credit += rpt.TyreCredit;
 
             <tr>
-                <td class="center-align">@rpt.Date.ToString("dd")</td>
+                <td class="center-align bold-text br-wheat">@rpt.Date.ToString("dd")</td>
                 <td class="right-align">@string.Format("{0:N}", rpt.DxSale)</td>
                 <td class="right-align">@string.Format("{0:N}", rpt.UxSale)</td>
                 <td class="right-align">@string.Format("{0:N}", rpt.IkSale)</td>
                 <td class="right-align">@string.Format("{0:N}", rpt.VpSale)</td>
-                <td class="right-align bold-text yellow">@string.Format("{0:N}", rpt.Sale)</td>
+                <td class="right-align bold-text yellow br-wheat">@string.Format("{0:N}", rpt.Sale)</td>
+
                 <td class="right-align">@string.Format("{0:N}", rpt.DxCredit)</td>
                 <td class="right-align">@string.Format("{0:N}", rpt.UxCredit)</td>
                 <td class="right-align">@string.Format("{0:N}", rpt.IkCredit)</td>
                 <td class="right-align">@string.Format("{0:N}", rpt.VpCredit)</td>
-                <td class="right-align bold-text yellow">@string.Format("{0:N}", rpt.Credit)</td>
+                <td class="right-align bold-text yellow br-wheat">@string.Format("{0:N}", rpt.Credit)</td>
+
                 <td class="right-align">@string.Format("{0:N}", rpt.Cash)</td>
                 <td class="right-align">@string.Format("{0:N}", rpt.Discount)</td>
                 <td class="right-align">@string.Format("{0:N}", rpt.OxCredit)</td>
                 <td class="right-align">@string.Format("{0:N}", rpt.Transport)</td>
-                <td class="right-align bold-text yellow">@string.Format("{0:N}", rpt.Lesses)</td>
+                <td class="right-align bold-text yellow br-wheat">@string.Format("{0:N}", rpt.Lesses)</td>
+
                 <td class="right-align">@string.Format("{0:N}", rpt.Lube)</td>
                 <td class="right-align">@string.Format("{0:N}", rpt.LubeCredit)</td>
                 <td class="right-align">@string.Format("{0:N}", rpt.Gas)</td>
                 <td class="right-align">@string.Format("{0:N}", rpt.GasVat)</td>
                 <td class="right-align">@string.Format("{0:N}", rpt.Soda)</td>
-                <td class="right-align bold-text yellow">@string.Format("{0:N}", rpt.Lube + rpt.LubeCredit + rpt.Gas + rpt.GasVat + rpt.Soda)</td>
+                <td class="right-align bold-text yellow br-wheat">@string.Format("{0:N}", rpt.Lube + rpt.LubeCredit + rpt.Gas + rpt.GasVat + rpt.Soda)</td>
+
                 <td class="right-align">@string.Format("{0:N}", rpt.Rent)</td>
                 <td class="right-align">@string.Format("{0:N}", rpt.Carwash)</td>
                 <td class="right-align">@string.Format("{0:N}", rpt.CarwashCredit)</td>
@@ -155,7 +173,7 @@
                 <td class="right-align">@string.Format("{0:N}", rpt.ServiceCredit)</td>
                 <td class="right-align">@string.Format("{0:N}", rpt.Tyre)</td>
                 <td class="right-align">@string.Format("{0:N}", rpt.TyreCredit)</td>
-                <td class="right-align bold-text yellow">@string.Format("{0:N}", rpt.Rent + rpt.Carwash + rpt.CarwashCredit + rpt.Service + rpt.ServiceCredit + rpt.Tyre + rpt.TyreCredit)</td>
+                <td class="right-align bold-text yellow br-wheat">@string.Format("{0:N}", rpt.Rent + rpt.Carwash + rpt.CarwashCredit + rpt.Service + rpt.ServiceCredit + rpt.Tyre + rpt.TyreCredit)</td>
             </tr>
         }
     </tbody>

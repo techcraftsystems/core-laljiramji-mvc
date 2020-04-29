@@ -71,7 +71,7 @@
         <tbody style="font-size:1em">
             @foreach (var ldg in Model.Ledger) {
                 <tr class="@(ldg.HasVariance ? "red-text" : "")">
-                    <td>@ldg.Delivery.Date.ToString("dd")</td>
+                    <td>@ldg.Delivery.Date.ToString("dd MMM").ToUpper()</td>
                     <td>COMBINED DELIVERY</td>
                     <td>@ldg.Delivery.Receipt</td>
                     <td>@ldg.Delivery.Station.Name.ToUpper()</td>
