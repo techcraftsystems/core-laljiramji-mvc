@@ -23,15 +23,19 @@ namespace Core.Controllers
         }
 
         [Route("core/stations/{name}")]
-        public IActionResult Main(String name, StationsService svc, CoreService csv)
+        public IActionResult Main(String name, StationsService svc, CoreService csv, string dt = "")
         {
+
             StationsListViewModel model = new StationsListViewModel();
             model.Selected = svc.GetStation(name);
             model.Stations = svc.GetStations();
-            model.Totals = svc.GetLedgerTotals(model.Selected, model.Selected.Push);
-            model.Readings = svc.GetMetreReadings(model.Selected, model.Selected.Push);
-            model.Summaries = svc.GetSummaries(model.Selected, model.Selected.Push);
-            model.Ledgers = svc.GetCustomersSummaries(model.Selected, model.Selected.Push);
+
+            model.Date = (string.IsNullOrEmpty(dt) ? model.Selected.Push : DateTime.Parse(dt));
+
+            model.Totals = svc.GetLedgerTotals(model.Selected, model.Date);
+            model.Readings = svc.GetMetreReadings(model.Selected, model.Date);
+            model.Summaries = svc.GetSummaries(model.Selected, model.Date);
+            model.Ledgers = svc.GetCustomersSummaries(model.Selected, model.Date);
             model.Customers = csv.GetCustomers(model.Selected.Name);
 
             return View(model);

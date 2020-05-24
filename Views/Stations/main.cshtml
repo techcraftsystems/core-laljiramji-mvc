@@ -117,7 +117,7 @@
 <script src="~/js/vendor.sparkline.min.js"></script>
 
 <script>
-    var xDate = new Date('@Model.Selected.Push.Date');
+    var xDate = new Date('@Model.Date');
     var xIdnt = @Model.Selected.Id;
     var xCode = '@Model.Selected.Code';
 
@@ -444,11 +444,11 @@
                 <div class="fc-toolbar">
                     <div class="fc-left">
                         <div class="fc-button-group">
-                            <button type="button" class="fc-prev-button fc-button fc-state-default fc-corner-left">
+                            <button type="button" class="fc-prev-button fc-button fc-button-date fc-state-default fc-corner-left" data-date="@(Model.Date.AddDays(-1).ToString("yyyy-MM-dd"))">
                                 <span class="fc-icon fc-icon-left-single-arrow"></span>
                             </button>
-                            <button type="button" class="fc-today-button fc-button fc-state-default fc-corner-left fc-corner-right">@Model.Selected.Push.ToString("dd.MM.yyyy")</button>
-                            <button type="button" class="fc-next-button fc-button fc-state-default fc-corner-right">
+                            <button type="button" class="fc-today-button fc-button fc-state-default fc-corner-left fc-corner-right">@Model.Date.ToString("dd.MM.yyyy")</button>
+                            <button type="button" class="fc-next-button fc-button fc-button-date fc-state-default fc-corner-right" data-date="@(Model.Date.AddDays(1).ToString("yyyy-MM-dd"))">
                                 <span class="fc-icon fc-icon-right-single-arrow"></span>
                             </button>
                         </div>

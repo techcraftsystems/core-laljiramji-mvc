@@ -73,6 +73,11 @@ jq(function() {
     jq('.get-payments a').click(function(){
         GetCustomerPayments();
     });
+
+    //Scroll Dates
+    jq('button.fc-button-date').click(function(){
+        window.location.href = "/core/stations/" + xCode + "?dt=" + jq(this).data('date');
+    });
 });
 
 function GetStationsReconciles(){

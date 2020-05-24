@@ -7,6 +7,7 @@ namespace Core.ViewModel
 {
     public class StationsListViewModel
     {
+        public DateTime Date { get; set; }
         public Stations Selected { get; set; }
         public LedgerTotals Totals { get; set; }
         public List<Stations> Stations { get; set; }
@@ -18,6 +19,7 @@ namespace Core.ViewModel
         public Int64 Month { get; set; }
 
         public StationsListViewModel(){
+            Date = DateTime.Now;
             Selected = new Stations();
             Totals = new LedgerTotals();
             Stations = new List<Stations>();
