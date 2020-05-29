@@ -68,4 +68,12 @@ $(function() {
         window.location.href = route + station + "?from=" + from + "&to=" + to; 
     });
 
+    jq('#modal82 .modal-footer .modal-post').click(function() {
+        var station =   jq('#modal82 .modal-station :selected').val();
+        var from =		jq('#modal82 .modal-start').val();
+        var to =		jq('#modal82 .modal-stop').val();
+
+        window.location.href = route + "?st=" + (station == "" ? "all" : station) + "&from=" + from + "&to=" + to; 
+    });
+
 });

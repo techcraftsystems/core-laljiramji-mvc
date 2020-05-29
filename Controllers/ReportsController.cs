@@ -16,10 +16,12 @@ namespace Core.Controllers
     public class ReportsController : Controller
     {
         private readonly IProductService IProductService;
+        private readonly ISalesService ISalesService;
         private readonly StationsService IStationsService = new StationsService();
 
-        public ReportsController(IProductService product) {
+        public ReportsController(IProductService product, ISalesService sales) {
             IProductService = product;
+            ISalesService = sales;
         }
 
         [Route("/reports")]
@@ -155,7 +157,7 @@ namespace Core.Controllers
             return View(model);
         }
 
-        [Route("reports/stock/transfers/{month}/{year}")]
+        [Route("/reports/stock/transfers/{month}/{year}")]
         public IActionResult StocksTransferred(int month, int year, SalesTransferLedgerViewModel model) {
             model.Date = new DateTime(year, month, 1);
             model.Ledger = new StationsService().GetProductsTransfers(model.Date, model.Date.AddMonths(1).AddDays(-1));
@@ -163,7 +165,7 @@ namespace Core.Controllers
             return View(model);
         }
 
-        [Route("reports/stocks/quantity/{code}/{catg}/{month}/{year}")]
+        [Route("/reports/stocks/quantity/{code}/{catg}/{month}/{year}")]
         public IActionResult StocksQuantity(string code, string catg, int month, int year, ReportProductSales model, StationsService service) {
             model.Date = new DateTime(year, month, 1);
             model.Station = service.GetStation(code);
@@ -176,7 +178,7 @@ namespace Core.Controllers
             return View(model);
         }
 
-        [Route("reports/stocks/amount/{code}/{catg}/{month}/{year}")]
+        [Route("/reports/stocks/amount/{code}/{catg}/{month}/{year}")]
         public IActionResult StocksAmount(string code, string catg, int month, int year, ReportProductSales model, StationsService service) {
             model.Date = new DateTime(year, month, 1);
             model.Station = service.GetStation(code);
@@ -189,7 +191,7 @@ namespace Core.Controllers
             return View(model);
         }
 
-        [Route("reports/delivery/variance/{code}/{month}/{year}")]
+        [Route("/reports/delivery/variance/{code}/{month}/{year}")]
         public IActionResult DeliveryVariance(string code, int month, int year, DeliveryVarianceViewModel model)
         {
             model.Date = new DateTime(year, month, 1);
@@ -200,13 +202,24 @@ namespace Core.Controllers
             return View(model);
         }
 
-        [Route("reports/banking/variance/{code}/{month}/{year}")]
+        [Route("/reports/banking/variance/{code}/{month}/{year}")]
         public IActionResult BankingVariance(string code, int month, int year, DeliveryVarianceViewModel model)
         {
             model.Date = new DateTime(year, month, 1);
             model.Station = IStationsService.GetStation(code);
             model.Ledger = IStationsService.GetBankingVariances(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1));
             model.Codes = IStationsService.GetStationCodesIEnumerable();
+
+            return View(model);
+        }
+
+        [Route("/reports/petty-cash")]
+        public IActionResult PettyCash(string st, string from, string to, PettyCashReportViewModel model) {
+            model.Selected = st;
+            model.FromDate = DateTime.Parse(from);
+            model.ToDate = DateTime.Parse(to);
+            model.Codes = IStationsService.GetStationCodesIEnumerable();
+            model.PettyCash = ISalesService.GetPettyCash(model.FromDate, model.ToDate, st);
 
             return View(model);
         }

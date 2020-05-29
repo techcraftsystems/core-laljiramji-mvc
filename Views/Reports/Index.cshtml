@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Reports";
     int month = DateTime.Now.Month - 1;
+    var first = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
     var months = new List<SelectListItem>();
     for (int ix = 0; ix < 12; ix++)
     {
@@ -15,6 +16,7 @@
 }
 
 <style>
+
     ul.report-icons li {
         margin-top: 20px
     }
@@ -307,6 +309,13 @@
                     <p>Banking Variance</p>
                 </div>
             </li>
+
+            <li class="deep-orange-text">
+                <div class="waves-effect waves-light modal-trigger multiple-trigger" data-target="modal82" data-trigger="/reports/petty-cash">
+                    <i class="material-icons medium icon-demo">account_balance_wallet</i>
+                    <p>Petty Cash Report</p>
+                </div>
+            </li>
         </ul>
     </div>
 </div>
@@ -564,6 +573,38 @@
             <div class="input-field col s6">
                 <i class="material-icons prefix">date_range</i>
                 <input id="" type="text" class="datepicker modal-start" value="@DateTime.Now.AddDays(-1).ToString("d MMMM, yyyy")" />
+                <label>From</label>
+            </div>
+
+            <div class="input-field col s6">
+                <i class="material-icons prefix">date_range</i>
+                <input id="" type="text" class="datepicker modal-stop" value="@DateTime.Now.ToString("d MMMM, yyyy")" />
+                <label>To</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
+        <a class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
+    </div>
+</div>
+
+<!--8.2-->
+<div id="modal82" class="modal modal-fixed-footer" style="width: 600px">
+    <div class="modal-content">
+        <h4>Report Details</h4>
+        <p>Specify the below Parameters to generate the Report</p>
+        <div class="row">
+            <div class="input-field col s12">
+                <i class="material-icons prefix">local_gas_station</i>
+                @Html.DropDownListFor(model => model.Station.Code, Model.StationCodes, "All Stations", new { @class = "modal-station" })
+                <label>Select Station</label>
+            </div>
+
+            <div class="input-field col s6">
+                <i class="material-icons prefix">date_range</i>
+                <input id="" type="text" class="datepicker modal-start" value="@first.ToString("d MMMM, yyyy")" />
                 <label>From</label>
             </div>
 
