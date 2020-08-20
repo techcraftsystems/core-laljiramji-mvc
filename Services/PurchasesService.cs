@@ -246,14 +246,16 @@ namespace Core.Services
 
         public List<FuelPurchasesLedger> GetStocksPurchasesLedgers(Stations station, DateTime start, DateTime stop, string filter) {
             var ledger = new List<FuelPurchasesLedger>();
-
             SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("USE " + station.Prefix.Replace(".dbo.", "") + "; DECLARE @start DATE='" + start.Date + "', @stop DATE='" + stop.Date + "';SELECT id, date_, qty, price, tax, Category, Items, SuppInv, Supp, ISNULL(Names,'CASH')Names FROM PurchasesDetails INNER JOIN pProducts ON id_=item_id INNER JOIN Purchases ON PurNum=PurNo LEFT OUTER JOIN Suppliers ON Supp=Suppid " + conn.GetQueryString(filter, "CAST(qty*price AS NVARCHAR)+'-'+Category+'-'+Items+'-'+SuppInv+'-'+ISNULL(Names,'CASH')", "id_>10 AND date_ BETWEEN @start AND @stop") + " ORDER BY date_, SuppInv, Items");
+
+            string q = conn.GetQueryString(filter, "CAST(qty*price AS NVARCHAR)+'-'+Category+'-'+Items+'-'+SuppInv+'-'+ISNULL(Names,'CASH')", "date_ BETWEEN '" + start.Date + "' AND '" + stop.Date + "'");
+            if (station != null)
+                q += " AND st=" + station.Id;
+
+            SqlDataReader dr = conn.SqlServerConnect("SELECT id, date_, qty, ISNULL(price,0)price, tax, Category, Items, SuppInv, Supp, Names, st_idnt, st_code, st_name FROM vStocksLedger INNER JOIN Stations ON st=st_idnt " + q + " ORDER BY date_, SuppInv, Items");
             if (dr.HasRows) {
                 while (dr.Read()) {
                     FuelPurchasesLedger item = new FuelPurchasesLedger {
-                        Station = station,
-
                         Id = Convert.ToInt64(dr[0]),
                         Date = Convert.ToDateTime(dr[1]).ToString("dd-MMM"),
                         Ltrs = Convert.ToDouble(dr[2]),
@@ -262,10 +264,14 @@ namespace Core.Services
                         Category = dr[5].ToString(),
                         Description = dr[6].ToString(),
                         Invoice = dr[7].ToString(),
-
                         Supplier = new Suppliers {
                             Id = Convert.ToInt64(dr[8]),
                             Name = dr[9].ToString()
+                        },
+                        Station = new Stations {
+                            Id = Convert.ToInt64(dr[10]),
+                            Code = dr[11].ToString(),
+                            Name = dr[12].ToString()
                         }
                     };
 

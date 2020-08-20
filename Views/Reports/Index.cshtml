@@ -175,8 +175,22 @@
         <ul class="report-icons">
             <li class="light-blue-text">
                 <div class="waves-effect waves-light modal-trigger multiple-trigger" data-target="modal31" data-trigger="/reports/vat/downloads">
-                    <i class="material-icons medium icon-demo">burst_mode</i>
-                    <p>Download CSVs</p>
+                    <i class="material-icons medium icon-demo">file_download</i>
+                    <p>Monthly CSVs</p>
+                </div>
+            </li>
+
+            <li class="light-blue-text">
+                <div class="waves-effect waves-light modal-trigger multiple-trigger" data-target="modal31" data-trigger="/reports/vat/downloads">
+                    <i class="material-icons medium icon-demo">file_download</i>
+                    <p>Yearly CSVs</p>
+                </div>
+            </li>
+
+            <li class="light-blue-text">
+                <div class="waves-effect waves-light modal-trigger multiple-trigger" data-target="modal31" data-trigger="/reports/vat/downloads">
+                    <i class="material-icons medium icon-demo">file_download</i>
+                    <p>Periodic CSVs</p>
                 </div>
             </li>
         </ul>
@@ -196,6 +210,13 @@
                 <div class="waves-effect waves-light redirect-trigger" data-route="/reports/stocks/ledger">
                     <i class="material-icons medium icon-demo">playlist_play</i>
                     <p>Stock Ledger</p>
+                </div>
+            </li>
+
+            <li class="light-blue-text">
+                <div class="waves-effect waves-light modal-trigger multiple-trigger" data-target="modal33" data-trigger="/reports/stocks/variance/">
+                    <i class="material-icons medium icon-demo">playlist_add_check</i>
+                    <p>Stock Variance</p>
                 </div>
             </li>
 
@@ -304,7 +325,7 @@
             </li>
 
             <li class="deep-orange-text">
-                <div class="waves-effect waves-light modal-trigger multiple-trigger" data-target="modal32" data-trigger="/reports/banking/variance/">
+                <div class="waves-effect waves-light modal-trigger multiple-trigger" data-target="modal33" data-trigger="/reports/banking/variance/">
                     <i class="material-icons medium icon-demo">money_off</i>
                     <p>Banking Variance</p>
                 </div>
@@ -314,6 +335,25 @@
                 <div class="waves-effect waves-light modal-trigger multiple-trigger" data-target="modal82" data-trigger="/reports/petty-cash">
                     <i class="material-icons medium icon-demo">account_balance_wallet</i>
                     <p>Petty Cash Report</p>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <!--Column 11-->
+    <div class="col-md-1">
+        <ul class="report-icons">
+            <li class="deep-orange-text">
+                <div class="waves-effect waves-light modal-trigger multiple-trigger" data-target="modal32" data-trigger="/reports/delivery/variance/">
+                    <i class="material-icons medium icon-demo">folder_shared</i>
+                    <p>Supplier Balances</p>
+                </div>
+            </li>
+
+            <li class="deep-orange-text">
+                <div class="waves-effect waves-light modal-trigger multiple-trigger" data-target="modal32" data-trigger="/reports/delivery/variance/">
+                    <i class="material-icons medium icon-demo">next_week</i>
+                    <p>Supplier Aging</p>
                 </div>
             </li>
         </ul>
@@ -442,6 +482,37 @@
             <div class="input-field col s12">
                 <i class="material-icons prefix">local_gas_station</i>
                 @Html.DropDownListFor(model => model.Station.Code, Model.StationCodes, new { @class = "modal-station" })
+                <label>Select Station</label>
+            </div>
+
+            <div class="input-field col s12 m7">
+                <i class="material-icons prefix">class</i>
+                @Html.DropDownListFor(model => month, months, new { @class = "modal-months" })
+                <label>Select Station</label>
+            </div>
+
+            <div class="input-field col s12 m5">
+                <i class="material-icons prefix">event_note</i>
+                <input class="modal-year validate" type="number" value="@DateTime.Now.Year" />
+                <label>Specify Year</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect waves-red btn-flat ">Disagree</a>
+        <a class="modal-action modal-close modal-post waves-effect waves-green btn-flat ">Agree</a>
+    </div>
+</div>
+
+<div id="modal33" class="modal modal-fixed-footer" style="width: 500px">
+    <div class="modal-content">
+        <h4>Report Details</h4>
+        <p>Specify the below Parameters to generate the Report</p>
+        <div class="row">
+            <div class="input-field col s12">
+                <i class="material-icons prefix">local_gas_station</i>
+                @Html.DropDownListFor(model => model.Station.Code, Model.StationCodes, "All Stations", new { @class = "modal-station" })
                 <label>Select Station</label>
             </div>
 

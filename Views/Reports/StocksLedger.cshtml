@@ -30,7 +30,7 @@
 <div class="row" style="margin-top: 10px; margin-bottom: 0px;">
     <div class="input-field col-md-2">
         <i class="material-icons prefix">local_gas_station</i>
-        @Html.DropDownListFor(model => model.Code, Model.Stations, new { @class = "modal-station" })
+        @Html.DropDownListFor(model => model.Code, Model.Stations, "All Stations", new { @class = "modal-station" })
     </div>
 
     <div class="input-field col-md-2">
@@ -77,6 +77,7 @@
                 <th class="right-text">EXCL</th>
                 <th class="right-text">VAT</th>
                 <th class="right-text">ZERO</th>
+                <th>STATION</th>
             </tr>
         </thead>
         <tbody style="font-size:0.8em">
@@ -87,20 +88,21 @@
                 ledger.Vats += ldg.Vats;
                 ledger.Zero += ldg.Zero;
 
-                <tr>
-                    <td>@ldg.Date</td>
-                    <td class="right-text">@string.Format("{0:N}", ldg.Ltrs)</td>
-                    <td class="right-text">@string.Format("{0:N}", ldg.Price)</td>
-                    <td>@ldg.Category</td>
-                    <td>@ldg.Description</td>
-                    <td>@ldg.Invoice</td>
-                    <td>@ldg.Supplier.Name</td>
-                    <td class="right-text">@string.Format("{0:N}", ldg.Total)</td>
-                    <td class="bold-text right-text">@string.Format("{0:N}", cumm)</td>
-                    <td class="right-text">@string.Format("{0:N}", ldg.Excl)</td>
-                    <td class="right-text">@string.Format("{0:N}", ldg.Vats)</td>
-                    <td class="right-text">@string.Format("{0:N}", ldg.Zero)</td>
-                </tr>
+            <tr>
+                <td>@ldg.Date</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Ltrs)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Price)</td>
+                <td>@ldg.Category</td>
+                <td>@ldg.Description</td>
+                <td>@ldg.Invoice</td>
+                <td>@ldg.Supplier.Name</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Total)</td>
+                <td class="bold-text right-text">@string.Format("{0:N}", cumm)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Excl)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Vats)</td>
+                <td class="right-text">@string.Format("{0:N}", ldg.Zero)</td>
+                <td class="right-text">@(ldg.Station.Code.Equals("posta") ? "EMBU" : ldg.Station.Code.ToUpper())</td>
+            </tr>
             }
         </tbody>
 
@@ -113,6 +115,7 @@
                 <th class="right-text">@string.Format("{0:N}", ledger.Excl)</th>
                 <th class="right-text">@string.Format("{0:N}", ledger.Vats)</th>
                 <th class="right-text">@string.Format("{0:N}", ledger.Zero)</th>
+                <th>&nbsp;</th>
             </tr>
         </tfoot>
     </table>

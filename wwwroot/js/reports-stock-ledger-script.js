@@ -67,6 +67,7 @@ function GetStocksPurchasesLedgers(){
                 row += "<td class='right-text'>" + item.excl.toString().toAccounting() + "</td>";
                 row += "<td class='right-text'>" + item.vats.toString().toAccounting() + "</td>";
                 row += "<td class='right-text'>" + item.zero.toString().toAccounting() + "</td>";
+                row += "<td class='right-text'>" + (item.station.code == "posta" ? "EMBU" : item.station.code.toUpperCase()) + "</td>";
                 row += "</tr>";
 
                 jq('#ledger-table tbody').append(row);
@@ -82,6 +83,7 @@ function GetStocksPurchasesLedgers(){
             footr += "<th class='right-text'>" + excl.toString().toAccounting() + "</th>";
             footr += "<th class='right-text'>" + vats.toString().toAccounting() + "</th>";
             footr += "<th class='right-text'>" + zero.toString().toAccounting() + "</th>";
+            footr += "<th class='right-text'>&nbsp;</th>";
             footr += "</tr>";
 
             jq('#ledger-table tfoot').append(footr);

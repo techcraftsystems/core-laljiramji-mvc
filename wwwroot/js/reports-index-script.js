@@ -45,7 +45,17 @@ $(function() {
 
         month = eval(month)+1;
 
-        window.location.href = route + station + "/" + month + "/" + year; 
+        window.location.href = route + (station == "" ? "all" : station) + "/" + month + "/" + year; 
+    });
+
+    jq('#modal33 .modal-footer .modal-post').click(function () {
+        var station = jq('#modal33 .modal-station :selected').val();
+        var month = jq('#modal33 .modal-months :selected').val();
+        var year = jq('#modal33 .modal-year').val();
+
+        month = eval(month) + 1;
+
+        window.location.href = route + (station == "" ? "all" : station) + "/" + month + "/" + year;
     });
 
     jq('#modal61 .modal-footer .modal-post').click(function() {

@@ -191,6 +191,17 @@ namespace Core.Controllers
             return View(model);
         }
 
+        [Route("/reports/stocks/variance/{code}/{month}/{year}")]
+        public IActionResult StocksVariance(string code, int month, int year, DeliveryVarianceViewModel model)
+        {
+            model.Date = new DateTime(year, month, 1);
+            model.Station = code.Equals("all") ? new Stations { Id = 0, Name = "All Stations" } : IStationsService.GetStation(code);
+            model.Ledger = IStationsService.GetStockSalesVariances(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1));
+            model.Codes = IStationsService.GetStationCodesIEnumerable();
+
+            return View(model);
+        }
+
         [Route("/reports/delivery/variance/{code}/{month}/{year}")]
         public IActionResult DeliveryVariance(string code, int month, int year, DeliveryVarianceViewModel model)
         {
@@ -206,7 +217,7 @@ namespace Core.Controllers
         public IActionResult BankingVariance(string code, int month, int year, DeliveryVarianceViewModel model)
         {
             model.Date = new DateTime(year, month, 1);
-            model.Station = IStationsService.GetStation(code);
+            model.Station = code.Equals("all") ? new Stations { Id=0, Name = "All Stations"} : IStationsService.GetStation(code);
             model.Ledger = IStationsService.GetBankingVariances(model.Station, model.Date, model.Date.AddMonths(1).AddDays(-1));
             model.Codes = IStationsService.GetStationCodesIEnumerable();
 
@@ -225,7 +236,7 @@ namespace Core.Controllers
         }
 
         [Route("reports/purchases/variance/{code}/{month}/{year}")]
-        public IActionResult StocksVariance(string code, int month, int year, ReportPurchaseVariance model, StationsService service) {
+        public IActionResult PurchasesVariance(string code, int month, int year, ReportPurchaseVariance model, StationsService service) {
             model.Date = new DateTime(year, month, 1);
             model.Station = service.GetStation(code);
             model.Stations = service.GetStationCodesIEnumerable();

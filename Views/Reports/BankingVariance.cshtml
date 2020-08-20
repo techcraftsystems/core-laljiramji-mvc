@@ -1,6 +1,8 @@
 ﻿@model Core.ReportModel.DeliveryVarianceViewModel;
 @{
     ViewData["Title"] = "Banking Variance";
+    var Ledger = new DeliveryVariance();
+
     DateTime dt = new DateTime(DateTime.Now.Year, 1, 1);
 
     int month = DateTime.Now.Month - 1;
@@ -58,6 +60,7 @@
                 <th colspan="2" class="center-text">LUBES BANKING</th>
                 <th colspan="2" class="center-text">SODA BANKING</th>
                 <th colspan="2" class="center-text">GAS BANKING</th>
+                <th colspan="3" class="center-text">BANKING VARIANCES</th>
             </tr>
             <tr>
                 <th class="center-text">CORE</th>
@@ -66,12 +69,23 @@
                 <th class="center-text">STATION</th>
                 <th class="center-text">CORE</th>
                 <th class="center-text">STATION</th>
+                <th class="center-text">LUBES</th>
+                <th class="center-text">SODA</th>
+                <th class="center-text">GAS</th>
             </tr>
         </thead>
-        <tbody style="font-size:1em">
-            @foreach (var ldg in Model.Ledger) {
-                <tr class="@(ldg.HasVariance ? "red-text" : "")">
-                    <td>@ldg.Delivery.Date.ToString("dd MMM").ToUpper()</td>
+        <tbody style="font-size:0.7em">
+            @foreach (var ldg in Model.Ledger)
+            {
+                Ledger.Delivery.Amount += ldg.Delivery.Amount;
+                Ledger.Variance.Amount += ldg.Variance.Amount;
+                Ledger.Delivery.Expense += ldg.Delivery.Expense;
+                Ledger.Variance.Expense += ldg.Variance.Expense;
+                Ledger.Delivery.Banking += ldg.Delivery.Banking;
+                Ledger.Variance.Banking += ldg.Variance.Banking;
+
+                <tr class="@(ldg.HasVariance ? "bold-text" : "")">
+                    <td>@ldg.Delivery.Date.ToString("ddMMM").ToUpper()</td>
                     <td>COMBINED DELIVERY</td>
                     <td>@ldg.Delivery.Receipt</td>
                     <td>@ldg.Delivery.Station.Name.ToUpper()</td>
@@ -81,19 +95,31 @@
                     <td class="center-text">@string.Format("{0:N}", ldg.Variance.Expense)</td>
                     <td class="center-text">@string.Format("{0:N}", ldg.Delivery.Banking)</td>
                     <td class="center-text">@string.Format("{0:N}", ldg.Variance.Banking)</td>
+                    <td class="center-text red-text">@((ldg.Delivery.Amount - ldg.Variance.Amount).ToString("#,#00.00;(#,#00.00);—"))</td>
+                    <td class="center-text red-text">@((ldg.Delivery.Expense - ldg.Variance.Expense).ToString("#,#00.00;(#,#00.00);—"))</td>
+                    <td class="center-text red-text">@((ldg.Delivery.Banking - ldg.Variance.Banking).ToString("#,#00.00;(#,#00.00);—"))</td>
                 </tr>
             }
 
             @if (Model.Ledger.Count.Equals(0)) {
                 <tr>
-                    <td colspan="10" class="center-text">NO ENTRIES FOUND</td>
+                    <td colspan="13" class="center-text">NO ENTRIES FOUND</td>
                 </tr>
             }
         </tbody>
 
-        <tfoot class="deep-orange accent-2 white-text">
+        <tfoot class="deep-orange accent-2 white-text" style="font-size:0.8em">
             <tr>
-                <th colspan="10">&nbsp;</th>
+                <th colspan="4">&nbsp;</th>
+                <th class="center-text">@string.Format("{0:N}", Ledger.Delivery.Amount)</th>
+                <th class="center-text">@string.Format("{0:N}", Ledger.Variance.Amount)</th>
+                <th class="center-text">@string.Format("{0:N}", Ledger.Delivery.Expense)</th>
+                <th class="center-text">@string.Format("{0:N}", Ledger.Variance.Expense)</th>
+                <th class="center-text">@string.Format("{0:N}", Ledger.Delivery.Banking)</th>
+                <th class="center-text">@string.Format("{0:N}", Ledger.Variance.Banking)</th>
+                <th class="center-text">@((Ledger.Delivery.Amount - Ledger.Variance.Amount).ToString("#,#00.00;(#,#00.00);—"))</th>
+                <th class="center-text">@((Ledger.Delivery.Expense - Ledger.Variance.Expense).ToString("#,#00.00;(#,#00.00);—"))</th>
+                <th class="center-text">@((Ledger.Delivery.Banking - Ledger.Variance.Banking).ToString("#,#00.00;(#,#00.00);—"))</th>
             </tr>
         </tfoot>
     </table>
@@ -106,7 +132,7 @@
         <div class="row">
             <div class="input-field col s12">
                 <i class="material-icons prefix">local_gas_station</i>
-                @Html.DropDownListFor(model => model.Station.Code, Model.Codes, new { @class = "modal-station" })
+                @Html.DropDownListFor(model => model.Station.Code, Model.Codes, "All Stations", new { @class = "modal-station" })
                 <label>Select Station</label>
             </div>
 

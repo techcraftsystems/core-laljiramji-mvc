@@ -56,9 +56,10 @@
                 <th rowspan="2" class="bottom-text">TYPE</th>
                 <th rowspan="2" class="bottom-text">DELV</th>
                 <th rowspan="2" class="bottom-text">STATION</th>
-                <th colspan="2" class="center-text">AMT COLLECTED</th>
+                <th colspan="2" class="center-text">S/T SALES</th>
                 <th colspan="2" class="center-text">PETTY CASH</th>
                 <th colspan="2" class="center-text">AMT BANKED</th>
+                <th colspan="3" class="center-text">TOTAL VARIANCES</th>
             </tr>
             <tr>
                 <th class="center-text">CORE</th>
@@ -67,34 +68,40 @@
                 <th class="center-text">STATION</th>
                 <th class="center-text">CORE</th>
                 <th class="center-text">STATION</th>
+                <th class="center-text">SALES</th>
+                <th class="center-text">P/CASH</th>
+                <th class="center-text">BANKED</th>
             </tr>
         </thead>
         <tbody style="font-size:1em">
             @foreach (var ldg in Model.Ledger) {
-                <tr class="@(ldg.HasVariance ? "red-text" : "")">
-                    <td>@ldg.Delivery.Date.ToString("dd MMM").ToUpper()</td>
-                    <td>FUEL DELIVERY</td>
-                    <td>@ldg.Delivery.Receipt</td>
-                    <td>@ldg.Delivery.Station.Name.ToUpper()</td>
-                    <td class="center-text">@string.Format("{0:N}", ldg.Delivery.Amount)</td>
-                    <td class="center-text">@string.Format("{0:N}", ldg.Variance.Amount)</td>
-                    <td class="center-text">@string.Format("{0:N}", ldg.Delivery.Expense)</td>
-                    <td class="center-text">@string.Format("{0:N}", ldg.Variance.Expense)</td>
-                    <td class="center-text">@string.Format("{0:N}", ldg.Delivery.Banking)</td>
-                    <td class="center-text">@string.Format("{0:N}", ldg.Variance.Banking)</td>
-                </tr>
+            <tr class="@(ldg.HasVariance ? "bold-text" : "")">
+                <td>@ldg.Delivery.Date.ToString("dd MMM").ToUpper()</td>
+                <td>FUEL DELIVERY</td>
+                <td>@ldg.Delivery.Receipt</td>
+                <td>@(ldg.Delivery.Station.Code.Equals("posta") ? "EMBU" : ldg.Delivery.Station.Code.ToUpper())</td>
+                <td class="center-text">@string.Format("{0:N}", ldg.Delivery.Amount)</td>
+                <td class="center-text">@string.Format("{0:N}", ldg.Variance.Amount)</td>
+                <td class="center-text">@string.Format("{0:N}", ldg.Delivery.Expense)</td>
+                <td class="center-text">@string.Format("{0:N}", ldg.Variance.Expense)</td>
+                <td class="center-text">@string.Format("{0:N}", ldg.Delivery.Banking)</td>
+                <td class="center-text">@string.Format("{0:N}", ldg.Variance.Banking)</td>
+                <td class="center-text red-text">@((ldg.Delivery.Amount - ldg.Variance.Amount).ToString("#,#00.00;(#,#00.00);0.00"))</td>
+                <td class="center-text red-text">@((ldg.Delivery.Expense - ldg.Variance.Expense).ToString("#,#00.00;(#,#00.00);0.00"))</td>
+                <td class="center-text red-text">@((ldg.Delivery.Banking - ldg.Variance.Banking).ToString("#,#00.00;(#,#00.00);0.00"))</td>
+            </tr>
             }
 
             @if (Model.Ledger.Count.Equals(0)) {
                 <tr>
-                    <td colspan="10" class="center-text">NO ENTRIES FOUND</td>
+                    <td colspan="13" class="center-text">NO ENTRIES FOUND</td>
                 </tr>
             }
         </tbody>
 
         <tfoot class="deep-orange accent-2 white-text">
             <tr>
-                <th colspan="10">&nbsp;</th>
+                <th colspan="13">&nbsp;</th>
             </tr>
         </tfoot>
     </table>

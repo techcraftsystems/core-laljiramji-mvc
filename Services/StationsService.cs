@@ -1396,12 +1396,16 @@ namespace Core.Services
             return variance;
         }
 
-        public List<DeliveryVariance> GetBankingVariances(Stations station, DateTime start, DateTime ended)
+        public List<DeliveryVariance> GetBankingVariances(Stations station, DateTime start, DateTime stops)
         {
             List<DeliveryVariance> variance = new List<DeliveryVariance>();
+            string q = "WHERE dlv_date BETWEEN '" + start.Date + "' AND '" + stops.Date + "'";
+
+            if (!(station == null || string.IsNullOrEmpty(station.Code)))
+                q += " AND dlv_station=" + station.Id;
 
             SqlServerConnection conn = new SqlServerConnection();
-            SqlDataReader dr = conn.SqlServerConnect("USE " + station.Prefix.Replace(".dbo.", "") + "; DECLARE @start DATE='" + start.Date + "', @ended DATE='" + ended.Date + "', @st INT=" + station.Id + "; SELECT 0 dlv_idnt, ISNULL(dlv_date, bk_date)dlv_date, ISNULL(dlvr_rcpt,'X') dlv_rcpt, ISNULL(SUM(CASE WHEN dlv_type=2 THEN dlv_amount ELSE 0 END),0) dlv_lubes, ISNULL(SUM(CASE WHEN dlv_type=3 THEN dlv_amount ELSE 0 END),0) dlv_soda, ISNULL(SUM(CASE WHEN dlv_type IN (4,5) THEN dlv_amount ELSE 0 END),0) dlv_gas, st_idnt, st_code, st_name, ISNULL(bk_lubes,0) bk_lubes, ISNULL(bk_soda,0) bk_soda, ISNULL(bk_gas,0) bk_gas FROM core_system.dbo.Delivery INNER JOIN core_system.dbo.Stations ON st_idnt=@st INNER JOIN core_system.dbo.vDeliveryReceiptsOthers ON dlv_date=dlvr_date AND dlvr_station=@st LEFT OUTER JOIN core_system.dbo.vDeliveryPettyCash ON dlv_idnt = pc_delv FULL OUTER JOIN (SELECT bk_date, SUM(bk_lubes)bk_lubes, SUM(bk_soda)bk_soda, SUM(bk_gas+bk_other_1)bk_gas FROM Banking WHERE bk_date BETWEEN @start AND @ended GROUP BY bk_date) As Foo ON bk_date=dlv_date WHERE dlv_type<>1 AND dlv_station=@st AND dlv_date BETWEEN @start AND @ended GROUP BY dlv_date, dlvr_rcpt, bk_date, st_idnt, st_code, st_name, bk_lubes, bk_gas, bk_soda ORDER BY ISNULL(dlv_date, bk_date)");
+            SqlDataReader dr = conn.SqlServerConnect("SELECT 0 idnt, dlv_date, ISNULL(dlvr_rcpt,'X')dlvr_rcpt, dlv_lubes, dlv_soda, dlv_gas, st_idnt, CASE WHEN st_code='posta' THEN 'EMBU' ELSE st_code END st_code, st_name, st_lubes, st_soda, st_gas FROM vBankingVariance INNER JOIN Stations ON st_idnt=dlv_station LEFT OUTER JOIN vBankingVarianceRcpts ON dlvr_date=dlv_date AND dlvr_station=dlv_station " + q + " ORDER BY dlv_date, st_name");
             if (dr.HasRows) {
                 while (dr.Read()) {
                     DeliveryVariance dv = new DeliveryVariance {
@@ -1422,6 +1426,52 @@ namespace Core.Services
                             Amount = Convert.ToDouble(dr[9]),
                             Expense = Convert.ToDouble(dr[10]),
                             Banking = Convert.ToDouble(dr[11])
+                        }
+                    };
+
+                    if (!dv.Delivery.Amount.Equals(dv.Variance.Amount) || !dv.Delivery.Expense.Equals(dv.Variance.Expense) || !dv.Delivery.Banking.Equals(dv.Variance.Banking))
+                        dv.HasVariance = true;
+
+                    variance.Add(dv);
+                }
+            }
+
+            return variance;
+        }
+
+        public List<DeliveryVariance> GetStockSalesVariances(Stations station, DateTime start, DateTime stops) {
+            List<DeliveryVariance> variance = new List<DeliveryVariance>();
+            string q = "WHERE st_date BETWEEN '" + start.Date + "' AND '" + stops.Date + "'";
+
+            if (!(station == null || string.IsNullOrEmpty(station.Code)))
+                q += " AND stid=" + station.Id;
+
+            SqlServerConnection conn = new SqlServerConnection();
+            SqlDataReader dr = conn.SqlServerConnect("SELECT 0 idnt, st_date, SUM(sl_lubes)sl_lubes, SUM(sl_gas)sl_gas, SUM(sl_soda)sl_soda, st_idnt, st_code, st_name, SUM(bk_lubes)bk_lubes, SUM(bk_gas)bk_gas, SUM(bk_soda)bk_soda, SUM(dlv_lubes)dlv_lubes, SUM(dlv_gas)dlv_gas, SUM(dlv_soda)dlv_soda FROM vStocksVariances INNER JOIN Stations ON st_idnt=stid " + q + " GROUP BY stid, st_idnt, st_code, st_name, st_date ORDER BY st_date, st_name");
+            if (dr.HasRows) {
+                while (dr.Read()) {
+                    DeliveryVariance dv = new DeliveryVariance {
+                        Delivery = new Delivery {
+                            Id = Convert.ToInt64(dr[0]),
+                            Date = Convert.ToDateTime(dr[1]),
+                            Amount = Convert.ToDouble(dr[2]),
+                            Expense = Convert.ToDouble(dr[3]),
+                            Banking = Convert.ToDouble(dr[4]),
+                            Station = new Stations {
+                                Id = Convert.ToInt64(dr[5]),
+                                Code = dr[6].ToString(),
+                                Name = dr[7].ToString(),
+                            }
+                        },
+                        Variance = new Delivery {
+                            Amount = Convert.ToDouble(dr[8]),
+                            Expense = Convert.ToDouble(dr[9]),
+                            Banking = Convert.ToDouble(dr[10])
+                        },
+                        Recorded = new Delivery {
+                            Amount = Convert.ToDouble(dr[11]),
+                            Expense = Convert.ToDouble(dr[12]),
+                            Banking = Convert.ToDouble(dr[13])
                         }
                     };
 

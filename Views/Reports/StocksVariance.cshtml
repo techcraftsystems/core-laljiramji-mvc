@@ -1,321 +1,168 @@
-﻿@model Core.ViewModel.ReportPurchaseVariance;
+﻿@model Core.ReportModel.DeliveryVarianceViewModel;
 @{
-    ViewData["Title"] = "Purchase Variance";
-    var StartDate = new DateTime(Model.Date.Year, 1, 1);
-    var summ = new Core.Models.ProductsLedger();
-    int month = (Model.Date.Month) - 1;
+    ViewData["Title"] = "Sales/Banking Variance";
+    var Ledger = new DeliveryVariance();
+
+    DateTime dt = new DateTime(DateTime.Now.Year, 1, 1);
+
+    int month = (DateTime.Now.Month) - 1;
     var months = new List<SelectListItem>();
-    double cumm = 0;
     for (int ix = 0; ix < 12; ix++) {
         months.Add(new SelectListItem {
             Value = ix.ToString(),
-            Text = StartDate.AddMonths(ix).ToString("MMMM")
+            Text = dt.AddMonths(ix).ToString("MMMM"),
+            Selected = dt.AddMonths(ix).Month.Equals(DateTime.Now.Month) ? true : false
         });
     }
 }
 
-<script>var route = "/reports/purchases/variance/";</script>
+<script>var route = '/reports/stocks/variance/';</script>
 <script src="~/js/reports-index-script.js"></script>
-
-<style type="text/css">
-    #breadcrumbs-wrapper {
-        position: absolute;
-        top: 48px;
-        left: 0;
-        right: 0
-    }
-    #breadcrumbs-wrapper .breadcrumbs {
-        padding: 0;
-        margin: 15px 0;
-        list-style: none
-    }
-    #breadcrumbs-wrapper .breadcrumbs > li + li:before {
-        padding: 0
-    }
-    #breadcrumbs-wrapper .breadcrumbs-btn {
-        top: 10px
-    }
-</style>
 
 <div id="breadcrumbs-wrapper">
     <div class="container">
         <div class="row zero-margin">
             <div class="col s10 m6 l6">
                 <ol class="breadcrumbs">
-                    <li><a class="blue-text" href="/reports">Variance Report</a></li>
-                    <li><a class="blue-text" href="/core/stations/@Model.Station.Code.ToLower()">@Model.Station.Name</a></li>
+                    <li><a href="/reports">Reports</a></li>
+                    <li><a href="">Stocks</a></li>
+                    <li><a href="">Sales & Banking</a></li>
+                    <li><a href="">Variance</a></li>
                     <li class="active">@Model.Date.ToString("MMMM yyyy")</li>
                 </ol>
             </div>
             <div class="col s2 m6 l6">
-                <a class="btn dropdown-settings waves-effect waves-light breadcrumbs-btn right gradient-45deg-light-blue-cyan gradient-shadow pointer modal-trigger multiple-trigger" data-target="modal32" data-trigger="/reports/stocks/variance/">
+                <div class="btn dropdown-settings waves-effect waves-light breadcrumbs-btn right gradient-45deg-light-blue-cyan gradient-shadow pointer modal-trigger multiple-trigger" data-target="modal33" data-trigger="/reports/stocks/variance/">
                     <i class="material-icons hide-on-med-and-up">settings</i>
                     <span class="hide-on-small-onl">CHANGE</span>
                     <i class="material-icons right">arrow_drop_down</i>
-                </a>
+                </div>
             </div>
         </div>
     </div>
 </div>
 <div style="clear:both; margin-top:55px;"></div>
 
-@if (Model.Diesel.Count > 0) {
-    cumm = 0;
-    summ = new ProductsLedger();
-
-    <div class="card zero-margin" style="margin-bottom:10px;">
-        <div class="card-content deep-orange accent-2 white-text table-card" style="border-radius: 0">
-            <h5 class="card-stats-number"><i class="material-icons left">add_shopping_cart</i>DIESEL</h5>
-            <p class="card-stats-compare right">
-                <i class="material-icons left">history</i>
-                <span class="deep-orange-text text-lighten-5 opening-balance">Variance</span>
-            </p>
-        </div>
-
-        <table id="ledger-table" class="custom bordered" data-loaded="0" style="margin-top:-20px">
-            <thead class="deep-orange accent-2">
-                <tr>
-                    <th style="width:1px">DATE</th>
-                    <th>FUEL</th>
-                    <th>NARRATION</th>
-                    <th class="right-text">PURCHASE</th>
-                    <th class="right-text">DELIVERY</th>
-                    <th class="right-text">OVERPUMP</th>
-                    <th class="right-text">VARIANCE</th>
-                    <th class="right-text">CUMMULATIVE</th>
-                </tr>
-            </thead>
-            <tbody style="font-size:1em">
-                @foreach (var itm in Model.Diesel) {
-                    cumm += (itm.Purchase - itm.Delivery - itm.Overpump);
-                    summ.Delivery += itm.Delivery;
-                    summ.Purchase += itm.Purchase;
-                    summ.Overpump += itm.Overpump;
-                    <tr>
-                        <td class="center-text">@itm.Date.ToString("dd")</td>
-                        <td><a class="blue-text pointer">@itm.Product.Name LTS</a></td>
-                        <td>N/A</td>
-                        <td class="right-text">@string.Format("{0:N}", itm.Purchase)</td>
-                        <td class="right-text">@string.Format("{0:N}", itm.Delivery)</td>
-                        <td class="right-text">@string.Format("{0:N}", itm.Overpump)</td>
-                        <td class="right-text">@string.Format("{0:N}", itm.Purchase - itm.Delivery - itm.Overpump)</td>
-                        <td class="right-text bold-text red-text">@string.Format("{0:N}", cumm)</td>
-                    </tr>
-                }
-            </tbody>
-            <tfoot class="deep-orange accent-2 white-text">
-                <tr>
-                    <th></th>
-                    <th colspan="2">DIESEL SUMMARY</th>
-                    <th class="right-text">@string.Format("{0:N}", summ.Purchase)</th>
-                    <th class="right-text">@string.Format("{0:N}", summ.Delivery)</th>
-                    <th class="right-text">@string.Format("{0:N}", summ.Overpump)</th>
-                    <th class="right-text">@string.Format("{0:N}", cumm)</th>
-                    <th class="right-text">@string.Format("{0:N}", cumm)</th>
-                </tr>
-            </tfoot>
-        </table>
+<div class="card zero-margin">
+    <div class="card-content deep-orange accent-2 white-text table-card" style="border-radius: 0">
+        <h5 class="card-stats-number"><i class="material-icons left">add_shopping_cart</i> &nbsp; Sales/Banking Variances</h5>
+        <p class="card-stats-compare right">
+            <i class="material-icons left">local_gas_station</i>
+            <span class="deep-orange-text text-lighten-5 opening-balance">@Model.Station.Name</span>
+        </p>
     </div>
-}
 
-@if (Model.Super.Count > 0) {
-    cumm = 0;
-    summ = new ProductsLedger();
+    <table id="ledger-table" class="custom bordered" data-loaded="0" style="margin-top:-20px">
+        <thead class="deep-orange accent-2">
+            <tr>
+                <th rowspan="2" class="bottom-text">DATE</th>
+                <th rowspan="2" class="bottom-text">STATION</th>
+                <th colspan="3" class="center-text">LUBES SALES</th>
+                <th colspan="3" class="center-text">GAS SALES</th>
+                <th colspan="3" class="center-text">SODA SALES</th>
+                <th colspan="3" class="center-text">TOTAL VARIANCES</th>
+            </tr>
+            <tr>
+                <th class="center-text">SALES</th>
+                <th class="center-text">BANK</th>
+                <th class="center-text">DELV</th>
+                <th class="center-text">SALES</th>
+                <th class="center-text">BANK</th>
+                <th class="center-text">DELV</th>
+                <th class="center-text">SALES</th>
+                <th class="center-text">BANK</th>
+                <th class="center-text">DELV</th>
+                <th class="center-text">LUBES</th>
+                <th class="center-text">GAS</th>
+                <th class="center-text">SODA</th>
+            </tr>
+        </thead>
+        <tbody style="font-size:1em">
+            @foreach (var ldg in Model.Ledger)
+            {
+                Ledger.Delivery.Amount += ldg.Delivery.Amount;
+                Ledger.Variance.Amount += ldg.Variance.Amount;
+                Ledger.Recorded.Amount += ldg.Recorded.Amount;
+                Ledger.Delivery.Expense += ldg.Delivery.Expense;
+                Ledger.Variance.Expense += ldg.Variance.Expense;
+                Ledger.Recorded.Expense += ldg.Recorded.Expense;
+                Ledger.Delivery.Banking += ldg.Delivery.Banking;
+                Ledger.Variance.Banking += ldg.Variance.Banking;
+                Ledger.Recorded.Banking += ldg.Recorded.Banking;
 
-    <div class="card zero-margin" style="margin-bottom:10px;">
-        <div class="card-content deep-orange accent-2 white-text table-card" style="border-radius: 0">
-            <h5 class="card-stats-number"><i class="material-icons left">add_shopping_cart</i>SUPER</h5>
-            <p class="card-stats-compare right">
-                <i class="material-icons left">history</i>
-                <span class="deep-orange-text text-lighten-5 opening-balance">Variance</span>
-            </p>
-        </div>
+                <tr class="@(ldg.HasVariance ? "bold-text" : "")">
+                    <td>@ldg.Delivery.Date.ToString("dd MMM").ToUpper()</td>
+                    <td>@(ldg.Delivery.Station.Code.Equals("posta") ? "EMBU" : ldg.Delivery.Station.Code.ToUpper())</td>
+                    <td class="center-text">@string.Format("{0:N}", ldg.Delivery.Amount)</td>
+                    <td class="center-text">@string.Format("{0:N}", ldg.Variance.Amount)</td>
+                    <td class="center-text">@string.Format("{0:N}", ldg.Recorded.Amount)</td>
 
-        <table id="ledger-table" class="custom bordered" data-loaded="0" style="margin-top:-20px">
-            <thead class="deep-orange accent-2">
-                <tr>
-                    <th style="width:1px">DATE</th>
-                    <th>FUEL</th>
-                    <th>NARRATION</th>
-                    <th class="right-text">PURCHASE</th>
-                    <th class="right-text">DELIVERY</th>
-                    <th class="right-text">OVERPUMP</th>
-                    <th class="right-text">VARIANCE</th>
-                    <th class="right-text">CUMMULATIVE</th>
+                    <td class="center-text">@string.Format("{0:N}", ldg.Delivery.Expense)</td>
+                    <td class="center-text">@string.Format("{0:N}", ldg.Variance.Expense)</td>
+                    <td class="center-text">@string.Format("{0:N}", ldg.Recorded.Expense)</td>
+
+                    <td class="center-text">@string.Format("{0:N}", ldg.Delivery.Banking)</td>
+                    <td class="center-text">@string.Format("{0:N}", ldg.Variance.Banking)</td>
+                    <td class="center-text">@string.Format("{0:N}", ldg.Recorded.Banking)</td>
+
+                    <td class="center-text red-text">@((ldg.Delivery.Amount - ldg.Variance.Amount).ToString("#,#00.00;(#,#00.00);0.00"))</td>
+                    <td class="center-text red-text">@((ldg.Delivery.Expense - ldg.Variance.Expense).ToString("#,#00.00;(#,#00.00);0.00"))</td>
+                    <td class="center-text red-text">@((ldg.Delivery.Banking - ldg.Variance.Banking).ToString("#,#00.00;(#,#00.00);0.00"))</td>
                 </tr>
-            </thead>
-            <tbody style="font-size:1em">
-                @foreach (var itm in Model.Super) {
-                    cumm += (itm.Purchase - itm.Delivery - itm.Overpump);
-                    summ.Delivery += itm.Delivery;
-                    summ.Purchase += itm.Purchase;
-                    summ.Overpump += itm.Overpump;
-                    <tr>
-                        <td class="center-text">@itm.Date.ToString("dd")</td>
-                        <td><a class="blue-text pointer">@itm.Product.Name LTS</a></td>
-                        <td>N/A</td>
-                        <td class="right-text">@string.Format("{0:N}", itm.Purchase)</td>
-                        <td class="right-text">@string.Format("{0:N}", itm.Delivery)</td>
-                        <td class="right-text">@string.Format("{0:N}", itm.Overpump)</td>
-                        <td class="right-text">@string.Format("{0:N}", itm.Purchase - itm.Delivery - itm.Overpump)</td>
-                        <td class="right-text bold-text red-text">@string.Format("{0:N}", cumm)</td>
-                    </tr>
-                }
-            </tbody>
-            <tfoot class="deep-orange accent-2 white-text">
+            }
+
+            @if (Model.Ledger.Count.Equals(0))
+            {
                 <tr>
-                    <th></th>
-                    <th colspan="2">SUPER SUMMARY</th>
-                    <th class="right-text">@string.Format("{0:N}", summ.Purchase)</th>
-                    <th class="right-text">@string.Format("{0:N}", summ.Delivery)</th>
-                    <th class="right-text">@string.Format("{0:N}", summ.Overpump)</th>
-                    <th class="right-text">@string.Format("{0:N}", cumm)</th>
-                    <th class="right-text">@string.Format("{0:N}", cumm)</th>
+                    <td colspan="14" class="center-text">NO ENTRIES FOUND</td>
                 </tr>
-            </tfoot>
-        </table>
-    </div>
-}
+            }
+        </tbody>
 
-@if (Model.Vpower.Count > 0) {
-    cumm = 0;
-    summ = new ProductsLedger();
+        <tfoot class="deep-orange accent-2 white-text">
+            <tr>
+                <th colspan="2">&nbsp;</th>
+                <th class="center-text">@string.Format("{0:N}", Ledger.Delivery.Amount)</th>
+                <th class="center-text">@string.Format("{0:N}", Ledger.Variance.Amount)</th>
+                <th class="center-text">@string.Format("{0:N}", Ledger.Recorded.Amount)</th>
 
-    <div class="card zero-margin" style="margin-bottom:10px;">
-        <div class="card-content deep-orange accent-2 white-text table-card" style="border-radius: 0">
-            <h5 class="card-stats-number"><i class="material-icons left">add_shopping_cart</i>V-POWER</h5>
-            <p class="card-stats-compare right">
-                <i class="material-icons left">history</i>
-                <span class="deep-orange-text text-lighten-5 opening-balance">Variance</span>
-            </p>
-        </div>
+                <th class="center-text">@string.Format("{0:N}", Ledger.Delivery.Expense)</th>
+                <th class="center-text">@string.Format("{0:N}", Ledger.Variance.Expense)</th>
+                <th class="center-text">@string.Format("{0:N}", Ledger.Recorded.Expense)</th>
 
-        <table id="ledger-table" class="custom bordered" data-loaded="0" style="margin-top:-20px">
-            <thead class="deep-orange accent-2">
-                <tr>
-                    <th style="width:1px">DATE</th>
-                    <th>FUEL</th>
-                    <th>NARRATION</th>
-                    <th class="right-text">PURCHASE</th>
-                    <th class="right-text">DELIVERY</th>
-                    <th class="right-text">OVERPUMP</th>
-                    <th class="right-text">VARIANCE</th>
-                    <th class="right-text">CUMMULATIVE</th>
-                </tr>
-            </thead>
-            <tbody style="font-size:1em">
-                @foreach (var itm in Model.Vpower) {
-                    cumm += (itm.Purchase - itm.Delivery - itm.Overpump);
-                    summ.Delivery += itm.Delivery;
-                    summ.Purchase += itm.Purchase;
-                    summ.Overpump += itm.Overpump;
-                    <tr>
-                        <td class="center-text">@itm.Date.ToString("dd")</td>
-                        <td><a class="blue-text pointer">@itm.Product.Name LTS</a></td>
-                        <td>N/A</td>
-                        <td class="right-text">@string.Format("{0:N}", itm.Purchase)</td>
-                        <td class="right-text">@string.Format("{0:N}", itm.Delivery)</td>
-                        <td class="right-text">@string.Format("{0:N}", itm.Overpump)</td>
-                        <td class="right-text">@string.Format("{0:N}", itm.Purchase - itm.Delivery - itm.Overpump)</td>
-                        <td class="right-text bold-text red-text">@string.Format("{0:N}", cumm)</td>
-                    </tr>
-                }
-            </tbody>
-            <tfoot class="deep-orange accent-2 white-text">
-                <tr>
-                    <th></th>
-                    <th colspan="2">V-POWER SUMMARY</th>
-                    <th class="right-text">@string.Format("{0:N}", summ.Purchase)</th>
-                    <th class="right-text">@string.Format("{0:N}", summ.Delivery)</th>
-                    <th class="right-text">@string.Format("{0:N}", summ.Overpump)</th>
-                    <th class="right-text">@string.Format("{0:N}", cumm)</th>
-                    <th class="right-text">@string.Format("{0:N}", cumm)</th>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
-}
+                <th class="center-text">@string.Format("{0:N}", Ledger.Delivery.Banking)</th>
+                <th class="center-text">@string.Format("{0:N}", Ledger.Variance.Banking)</th>
+                <th class="center-text">@string.Format("{0:N}", Ledger.Recorded.Banking)</th>
 
-@if (Model.Kerosene.Count > 0) {
-    cumm = 0;
-    summ = new ProductsLedger();
+                <th class="center-text">@((Ledger.Delivery.Amount - Ledger.Variance.Amount).ToString("#,#00.00;(#,#00.00);—"))</th>
+                <th class="center-text">@((Ledger.Delivery.Expense - Ledger.Variance.Expense).ToString("#,#00.00;(#,#00.00);—"))</th>
+                <th class="center-text">@((Ledger.Delivery.Banking - Ledger.Variance.Banking).ToString("#,#00.00;(#,#00.00);—"))</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
 
-    <div class="card zero-margin" style="margin-bottom:10px;">
-        <div class="card-content deep-orange accent-2 white-text table-card" style="border-radius: 0">
-            <h5 class="card-stats-number"><i class="material-icons left">add_shopping_cart</i>KEROSENE</h5>
-            <p class="card-stats-compare right">
-                <i class="material-icons left">history</i>
-                <span class="deep-orange-text text-lighten-5 opening-balance">Variance</span>
-            </p>
-        </div>
-
-        <table id="ledger-table" class="custom bordered" data-loaded="0" style="margin-top:-20px">
-            <thead class="deep-orange accent-2">
-                <tr>
-                    <th style="width:1px">DATE</th>
-                    <th>FUEL</th>
-                    <th>NARRATION</th>
-                    <th class="right-text">PURCHASE</th>
-                    <th class="right-text">DELIVERY</th>
-                    <th class="right-text">OVERPUMP</th>
-                    <th class="right-text">VARIANCE</th>
-                    <th class="right-text">CUMMULATIVE</th>
-                </tr>
-            </thead>
-            <tbody style="font-size:1em">
-                @foreach (var itm in Model.Kerosene) {
-                    cumm += (itm.Purchase - itm.Delivery - itm.Overpump);
-                    summ.Delivery += itm.Delivery;
-                    summ.Purchase += itm.Purchase;
-                    summ.Overpump += itm.Overpump;
-                    <tr>
-                        <td class="center-text">@itm.Date.ToString("dd")</td>
-                        <td><a class="blue-text pointer">@itm.Product.Name LTS</a></td>
-                        <td>N/A</td>
-                        <td class="right-text">@string.Format("{0:N}", itm.Purchase)</td>
-                        <td class="right-text">@string.Format("{0:N}", itm.Delivery)</td>
-                        <td class="right-text">@string.Format("{0:N}", itm.Overpump)</td>
-                        <td class="right-text">@string.Format("{0:N}", itm.Purchase - itm.Delivery - itm.Overpump)</td>
-                        <td class="right-text bold-text red-text">@string.Format("{0:N}", cumm)</td>
-                    </tr>
-                }
-            </tbody>
-            <tfoot class="deep-orange accent-2 white-text">
-                <tr>
-                    <th></th>
-                    <th colspan="2">KEROSENE SUMMARY</th>
-                    <th class="right-text">@string.Format("{0:N}", summ.Purchase)</th>
-                    <th class="right-text">@string.Format("{0:N}", summ.Delivery)</th>
-                    <th class="right-text">@string.Format("{0:N}", summ.Overpump)</th>
-                    <th class="right-text">@string.Format("{0:N}", cumm)</th>
-                    <th class="right-text">@string.Format("{0:N}", cumm)</th>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
-}
-
-<div id="modal32" class="modal modal-fixed-footer" style="width: 500px">
+<div id="modal33" class="modal modal-fixed-footer" style="width: 500px">
     <div class="modal-content">
         <h4>Report Details</h4>
         <p>Specify the below Parameters to generate the Report</p>
         <div class="row">
             <div class="input-field col s12">
                 <i class="material-icons prefix">local_gas_station</i>
-                @Html.DropDownListFor(model => model.Station.Code, Model.Stations, new { @class = "modal-station" })
-                <label>Station</label>
+                @Html.DropDownListFor(model => model.Station.Code, Model.Codes, "All Stations", new { @class = "modal-station" })
+                <label>Select Station</label>
             </div>
 
             <div class="input-field col s12 m7">
                 <i class="material-icons prefix">class</i>
                 @Html.DropDownListFor(model => month, months, new { @class = "modal-months" })
-                <label>Month</label>
+                <label>Select Station</label>
             </div>
 
             <div class="input-field col s12 m5">
                 <i class="material-icons prefix">event_note</i>
                 <input class="modal-year validate" type="number" value="@DateTime.Now.Year" />
-                <label>Year</label>
+                <label>Specify Year</label>
             </div>
         </div>
     </div>

@@ -75,12 +75,14 @@ namespace Core.Models {
         public bool HasVariance { get; set; }
         public Delivery Delivery { get; set; }
         public Delivery Variance { get; set; }
+        public Delivery Recorded { get; set; }
 
         public DeliveryVariance()
         {
             HasVariance = false;
             Delivery = new Delivery();
             Variance = new Delivery();
+            Recorded = new Delivery();
         }
     }
 }
